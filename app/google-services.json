@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "625723955132",
+    "project_id": "koogle-3d520",
+    "storage_bucket": "koogle-3d520.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:625723955132:android:e03cd56dc99b68b164bdb9",
+        "android_client_info": {
+          "package_name": "kr.ac.konkuk.koogle"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "625723955132-kcgsd19ldbt2icje0ec9jaeq8hdp7vio.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "kr.ac.konkuk.koogle",
+            "certificate_hash": "c7ef690eac5a3cef2b30aa9e0005a6fda15c9116"
+          }
+        },
+        {
+          "client_id": "625723955132-1jmsgl5q4g0o7038r1i963jofn7f57ct.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBP1KKJTDSlxSO48MutENHPeTbF67rnodc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "625723955132-1jmsgl5q4g0o7038r1i963jofn7f57ct.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
