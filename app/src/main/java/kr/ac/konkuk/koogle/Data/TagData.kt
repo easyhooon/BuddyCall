@@ -1,4 +1,4 @@
-package kr.ac.konkuk.koogle
+package kr.ac.konkuk.koogle.Data
 
 import java.io.Serializable
 

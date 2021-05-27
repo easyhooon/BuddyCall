@@ -2,6 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/test_gray"
+    android:gravity="center_vertical"
     android:orientation="horizontal"
     android:padding="10dp">
 
@@ -9,19 +11,16 @@
         android:id="@+id/mainTagText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:text="TextView" />
+        android:layout_weight="2"
+        android:gravity="center"
+        android:text="TextView"
+        android:textColor="@color/black" />
 
-    <TableLayout
+    <LinearLayout
         android:id="@+id/subTagView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="2">
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-    </TableLayout>
+        android:layout_weight="5"
+        android:orientation="vertical" />
 
 </LinearLayout>
