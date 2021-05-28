@@ -21,12 +21,6 @@
             android:layout_marginStart="16dp"
             android:src="@drawable/ic_baseline_dehaze_24" />
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="260dp"
-            android:src="@drawable/ic_baseline_profile_24" />
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -35,6 +29,12 @@
             android:textColor="@color/black"
             android:textSize="20sp"
             android:textStyle="bold" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="280dp"
+            android:src="@drawable/ic_baseline_profile_24" />
     </LinearLayout>
 
     <View
