@@ -15,7 +15,7 @@ class SplashActivity : AppCompatActivity() {
             //1초 뒤에 일어날 액션을 구현
             val intent = Intent(this@SplashActivity, LogInActivity::class.java)
             startActivity(intent)
-            finish() // 현재 액티비티를 파괴 (다음에 쓰지 않기 때문에
+            finish() // 현재 액티비티를 파괴 (다음에 쓰지 않기 때문에)
         }, 1000)
     }
 }
