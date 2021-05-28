@@ -14,7 +14,8 @@
         android:theme="@style/Theme.Koogle">
         <activity android:name=".SignUpActivity" />
         <activity android:name=".LogInActivity" />
-        <activity android:name=".ProfileActivity" />
+        <activity android:name=".ProfileActivity">
+        </activity>
         <activity android:name=".ChatRoomActivity" />
         <activity android:name=".SplashActivity">
             <intent-filter>

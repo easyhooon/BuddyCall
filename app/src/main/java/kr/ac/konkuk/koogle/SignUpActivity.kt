@@ -30,18 +30,18 @@ class SignUpActivity : AppCompatActivity() {
             val email = binding.emailEditText.text.toString()
             val password = binding.passwordEditText.text.toString()
 
-            if(name.isEmpty()){
+            if (name.isEmpty()) {
                 Toast.makeText(this, LogInActivity.ENTER_EMAIL, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
 
-            if(email.isEmpty()){
+            if (email.isEmpty()) {
                 Toast.makeText(this, LogInActivity.ENTER_EMAIL, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            if(password.isEmpty()){
+            if (password.isEmpty()) {
                 Toast.makeText(this, LogInActivity.ENTER_PASSWORD, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }

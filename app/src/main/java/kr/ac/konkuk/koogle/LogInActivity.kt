@@ -59,12 +59,12 @@ class LogInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLis
             val email = binding.emailEditText.text.toString()
             val password = binding.passwordEditText.text.toString()
 
-            if(email.isEmpty()){
+            if (email.isEmpty()) {
                 Toast.makeText(this, ENTER_EMAIL, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            if(password.isEmpty()){
+            if (password.isEmpty()) {
                 Toast.makeText(this, ENTER_PASSWORD, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
@@ -111,6 +111,7 @@ class LogInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLis
                 override fun onCancel() {
 
                 }
+
                 override fun onSuccess(result: LoginResult) {
                     // 로그인이 성공적 -> 로그인 엑세스 토큰을 가져온 다음에 파이어베이스에 넘김
                     // 정상적으로 로그인 되었을 때는 result로 null이 내려오지 않을 것이기 때문에 result에 ?을 제거
@@ -120,19 +121,25 @@ class LogInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLis
                             if (task.isSuccessful) {
                                 handleSuccessSocialLogin()
                             } else {
-                                Toast.makeText(this@LogInActivity, FACEBOOK_LOGIN_FAIL, Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    this@LogInActivity,
+                                    FACEBOOK_LOGIN_FAIL,
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         }
                 }
+
                 override fun onError(error: FacebookException?) {
                     //콜백함수안에 있기 때문에 @LogInActivity에서 this를 가져왔다고 명시를 해줘야함
-                    Toast.makeText(this@LogInActivity, FACEBOOK_LOGIN_FAIL, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@LogInActivity, FACEBOOK_LOGIN_FAIL, Toast.LENGTH_SHORT)
+                        .show()
                 }
             })
     }
 
     private fun handleSuccessSocialLogin() {
-        if(auth.currentUser == null) {
+        if (auth.currentUser == null) {
             startActivity(Intent(this, LogInActivity::class.java))
             return
         } else {
@@ -157,16 +164,15 @@ class LogInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLis
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         // Pass the activity result back to the Facebook SDK
-        if(requestCode == REG_SIGN_GOOGLE){
+        if (requestCode == REG_SIGN_GOOGLE) {
             val result = Auth.GoogleSignInApi.getSignInResultFromIntent(data)
             if (result != null) {
-                if(result.isSuccess){
+                if (result.isSuccess) {
                     val account = result.signInAccount
                     resultGoogleLogin(account)
                 }
             }
-        }
-        else{
+        } else {
             callbackManager.onActivityResult(requestCode, resultCode, data)
         }
     }
@@ -174,12 +180,12 @@ class LogInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLis
     private fun resultGoogleLogin(account: GoogleSignInAccount?) {
         val credential = GoogleAuthProvider.getCredential(account?.idToken, null)
         auth.signInWithCredential(credential)
-            .addOnCompleteListener(this, OnCompleteListener <AuthResult>(){
-                if(it.isSuccessful){
+            .addOnCompleteListener(this, OnCompleteListener<AuthResult>() {
+                if (it.isSuccessful) {
                     handleSuccessSocialLogin()
-                }
-                else {
-                    Toast.makeText(this@LogInActivity, FACEBOOK_LOGIN_FAIL, Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this@LogInActivity, FACEBOOK_LOGIN_FAIL, Toast.LENGTH_SHORT)
+                        .show()
                 }
             })
     }

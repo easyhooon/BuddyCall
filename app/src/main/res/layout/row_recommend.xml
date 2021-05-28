@@ -7,7 +7,7 @@
     android:orientation="horizontal">
 
     <ImageView
-        android:id="@+id/recommandUserProfileImage"
+        android:id="@+id/recommendUserProfileImage"
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_weight="0"
@@ -22,7 +22,7 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/recommandUserNameText"
+            android:id="@+id/recommendUserNameText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="0"
@@ -32,7 +32,7 @@
             android:textColor="@color/black" />
 
         <TextView
-            android:id="@+id/recommandText"
+            android:id="@+id/recommendText"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="0"
