@@ -27,6 +27,7 @@ import kr.ac.konkuk.koogle.databinding.ActivityLogInBinding
 
 class LogInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedListener {
 
+    private var backBtnTime: Long = 0 // 뒤로가기 두번 눌러 종료 용 변수
     private lateinit var auth: FirebaseAuth
 
     //페이스북 로그인버튼을 눌르면 페이스북 앱이 열림, 그리고 로그인 완료가 되면 다시 액티비티로 넘어옴(Activity Callback) -> onActivityResult 가 열림
@@ -72,6 +73,8 @@ class LogInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLis
                 .addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
                         startActivity(Intent(this, MainActivity::class.java))
+                        //이제 필요없는 화면이므로 파괴
+                        finish()
                     } else {
                         Toast.makeText(this, LOGIN_FAIL, Toast.LENGTH_SHORT).show()
                     }
@@ -157,6 +160,8 @@ class LogInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLis
             currentUserDB.updateChildren(user)
 
             startActivity(Intent(this, MainActivity::class.java))
+            //이제 필요없는 화면이므로 파괴
+            finish()
         }
     }
 
@@ -188,6 +193,20 @@ class LogInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLis
                         .show()
                 }
             })
+    }
+
+    //뒤로가기 두번 눌러 종료
+    override fun onBackPressed() {
+        val curTime = System.currentTimeMillis()
+        val gapTime: Long = curTime - backBtnTime
+
+        //뒤로가기를 한번 누른 후에 2초가 지나기전에 한번 더 눌렀을 경우 if문 진입
+        if (gapTime in 0..2000) {
+            super.onBackPressed()
+        } else {
+            backBtnTime = curTime
+            Toast.makeText(this, "한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show()
+        }
     }
 
     companion object {
