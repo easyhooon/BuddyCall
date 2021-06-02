@@ -6,6 +6,7 @@ import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import kr.ac.konkuk.koogle.LogInActivity.Companion.USER_NAME
 import kr.ac.konkuk.koogle.databinding.ActivitySignUpBinding
 
 class SignUpActivity : AppCompatActivity() {
@@ -26,11 +27,11 @@ class SignUpActivity : AppCompatActivity() {
 
     private fun initSignUpButton() {
         binding.signUpButton.setOnClickListener {
-            val name = binding.nameEditText.text.toString()
+            val username = binding.nameEditText.text.toString()
             val email = binding.emailEditText.text.toString()
             val password = binding.passwordEditText.text.toString()
 
-            if (name.isEmpty()) {
+            if (username.isEmpty()) {
                 Toast.makeText(this, LogInActivity.ENTER_EMAIL, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
@@ -45,10 +46,14 @@ class SignUpActivity : AppCompatActivity() {
                 Toast.makeText(this, LogInActivity.ENTER_PASSWORD, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
+                        val spf = getSharedPreferences(SIGN_UP, MODE_PRIVATE)
+                        val editor = spf.edit()
+                        editor.putString(USER_NAME, username)
+                        editor.commit()
+
                         Toast.makeText(this, SIGN_UP_SUCCESS, Toast.LENGTH_SHORT).show()
                         finish()
                     } else {
@@ -61,5 +66,6 @@ class SignUpActivity : AppCompatActivity() {
     companion object {
         const val SIGN_UP_SUCCESS = "회원가입을 성공했습니다. 로그인 버튼을 눌러 로그인해주세요."
         const val SIGN_UP_FAIL = "이미 가입한 이메일이거나, 회원가입에 실패했습니다."
+        const val SIGN_UP = "sign_up"
     }
 }

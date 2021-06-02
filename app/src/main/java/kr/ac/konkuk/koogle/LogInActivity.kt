@@ -13,13 +13,14 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
-import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.*
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import kr.ac.konkuk.koogle.DBKeys.Companion.USERS
+import kr.ac.konkuk.koogle.DBKeys.Companion.PROFILE_IMAGE
+import kr.ac.konkuk.koogle.DBKeys.Companion.USER
 import kr.ac.konkuk.koogle.DBKeys.Companion.USER_ID
+import kr.ac.konkuk.koogle.SignUpActivity.Companion.SIGN_UP
 import kr.ac.konkuk.koogle.databinding.ActivityLogInBinding
 
 class LogInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedListener {
@@ -33,6 +34,8 @@ class LogInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLis
 
     lateinit var binding: ActivityLogInBinding
 
+    lateinit var userName: String
+
     private lateinit var googleApiClient: GoogleApiClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,13 +46,20 @@ class LogInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLis
         //java에서 Firebase.getInstance()와 같이 Firebase Auth를 initialize 해주는 코드
         auth = Firebase.auth
 
-        //초기화
-        callbackManager = CallbackManager.Factory.create()
+        if (auth.currentUser != null) {
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
+        else{
+            //초기화
+            callbackManager = CallbackManager.Factory.create()
 
-        initLoginButton()
-        initSignUpButton()
-        initGoogleLoginButton()
-        initFacebookLoginButton()
+            initLoginButton()
+            initSignUpButton()
+            initGoogleLoginButton()
+            initFacebookLoginButton()
+        }
     }
 
     private fun initLoginButton() {
@@ -69,6 +79,11 @@ class LogInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLis
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
+                        val spf = getSharedPreferences(SIGN_UP, MODE_PRIVATE)
+                        if (spf.contains(USER_NAME)) {
+                            userName = spf.getString(USER_NAME, "닉네임").toString()
+                        }
+                        handleSuccessSignUp(userName, email)
                         startActivity(Intent(this, MainActivity::class.java))
                         //이제 필요없는 화면이므로 파괴
                         finish()
@@ -76,6 +91,7 @@ class LogInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLis
                         Toast.makeText(this, LOGIN_FAIL, Toast.LENGTH_SHORT).show()
                     }
                 }
+
         }
     }
 
@@ -86,7 +102,8 @@ class LogInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLis
     }
 
     private fun initGoogleLoginButton() {
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+        val gso = GoogleSignInOptions
+            .Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
             .build()
@@ -104,14 +121,10 @@ class LogInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLis
 
     private fun initFacebookLoginButton() {
         //유저에게 가져올 정보 -> 이메일과 프로필
-        binding.facebookLoginButton.setPermissions(EMAIL, PROFILE)
+        binding.facebookLoginButton.setPermissions(EMAIL,PROFILE)
         binding.facebookLoginButton.registerCallback(
             callbackManager,
             object : FacebookCallback<LoginResult> {
-                override fun onCancel() {
-
-                }
-
                 override fun onSuccess(result: LoginResult) {
                     // 로그인이 성공적 -> 로그인 엑세스 토큰을 가져온 다음에 파이어베이스에 넘김
                     // 정상적으로 로그인 되었을 때는 result로 null이 내려오지 않을 것이기 때문에 result에 ?을 제거
@@ -129,6 +142,7 @@ class LogInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLis
                             }
                         }
                 }
+                override fun onCancel() {}
 
                 override fun onError(error: FacebookException?) {
                     //콜백함수안에 있기 때문에 @LogInActivity에서 this를 가져왔다고 명시를 해줘야함
@@ -149,12 +163,12 @@ class LogInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLis
             val userEmail = auth.currentUser?.email.orEmpty()
             //reference가 최상위-> child child로 경로 지정
             //경로가 존재하지 않으면 생성, 있으면 그 경로를 가져옴
-            val currentUserDB = Firebase.database.reference.child(USERS).child(userId)
+            val userRef = Firebase.database.reference.child(USER).child(userId)
             val user = mutableMapOf<String, Any>()
             user[USER_ID] = userId
             user[USER_NAME] = userName
             user[USER_EMAIL] = userEmail
-            currentUserDB.updateChildren(user)
+            userRef.updateChildren(user)
 
             startActivity(Intent(this, MainActivity::class.java))
             //이제 필요없는 화면이므로 파괴
@@ -162,6 +176,29 @@ class LogInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLis
         }
     }
 
+    private fun handleSuccessSignUp(name: String, email: String) {
+        if (auth.currentUser == null) {
+            startActivity(Intent(this, LogInActivity::class.java))
+            return
+        } else {
+            //currentUser 는 nullable 이기 때문에 위에 예외처리하였음
+            val userReference = Firebase.database.reference.child(USER)
+            val userId = auth.currentUser?.uid.orEmpty()
+            //reference 가 최상위-> child child 로 경로 지정
+            //경로가 존재하지 않으면 생성, 있으면 그 경로를 가져옴
+            val userRef = userReference.child(userId)
+            val user = mutableMapOf<String, Any>()
+            user[USER_ID] = userId
+            user[USER_NAME] = name
+            user[USER_EMAIL] = email
+            user[PROFILE_IMAGE] = ""
+            userRef.updateChildren(user)
+
+            startActivity(Intent(this, LogInActivity::class.java))
+            //이제 필요없는 화면이므로 파괴
+            finish()
+        }
+    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
