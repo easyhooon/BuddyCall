@@ -36,10 +36,10 @@ class ProfileActivity : AppCompatActivity() {
     fun init() {
         initData()
         initTagRecyclerView()
-        initRecommandRecyclerView()
+        initRecommendRecyclerView()
     }
 
-    private fun initRecommandRecyclerView() {
+    private fun initRecommendRecyclerView() {
         recommendRecyclerView = findViewById(R.id.recommendRecyclerView)
         recommendRecyclerView.layoutManager = LinearLayoutManager(this)
         // 구분선 넣기
