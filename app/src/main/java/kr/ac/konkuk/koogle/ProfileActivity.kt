@@ -1,15 +1,28 @@
 package kr.ac.konkuk.koogle
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
 import kr.ac.konkuk.koogle.Adapter.RecommendAdapter
 import kr.ac.konkuk.koogle.Adapter.TagAdapter
+import kr.ac.konkuk.koogle.DBKeys.Companion.USER
 import kr.ac.konkuk.koogle.Data.TagData
+import kr.ac.konkuk.koogle.Model.UserItem
 import kr.ac.konkuk.koogle.databinding.ActivityProfileBinding
 
 /*
@@ -26,6 +39,15 @@ class ProfileActivity : AppCompatActivity() {
     lateinit var recommendRecyclerView: RecyclerView
     lateinit var tagAdapter: TagAdapter
     lateinit var recommendAdapter: RecommendAdapter
+
+    //파이어베이스 인증 객체 초기화
+    private val auth = Firebase.auth
+
+    //DB 객체 초기화
+    private val firebaseUser = auth.currentUser!!
+    private val storage = FirebaseStorage.getInstance()
+//    private val storageRef = storage.reference
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityProfileBinding.inflate(layoutInflater)
@@ -37,6 +59,56 @@ class ProfileActivity : AppCompatActivity() {
         initData()
         initTagRecyclerView()
         initRecommendRecyclerView()
+        initUserInfo()
+        initLogoutButton()
+
+    }
+
+    private fun initLogoutButton() {
+        //로그아웃 버튼을 누르면 로그아웃이 되고 LogInActivity 로 돌아감
+        binding.logoutButton.setOnClickListener { //파이어베이스에 연동된 계정 로그아웃 처리
+            FirebaseAuth.getInstance().signOut()
+            val intent = Intent(this@ProfileActivity, LogInActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
+    }
+
+    private fun initUserInfo() {
+        //입력 로그인용 유저의 데이터를 불러오기 위한 uid
+        val uid = firebaseUser.uid
+        val userRef = Firebase.database.reference.child(USER).child(uid)
+//        val userRef = FirebaseDatabase.getInstance().getReference(USER).child(uid)와 같다
+        Log.d("get uid", "userInfo: $uid")
+
+//        파이어베이스 데이터베이스의 정보 가져오기
+        userRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    val userItem: UserItem? = snapshot.getValue(UserItem::class.java)
+                    if (userItem != null) {
+                        Log.d("Data", "onDataChange: ${userItem.userId}")
+                    }
+                    if (userItem != null) {
+                        if (userItem.profile_image.isEmpty()) {
+                            binding.userProfileImage.setImageResource(R.drawable.profile_image)
+                        } else {
+                            Glide.with(binding.userProfileImage)
+                                .load(userItem.profile_image)
+                                .into(binding.userProfileImage)
+                        }
+                    }
+                    if (userItem != null) {
+                        binding.userNameText.text = userItem.user_name
+                    }
+                    if (userItem != null) {
+                        binding.userEmailText.text = userItem.user_email
+                    }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {}
+        })
     }
 
     private fun initRecommendRecyclerView() {

@@ -79,11 +79,11 @@ class LogInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLis
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
-                        val spf = getSharedPreferences(SIGN_UP, MODE_PRIVATE)
-                        if (spf.contains(USER_NAME)) {
-                            userName = spf.getString(USER_NAME, "닉네임").toString()
-                        }
-                        handleSuccessSignUp(userName, email)
+//                        val spf = getSharedPreferences(SIGN_UP, MODE_PRIVATE)
+//                        if (spf.contains(USER_NAME)) {
+//                            userName = spf.getString(USER_NAME, "닉네임").toString()
+//                        }
+//                        handleSuccessSignUp(userName, email)
                         startActivity(Intent(this, MainActivity::class.java))
                         //이제 필요없는 화면이므로 파괴
                         finish()
@@ -161,6 +161,7 @@ class LogInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLis
             val userId = auth.currentUser?.uid.orEmpty()
             val userName = auth.currentUser?.displayName.orEmpty()
             val userEmail = auth.currentUser?.email.orEmpty()
+            val userProfileImage = auth.currentUser?.photoUrl.toString()
             //reference가 최상위-> child child로 경로 지정
             //경로가 존재하지 않으면 생성, 있으면 그 경로를 가져옴
             val userRef = Firebase.database.reference.child(USER).child(userId)
@@ -168,33 +169,10 @@ class LogInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLis
             user[USER_ID] = userId
             user[USER_NAME] = userName
             user[USER_EMAIL] = userEmail
+            user[PROFILE_IMAGE] = userProfileImage
             userRef.updateChildren(user)
 
             startActivity(Intent(this, MainActivity::class.java))
-            //이제 필요없는 화면이므로 파괴
-            finish()
-        }
-    }
-
-    private fun handleSuccessSignUp(name: String, email: String) {
-        if (auth.currentUser == null) {
-            startActivity(Intent(this, LogInActivity::class.java))
-            return
-        } else {
-            //currentUser 는 nullable 이기 때문에 위에 예외처리하였음
-            val userReference = Firebase.database.reference.child(USER)
-            val userId = auth.currentUser?.uid.orEmpty()
-            //reference 가 최상위-> child child 로 경로 지정
-            //경로가 존재하지 않으면 생성, 있으면 그 경로를 가져옴
-            val userRef = userReference.child(userId)
-            val user = mutableMapOf<String, Any>()
-            user[USER_ID] = userId
-            user[USER_NAME] = name
-            user[USER_EMAIL] = email
-            user[PROFILE_IMAGE] = ""
-            userRef.updateChildren(user)
-
-            startActivity(Intent(this, LogInActivity::class.java))
             //이제 필요없는 화면이므로 파괴
             finish()
         }
