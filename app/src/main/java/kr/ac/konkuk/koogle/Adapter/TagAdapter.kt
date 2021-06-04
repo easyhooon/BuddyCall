@@ -10,17 +10,17 @@ import androidx.core.view.children
 import androidx.core.view.setMargins
 import androidx.recyclerview.widget.RecyclerView
 import kr.ac.konkuk.koogle.R
-import kr.ac.konkuk.koogle.Data.TagData
+import kr.ac.konkuk.koogle.Model.TagItem
 
 /*
     2021-05-27 주예진 작성
     프로필에서 표시되는 태그 Recycler View 의 row adapter
     대분류 태그(제목)와 소분류 태그를 표시
  */
-class TagAdapter(val context: Context, val items: ArrayList<TagData>) :
+class TagAdapter(val context: Context, val items: ArrayList<TagItem>) :
     RecyclerView.Adapter<TagAdapter.ViewHolder>() {
     interface OnItemClickListener {
-        fun onItemClick(holder: ViewHolder, view: View, data: TagData, position: Int)
+        fun onItemClick(holder: ViewHolder, view: View, data: TagItem, position: Int)
     }
 
     var itemClickListener: OnItemClickListener? = null
@@ -48,7 +48,7 @@ class TagAdapter(val context: Context, val items: ArrayList<TagData>) :
         }
 
         // 소분류 태그 테이블 생성
-        fun bind(item: TagData) {
+        fun bind(item: TagItem) {
             mainTagView.text = item.main_tag_name
             Log.e("jan", "START")
             for (tag in item.sub_tag_list) {
