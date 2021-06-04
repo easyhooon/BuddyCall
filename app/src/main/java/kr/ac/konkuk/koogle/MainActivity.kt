@@ -7,7 +7,7 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kr.ac.konkuk.koogle.Fragment.CommunityFragment
 import kr.ac.konkuk.koogle.Fragment.GroupFragment
-import kr.ac.konkuk.koogle.Fragment.TinderFragment
+import kr.ac.konkuk.koogle.Fragment.CardFragment
 
 class MainActivity : AppCompatActivity() {
 
@@ -17,7 +17,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val tinderFragment = TinderFragment()
+        val tinderFragment = CardFragment()
         val communityFragment = CommunityFragment()
         val groupFragment = GroupFragment()
 
