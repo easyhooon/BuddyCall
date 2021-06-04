@@ -1,13 +1,10 @@
 package kr.ac.konkuk.koogle.Fragment
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import kr.ac.konkuk.koogle.ProfileActivity
-import kr.ac.konkuk.koogle.R
 import kr.ac.konkuk.koogle.databinding.FragmentGroupBinding
 
 
@@ -21,15 +18,8 @@ class GroupFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         binding = FragmentGroupBinding.inflate(layoutInflater, container, false)
-        initProfileButton()
 
         return binding!!.root
     }
 
-    private fun initProfileButton() {
-        binding?.ProfileImage?.setOnClickListener {
-            val intent = Intent(context, ProfileActivity::class.java)
-            startActivity(intent)
-        }
-    }
 }

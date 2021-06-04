@@ -1,4 +1,4 @@
-package kr.ac.konkuk.koogle
+package kr.ac.konkuk.koogle.Activity
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -8,7 +8,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import kr.ac.konkuk.koogle.LogInActivity.Companion.USER_NAME
+import kr.ac.konkuk.koogle.DBKeys
 import kr.ac.konkuk.koogle.databinding.ActivitySignUpBinding
 
 class SignUpActivity : AppCompatActivity() {

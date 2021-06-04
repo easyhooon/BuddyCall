@@ -6,4 +6,7 @@
     <string name="summary">요약</string>
     <string name="search">검색</string>
     <string name="group_chat">그룹</string>
+    <string name="full_list">전체목록</string>
+    <string name="option">옵션</string>
+
 </resources>

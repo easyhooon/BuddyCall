@@ -1,6 +1,5 @@
 package kr.ac.konkuk.koogle.Fragment
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -11,8 +10,6 @@ import com.yuyakaido.android.cardstackview.CardStackLayoutManager
 import com.yuyakaido.android.cardstackview.CardStackListener
 import com.yuyakaido.android.cardstackview.Direction
 import kr.ac.konkuk.koogle.Adapter.CardItemAdapter
-import kr.ac.konkuk.koogle.ProfileActivity
-import kr.ac.konkuk.koogle.R
 import kr.ac.konkuk.koogle.databinding.FragmentCardBinding
 
 
@@ -30,7 +27,6 @@ class CardFragment : Fragment(), CardStackListener {
         binding = FragmentCardBinding.inflate(layoutInflater, container, false)
 
         initDB()
-        initProfileButton()
         initCardStackView()
 
         return binding!!.root
@@ -43,13 +39,6 @@ class CardFragment : Fragment(), CardStackListener {
     private fun initCardStackView() {
         binding?.cardStackView?.layoutManager = CardStackLayoutManager(context, this)
         binding?.cardStackView?.adapter = adapter
-    }
-
-    private fun initProfileButton() {
-        binding?.ProfileImage?.setOnClickListener {
-            val intent = Intent(context, ProfileActivity::class.java)
-            startActivity(intent)
-        }
     }
 
     override fun onCardSwiped(direction: Direction?) {

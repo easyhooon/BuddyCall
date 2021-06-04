@@ -1,4 +1,4 @@
-package kr.ac.konkuk.koogle
+package kr.ac.konkuk.koogle.Activity
 
 import android.content.Intent
 import android.os.Bundle
@@ -23,6 +23,7 @@ import kr.ac.konkuk.koogle.Adapter.TagAdapter
 import kr.ac.konkuk.koogle.DBKeys.Companion.USER
 import kr.ac.konkuk.koogle.Model.TagItem
 import kr.ac.konkuk.koogle.Model.UserItem
+import kr.ac.konkuk.koogle.R
 import kr.ac.konkuk.koogle.databinding.ActivityProfileBinding
 
 /*

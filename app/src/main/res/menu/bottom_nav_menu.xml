@@ -7,12 +7,12 @@
         />
 
     <item
-        android:id="@+id/nav_search"
+        android:id="@+id/nav_community"
         android:icon="@drawable/ic_baseline_search_24"
-        android:title="@string/search"/>
+        android:title="@string/full_list"/>
 
     <item
-        android:id="@+id/nav_group_chat"
+        android:id="@+id/nav_group"
         android:icon="@drawable/ic_baseline_comment_24"
         android:title="@string/group_chat"/>
 

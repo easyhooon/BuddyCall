@@ -1,4 +1,4 @@
-package kr.ac.konkuk.koogle
+package kr.ac.konkuk.koogle.Activity
 
 import android.content.Intent
 import android.os.Bundle
@@ -20,7 +20,7 @@ import com.google.firebase.ktx.Firebase
 import kr.ac.konkuk.koogle.DBKeys.Companion.PROFILE_IMAGE
 import kr.ac.konkuk.koogle.DBKeys.Companion.USER
 import kr.ac.konkuk.koogle.DBKeys.Companion.USER_ID
-import kr.ac.konkuk.koogle.SignUpActivity.Companion.SIGN_UP
+import kr.ac.konkuk.koogle.R
 import kr.ac.konkuk.koogle.databinding.ActivityLogInBinding
 
 class LogInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedListener {
@@ -121,7 +121,7 @@ class LogInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLis
 
     private fun initFacebookLoginButton() {
         //유저에게 가져올 정보 -> 이메일과 프로필
-        binding.facebookLoginButton.setPermissions(EMAIL,PROFILE)
+        binding.facebookLoginButton.setPermissions(EMAIL, PROFILE)
         binding.facebookLoginButton.registerCallback(
             callbackManager,
             object : FacebookCallback<LoginResult> {

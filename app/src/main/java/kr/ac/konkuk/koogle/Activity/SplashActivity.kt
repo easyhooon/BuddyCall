@@ -1,10 +1,11 @@
-package kr.ac.konkuk.koogle
+package kr.ac.konkuk.koogle.Activity
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import kr.ac.konkuk.koogle.R
 
 class SplashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

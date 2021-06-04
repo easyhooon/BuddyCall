@@ -8,6 +8,7 @@ class DBKeys {
         const val USER_ID = "userId"
         const val PROFILE_IMAGE = "profile_image"
 
+        //Communication
         const val LIKED_BY = "likedBy"
         const val LIKE = "like"
         const val DIS_LIKE = "disLike"
