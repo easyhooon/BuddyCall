@@ -51,10 +51,6 @@ class SignUpActivity : AppCompatActivity() {
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
-//                        val spf = getSharedPreferences(SIGN_UP, MODE_PRIVATE)
-//                        val editor = spf.edit()
-//                        editor.putString(USER_NAME, username)
-//                        editor.commit()
                         handleSuccessSignUp(username, email)
 
                         Toast.makeText(this, SIGN_UP_SUCCESS, Toast.LENGTH_SHORT).show()

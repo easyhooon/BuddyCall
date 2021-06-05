@@ -79,11 +79,6 @@ class LogInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLis
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
-//                        val spf = getSharedPreferences(SIGN_UP, MODE_PRIVATE)
-//                        if (spf.contains(USER_NAME)) {
-//                            userName = spf.getString(USER_NAME, "닉네임").toString()
-//                        }
-//                        handleSuccessSignUp(userName, email)
                         startActivity(Intent(this, MainActivity::class.java))
                         //이제 필요없는 화면이므로 파괴
                         finish()

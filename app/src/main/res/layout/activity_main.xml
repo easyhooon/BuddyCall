@@ -60,7 +60,6 @@
         app:menu="@menu/nav_menu"
         tools:ignore="RtlHardcoded" />
 
-
 </androidx.drawerlayout.widget.DrawerLayout>
 
-    <!--navigationView가 constraintlayout보다 아래 있어야 click event가 정상작동한다-->
+<!--navigationView가 constraintlayout보다 아래 있어야 click event가 정상작동한다-->
