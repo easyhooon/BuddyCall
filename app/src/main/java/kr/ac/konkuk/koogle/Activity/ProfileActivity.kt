@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -20,9 +19,9 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import kr.ac.konkuk.koogle.Adapter.RecommendAdapter
 import kr.ac.konkuk.koogle.Adapter.TagAdapter
-import kr.ac.konkuk.koogle.DBKeys.Companion.USER
-import kr.ac.konkuk.koogle.Model.TagItem
-import kr.ac.konkuk.koogle.Model.UserItem
+import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
+import kr.ac.konkuk.koogle.Model.TagModel
+import kr.ac.konkuk.koogle.Model.UserModel
 import kr.ac.konkuk.koogle.R
 import kr.ac.konkuk.koogle.databinding.ActivityProfileBinding
 
@@ -32,8 +31,11 @@ import kr.ac.konkuk.koogle.databinding.ActivityProfileBinding
     initTagRecyclerView: 태그 리스트 출력
     initRecommandRecyclerView: 타 유저의 추천(후기) 글 리스트
  */
+
+//private var backBtnTime: Long = 0 // 뒤로가기 두번 눌러 종료 용 변수
+
 class ProfileActivity : AppCompatActivity() {
-    private var tag_debug_data: ArrayList<TagItem> = ArrayList()
+    private var tag_debug_data: ArrayList<TagModel> = ArrayList()
     private var recommend_debug_data: ArrayList<ArrayList<String>> = ArrayList()
     lateinit var binding: ActivityProfileBinding
     lateinit var tagRecyclerView: RecyclerView
@@ -61,49 +63,49 @@ class ProfileActivity : AppCompatActivity() {
         initTagRecyclerView()
         initRecommendRecyclerView()
         initUserInfo()
-        initLogoutButton()
-
+        initButton()
     }
 
-    private fun initLogoutButton() {
-        //로그아웃 버튼을 누르면 로그아웃이 되고 LogInActivity 로 돌아감
-        binding.logoutButton.setOnClickListener { //파이어베이스에 연동된 계정 로그아웃 처리
-            FirebaseAuth.getInstance().signOut()
-            val intent = Intent(this@ProfileActivity, LogInActivity::class.java)
+    private fun initButton() {
+        binding.accountInfoButton.setOnClickListener {
+            val intent = Intent(this, AccountInfoActivity::class.java)
             startActivity(intent)
-            finish()
+        }
+
+        binding.profileEditButton.setOnClickListener {
+            val intent = Intent(this, ProfileEditActivity::class.java)
+            startActivity(intent)
+        }
+
+        binding.backButton.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
         }
     }
+
 
     private fun initUserInfo() {
         //입력 로그인용 유저의 데이터를 불러오기 위한 uid
         val uid = firebaseUser.uid
-        val userRef = Firebase.database.reference.child(USER).child(uid)
-//        val userRef = FirebaseDatabase.getInstance().getReference(USER).child(uid)와 같다
-        Log.d("get uid", "userInfo: $uid")
+        val currentUserRef = Firebase.database.reference.child(DB_USERS).child(uid)
+//        val userRef = FirebaseDatabase.getInstance().getReference(DB_USERS).child(uid)와 같다
 
 //        파이어베이스 데이터베이스의 정보 가져오기
-        userRef.addValueEventListener(object : ValueEventListener {
+        currentUserRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
-                    val userItem: UserItem? = snapshot.getValue(UserItem::class.java)
-                    if (userItem != null) {
-                        Log.d("Data", "onDataChange: ${userItem.userId}")
-                    }
-                    if (userItem != null) {
-                        if (userItem.profile_image.isEmpty()) {
+                    val userModel: UserModel? = snapshot.getValue(UserModel::class.java)
+                    if (userModel != null) {
+                        if (userModel.userProfileImage.isEmpty()) {
                             binding.userProfileImage.setImageResource(R.drawable.profile_image)
                         } else {
                             Glide.with(binding.userProfileImage)
-                                .load(userItem.profile_image)
+                                .load(userModel.userProfileImage)
                                 .into(binding.userProfileImage)
                         }
                     }
-                    if (userItem != null) {
-                        binding.userNameText.text = userItem.user_name
-                    }
-                    if (userItem != null) {
-                        binding.userEmailText.text = userItem.user_email
+                    if (userModel != null) {
+                        binding.userNameText.text = userModel.userName
                     }
                 }
             }
@@ -133,7 +135,7 @@ class ProfileActivity : AppCompatActivity() {
             override fun onItemClick(
                 holder: TagAdapter.ViewHolder,
                 view: View,
-                data: TagItem,
+                data: TagModel,
                 position: Int
             ) {
                 // 미구현
@@ -163,39 +165,39 @@ class ProfileActivity : AppCompatActivity() {
 
     private fun initData() {
         // 임시 데이터
-        tag_debug_data.add(TagItem("언어", arrayListOf("한국어", "영어")))
-        tag_debug_data.add(TagItem("성격", arrayListOf("활동적인", "솔직한")))
+        tag_debug_data.add(TagModel("언어", arrayListOf("한국어", "영어")))
+        tag_debug_data.add(TagModel("성격", arrayListOf("활동적인", "솔직한")))
         tag_debug_data.add(
-            TagItem(
+            TagModel(
                 "취미", arrayListOf(
                     "영화감상", "게임", "서핑",
                     "여행", "독서", "술", "요리", "그림그리기"
                 )
             )
         )
-        tag_debug_data.add(TagItem("전공", arrayListOf("컴퓨터", "컴퓨터공학")))
-        tag_debug_data.add(TagItem("언어", arrayListOf("한국어", "영어")))
-        tag_debug_data.add(TagItem("성격", arrayListOf("활동적인", "솔직한")))
+        tag_debug_data.add(TagModel("전공", arrayListOf("컴퓨터", "컴퓨터공학")))
+        tag_debug_data.add(TagModel("언어", arrayListOf("한국어", "영어")))
+        tag_debug_data.add(TagModel("성격", arrayListOf("활동적인", "솔직한")))
         tag_debug_data.add(
-            TagItem(
+            TagModel(
                 "해외여행", arrayListOf(
                     "러시아", "태국", "중국",
                     "싱가폴", "미국", "캐나다", "브라질", "그린란드", "영국", "대만"
                 )
             )
         )
-        tag_debug_data.add(TagItem("전공", arrayListOf("컴퓨터", "컴퓨터공학")))
-        tag_debug_data.add(TagItem("언어", arrayListOf("한국어", "영어")))
-        tag_debug_data.add(TagItem("성격", arrayListOf("활동적인", "솔직한")))
+        tag_debug_data.add(TagModel("전공", arrayListOf("컴퓨터", "컴퓨터공학")))
+        tag_debug_data.add(TagModel("언어", arrayListOf("한국어", "영어")))
+        tag_debug_data.add(TagModel("성격", arrayListOf("활동적인", "솔직한")))
         tag_debug_data.add(
-            TagItem(
+            TagModel(
                 "취미", arrayListOf(
                     "영화감상", "게임", "서핑",
                     "여행", "독서", "술", "요리", "그림그리기"
                 )
             )
         )
-        tag_debug_data.add(TagItem("전공", arrayListOf("컴퓨터", "컴퓨터공학")))
+        tag_debug_data.add(TagModel("전공", arrayListOf("컴퓨터", "컴퓨터공학")))
 
         recommend_debug_data.add(
             arrayListOf(
@@ -210,4 +212,18 @@ class ProfileActivity : AppCompatActivity() {
             )
         )
     }
+
+//    //뒤로가기 두번 눌러 종료
+//    override fun onBackPressed() {
+//        val curTime = System.currentTimeMillis()
+//        val gapTime: Long = curTime - backBtnTime
+//
+//        //뒤로가기를 한번 누른 후에 2초가 지나기전에 한번 더 눌렀을 경우 if문 진입
+//        if (gapTime in 0..2000) {
+//            super.onBackPressed()
+//        } else {
+//            backBtnTime = curTime
+//            Toast.makeText(this, "한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show()
+//        }
+//    }
 }

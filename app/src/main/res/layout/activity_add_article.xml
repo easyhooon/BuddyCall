@@ -46,13 +46,12 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <EditText
-        android:id="@+id/priceEditText"
+        android:id="@+id/contentEditText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:hint="내용"
-        android:inputType="numberDecimal"
         app:layout_constraintTop_toBottomOf="@id/titleEditText"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

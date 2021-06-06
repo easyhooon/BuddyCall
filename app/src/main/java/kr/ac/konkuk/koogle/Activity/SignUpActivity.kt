@@ -8,7 +8,11 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import kr.ac.konkuk.koogle.DBKeys
+import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
+import kr.ac.konkuk.koogle.DBKeys.Companion.PROFILE_IMAGE
+import kr.ac.konkuk.koogle.DBKeys.Companion.USER_EMAIL
+import kr.ac.konkuk.koogle.DBKeys.Companion.USER_ID
+import kr.ac.konkuk.koogle.DBKeys.Companion.USER_NAME
 import kr.ac.konkuk.koogle.databinding.ActivitySignUpBinding
 
 class SignUpActivity : AppCompatActivity() {
@@ -68,16 +72,16 @@ class SignUpActivity : AppCompatActivity() {
             return
         } else {
             //currentUser 는 nullable 이기 때문에 위에 예외처리하였음
-            val userReference = Firebase.database.reference.child(DBKeys.USER)
             val userId = auth.currentUser?.uid.orEmpty()
-            //reference 가 최상위-> child child 로 경로 지정
+            //reference 가 최상위-> child
+            //child 로 경로 지정
             //경로가 존재하지 않으면 생성, 있으면 그 경로를 가져옴
-            val userRef = userReference.child(userId)
+            val userRef = Firebase.database.reference.child(DB_USERS).child(userId)
             val user = mutableMapOf<String, Any>()
-            user[DBKeys.USER_ID] = userId
-            user[LogInActivity.USER_NAME] = name
-            user[LogInActivity.USER_EMAIL] = email
-            user[DBKeys.PROFILE_IMAGE] = ""
+            user[USER_ID] = userId
+            user[USER_NAME] = name
+            user[USER_EMAIL] = email
+            user[PROFILE_IMAGE] = ""
             userRef.updateChildren(user)
 
             startActivity(Intent(this, LogInActivity::class.java))
@@ -89,6 +93,5 @@ class SignUpActivity : AppCompatActivity() {
     companion object {
         const val SIGN_UP_SUCCESS = "회원가입을 성공했습니다. 로그인 버튼을 눌러 로그인해주세요."
         const val SIGN_UP_FAIL = "이미 가입한 이메일이거나, 회원가입에 실패했습니다."
-        const val SIGN_UP = "sign_up"
     }
 }

@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import kr.ac.konkuk.koogle.Model.TagItem
+import kr.ac.konkuk.koogle.Model.TagModel
 import kr.ac.konkuk.koogle.R
 
 /*
@@ -18,7 +18,7 @@ import kr.ac.konkuk.koogle.R
 class RecommendAdapter(val context: Context, val items: ArrayList<ArrayList<String>>) :
     RecyclerView.Adapter<RecommendAdapter.ViewHolder>() {
     interface OnItemClickListener {
-        fun onItemClick(holder: TagAdapter.ViewHolder, view: View, data: TagItem, position: Int)
+        fun onItemClick(holder: TagAdapter.ViewHolder, view: View, data: TagModel, position: Int)
     }
 
     var itemClickListener: OnItemClickListener? = null

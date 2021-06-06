@@ -10,30 +10,30 @@ import androidx.core.view.children
 import androidx.core.view.setMargins
 import androidx.recyclerview.widget.RecyclerView
 import kr.ac.konkuk.koogle.R
-import kr.ac.konkuk.koogle.Model.TagItem
+import kr.ac.konkuk.koogle.Model.TagModel
 
 /*
     2021-05-27 주예진 작성
     프로필에서 표시되는 태그 Recycler View 의 row adapter
     대분류 태그(제목)와 소분류 태그를 표시
  */
-class TagAdapter(val context: Context, val items: ArrayList<TagItem>) :
+class TagAdapter(val context: Context, val models: ArrayList<TagModel>) :
     RecyclerView.Adapter<TagAdapter.ViewHolder>() {
     interface OnItemClickListener {
-        fun onItemClick(holder: ViewHolder, view: View, data: TagItem, position: Int)
+        fun onItemClick(holder: ViewHolder, view: View, data: TagModel, position: Int)
     }
 
     var itemClickListener: OnItemClickListener? = null
 
     fun moveItem(oldPos: Int, newPos: Int) {
-        val item = items[oldPos]
-        items.removeAt(oldPos)
-        items.add(newPos, item)
+        val item = models[oldPos]
+        models.removeAt(oldPos)
+        models.add(newPos, item)
         notifyItemMoved(oldPos, newPos)
     }
 
     fun removeItem(pos: Int) {
-        items.removeAt(pos)
+        models.removeAt(pos)
         notifyItemRemoved(pos)
     }
 
@@ -43,15 +43,15 @@ class TagAdapter(val context: Context, val items: ArrayList<TagItem>) :
 
         init {
             itemView.setOnClickListener {
-                itemClickListener?.onItemClick(this, it, items[adapterPosition], adapterPosition)
+                itemClickListener?.onItemClick(this, it, models[adapterPosition], adapterPosition)
             }
         }
 
         // 소분류 태그 테이블 생성
-        fun bind(item: TagItem) {
-            mainTagView.text = item.main_tag_name
+        fun bind(model: TagModel) {
+            mainTagView.text = model.main_tag_name
             Log.e("jan", "START")
-            for (tag in item.sub_tag_list) {
+            for (tag in model.sub_tag_list) {
                 // row 가 하나도 없으면 새로 만들기
                 if (subTagView.childCount == 0) {
                     addRow()
@@ -116,10 +116,10 @@ class TagAdapter(val context: Context, val items: ArrayList<TagItem>) :
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(items[position])
+        holder.bind(models[position])
     }
 
     override fun getItemCount(): Int {
-        return items.size
+        return models.size
     }
 }

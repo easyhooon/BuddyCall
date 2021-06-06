@@ -11,7 +11,7 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
 import kr.ac.konkuk.koogle.Fragment.CommunityFragment
-import kr.ac.konkuk.koogle.Fragment.GroupFragment
+import kr.ac.konkuk.koogle.Fragment.ChatListFragment
 import kr.ac.konkuk.koogle.Fragment.CardFragment
 import kr.ac.konkuk.koogle.R
 import kr.ac.konkuk.koogle.databinding.ActivityMainBinding
@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
 
                 R.id.nav_group -> {
-                    moveToFragment(GroupFragment())
+                    moveToFragment(ChatListFragment())
                     return@OnNavigationItemSelectedListener true
                 }
 
@@ -56,8 +56,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         initDrawerLayout()
 
-        //첫화면이 오늘의 단어이므로 설정 먼저 해줌
-        binding.bottomNavView.selectedItemId = R.id.nav_short
+//        //첫화면이 CardFragment 이므로
+//        binding.bottomNavView.selectedItemId = R.id.nav_short
+
+        //아직 CardFragment 가 미완성인 관계로
+        binding.bottomNavView.selectedItemId = R.id.nav_community
 
         //바텀 네비게이션뷰 선택
         binding.bottomNavView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
@@ -65,7 +68,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         //네비게이션 메뉴 아이템 클릭 시 속성 부여
         binding.navView.setNavigationItemSelectedListener(this)
 
-        moveToFragment(CardFragment()) //앱을 시작할때 디폴트로 오늘의 단어어프래그먼트가 켜지도록
+//        moveToFragment(CardFragment()) //앱을 시작할때 디폴트로 오늘의 단어어프래그먼트가 켜지도록
+        //아직 CardFragment 가 미완성인 관계로
+        moveToFragment(CommunityFragment())
 
     }
 
@@ -77,6 +82,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
         binding.drawerLayout.closeDrawers()
+
         return true
     }
 

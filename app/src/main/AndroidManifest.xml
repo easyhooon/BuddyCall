@@ -9,10 +9,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Koogle">
-        <activity android:name=".Activity.AddArticleActivity"></activity>
+        <activity android:name=".Activity.ArticleActivity"></activity>
+        <activity android:name=".Activity.AccountInfoActivity" />
+        <activity android:name=".Activity.ProfileEditActivity" />
+        <activity android:name=".Activity.AddArticleActivity" />
         <activity android:name=".Activity.SignUpActivity" />
         <activity android:name=".Activity.LogInActivity" />
-        <activity android:name=".Activity.ProfileActivity"></activity>
+        <activity android:name=".Activity.ProfileActivity" />
         <activity android:name=".Activity.ChatRoomActivity" />
         <activity android:name=".Activity.SplashActivity">
             <intent-filter>
@@ -22,12 +25,10 @@
             </intent-filter>
         </activity>
         <activity android:name=".Activity.MainActivity" />
-
         <activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="@string/app_name" />
-
         <activity
             android:name="com.facebook.CustomTabActivity"
             android:exported="true">
@@ -40,11 +41,14 @@
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
         </activity>
+
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
     </application>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <uses-permission android:name="android.permission.INTERNET" />
 

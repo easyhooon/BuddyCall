@@ -7,14 +7,14 @@ import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import kr.ac.konkuk.koogle.Model.CardItem
+import kr.ac.konkuk.koogle.Model.CardModel
 import kr.ac.konkuk.koogle.R
 
-class CardItemAdapter: ListAdapter<CardItem, CardItemAdapter.ViewHolder>(diffUtil){
+class CardAdapter: ListAdapter<CardModel, CardAdapter.ViewHolder>(diffUtil){
 
     inner class ViewHolder(private val view: View): RecyclerView.ViewHolder(view) {
-        fun bind(cardItem: CardItem){
-            view.findViewById<TextView>(R.id.nameTextView).text = cardItem.user_name
+        fun bind(cardModel: CardModel){
+            view.findViewById<TextView>(R.id.nameTextView).text = cardModel.userName
         }
     }
 
@@ -28,13 +28,13 @@ class CardItemAdapter: ListAdapter<CardItem, CardItemAdapter.ViewHolder>(diffUti
     }
 
     companion object{
-        val diffUtil = object : DiffUtil.ItemCallback<CardItem>() {
-            override fun areItemsTheSame(oldItem: CardItem, newItem: CardItem): Boolean {
-                return oldItem.postId == newItem.postId
+        val diffUtil = object : DiffUtil.ItemCallback<CardModel>() {
+            override fun areItemsTheSame(oldModel: CardModel, newModel: CardModel): Boolean {
+                return oldModel.postId == newModel.postId
             }
 
-            override fun areContentsTheSame(oldItem: CardItem, newItem: CardItem): Boolean {
-                return oldItem == newItem
+            override fun areContentsTheSame(oldModel: CardModel, newModel: CardModel): Boolean {
+                return oldModel == newModel
             }
         }
     }

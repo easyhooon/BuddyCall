@@ -17,9 +17,11 @@ import com.google.firebase.auth.*
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
 import kr.ac.konkuk.koogle.DBKeys.Companion.PROFILE_IMAGE
-import kr.ac.konkuk.koogle.DBKeys.Companion.USER
+import kr.ac.konkuk.koogle.DBKeys.Companion.USER_EMAIL
 import kr.ac.konkuk.koogle.DBKeys.Companion.USER_ID
+import kr.ac.konkuk.koogle.DBKeys.Companion.USER_NAME
 import kr.ac.konkuk.koogle.R
 import kr.ac.konkuk.koogle.databinding.ActivityLogInBinding
 
@@ -33,8 +35,6 @@ class LogInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLis
     private lateinit var callbackManager: CallbackManager
 
     lateinit var binding: ActivityLogInBinding
-
-    lateinit var userName: String
 
     private lateinit var googleApiClient: GoogleApiClient
 
@@ -157,10 +157,11 @@ class LogInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLis
             val userName = auth.currentUser?.displayName.orEmpty()
             val userEmail = auth.currentUser?.email.orEmpty()
             val userProfileImage = auth.currentUser?.photoUrl.toString()
-            //reference가 최상위-> child child로 경로 지정
+            //reference 가 최상위-> child child 로 경로 지정
             //경로가 존재하지 않으면 생성, 있으면 그 경로를 가져옴
-            val userRef = Firebase.database.reference.child(USER).child(userId)
+            val userRef = Firebase.database.reference.child(DB_USERS).child(userId)
             val user = mutableMapOf<String, Any>()
+
             user[USER_ID] = userId
             user[USER_NAME] = userName
             user[USER_EMAIL] = userEmail
@@ -219,8 +220,6 @@ class LogInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLis
     companion object {
         const val EMAIL = "email"
         const val PROFILE = "public_profile"
-        const val USER_NAME = "user_name"
-        const val USER_EMAIL = "user_email"
         const val LOGIN_FAIL = "로그인에 실패했습니다. 이메일 또는 비밀번호를 확인해주세요."
         const val FACEBOOK_LOGIN_FAIL = "페이스북 로그인에 실패했습니다"
         const val GOOGLE_LOGIN_FAIL = "구글 로그인에 실패했습니다"

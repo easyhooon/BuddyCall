@@ -8,5 +8,16 @@
     <string name="group_chat">그룹</string>
     <string name="full_list">전체목록</string>
     <string name="option">옵션</string>
+    <string name="sign_up">회원가입</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="nickname">닉네임</string>
+    <string name="logout">로그아웃</string>
+    <string name="delete_account">계정탈퇴</string>
+    <string name="connect_account">연결된 계정</string>
+    <string name="default_email">username@gmail.com</string>
+    <string name="article_title">글 제목</string>
+    <string name="content">내용</string>
+    <string name="contact">연락하기</string>
 
 </resources>
