@@ -18,13 +18,15 @@ class ChatAdapter: ListAdapter<ChatModel, ChatAdapter.ViewHolder>(diffUtil){
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        //context는 parent에 있다
+        //context 는 parent 에 있다
         return ViewHolder(ItemChatBinding.inflate(LayoutInflater.from(parent.context),parent,false))
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(currentList[position])
     }
+
+    //todo DiffUtil을 사용하기 위해선 고유 키값이 존재 해야 함
 
     companion object {
         val diffUtil = object : DiffUtil.ItemCallback<ChatModel>() {

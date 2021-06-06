@@ -11,7 +11,7 @@ class DBKeys {
         const val PROFILE_IMAGE = "userProfileImage"
         const val CHILD_CHAT = "chat"
 
-        //Community
+        //Community, Card
         const val DB_ARTICLES = "Articles"
         const val PHOTO_PATH = "article/photo"
         const val ARTICLE_ID = "articleId"
@@ -20,17 +20,12 @@ class DBKeys {
         const val ARTICLE_IMAGE_URL = "articleImageUrl"
         const val ARTICLE_CREATED_AT = "articleCreatedAt"
         const val WRITER_ID = "writerId"
+        const val WRITER_NAME = "writerName"
         const val WRITER_PROFILE_IMAGE_URL = "writerProfileImageUrl"
 
 
-        //Chatting
+        //Group
         const val DB_CHATS = "chat"
-
-        const val USERS = "Users"
-        const val LIKED_BY = "likedBy"
-        const val LIKE = "like"
-        const val DIS_LIKE = "disLike"
-        const val MATCH = "match"
 
     }
 }

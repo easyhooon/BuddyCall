@@ -7,12 +7,17 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
@@ -23,9 +28,12 @@ import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_ID
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_IMAGE_URL
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_TITLE
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_ARTICLES
+import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
 import kr.ac.konkuk.koogle.DBKeys.Companion.PHOTO_PATH
 import kr.ac.konkuk.koogle.DBKeys.Companion.WRITER_ID
+import kr.ac.konkuk.koogle.DBKeys.Companion.WRITER_NAME
 import kr.ac.konkuk.koogle.DBKeys.Companion.WRITER_PROFILE_IMAGE_URL
+import kr.ac.konkuk.koogle.Model.UserModel
 import kr.ac.konkuk.koogle.R
 import kr.ac.konkuk.koogle.databinding.ActivityAddArticleBinding
 
@@ -45,6 +53,11 @@ class AddArticleActivity : AppCompatActivity() {
     private val articleRef: DatabaseReference by lazy {
         Firebase.database.reference.child(DB_ARTICLES)
     }
+    private val userRef: DatabaseReference by lazy {
+        Firebase.database.reference.child(DB_USERS)
+    }
+
+    private lateinit var writerName:String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,11 +85,34 @@ class AddArticleActivity : AppCompatActivity() {
                 }
             }
         }
+
+        val currentUserRef = userRef.child(auth.currentUser?.uid.toString())
+        currentUserRef.addListenerForSingleValueEvent(object: ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val userModel: UserModel? = snapshot.getValue(UserModel::class.java)
+                if (userModel != null) {
+                    Log.d("onDataChange", "userName: ${userModel.userName}")
+                    writerName = userModel.userName
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.d("onCancelled: ", "데이터로드 실패")
+            }
+
+        })
+
         binding.submitButton.setOnClickListener {
             val articleId = articleRef.push().key.toString()
             val articleTitle = binding.titleEditText.text.toString()
             val articleContent = binding.contentEditText.text.toString()
             val writerId = auth.currentUser?.uid.orEmpty()
+//            if (auth.currentUser?.displayName != null){
+//                writerName = auth.currentUser?.displayName.toString()
+//            }
+//            else{
+//
+//            }
             if (auth.currentUser?.photoUrl != null) {
                 writerProfileImageUrl = auth.currentUser?.photoUrl.toString()
             }
@@ -85,7 +121,6 @@ class AddArticleActivity : AppCompatActivity() {
             }
 
             showProgress()
-
 
 
             //중간에 이미지가 있으면 업로드 과정을 추가
@@ -99,6 +134,7 @@ class AddArticleActivity : AppCompatActivity() {
                         //업로드한 url을 가져와서 같이 넣어줬기 때문에 url도 함께 들어갈 수 있음
                         uploadArticle(
                             writerId,
+                            writerName,
                             writerProfileImageUrl,
                             articleId,
                             articleTitle,
@@ -117,6 +153,7 @@ class AddArticleActivity : AppCompatActivity() {
                 //이미지가 없는 상황
                 uploadArticle(
                     writerId,
+                    writerName,
                     writerProfileImageUrl,
                     articleId,
                     articleTitle,
@@ -152,6 +189,7 @@ class AddArticleActivity : AppCompatActivity() {
 
     private fun uploadArticle(
         writerId: String,
+        writerName: String,
         writerProfileImageUrl: String,
         articleId: String,
         articleTitle: String,
@@ -167,6 +205,7 @@ class AddArticleActivity : AppCompatActivity() {
         article[ARTICLE_IMAGE_URL] = articleImageUrl
         article[ARTICLE_CREATED_AT] = System.currentTimeMillis()
         article[WRITER_ID] = writerId
+        article[WRITER_NAME] = writerName
         article[WRITER_PROFILE_IMAGE_URL] = writerProfileImageUrl
 
         currentArticleRef.updateChildren(article)

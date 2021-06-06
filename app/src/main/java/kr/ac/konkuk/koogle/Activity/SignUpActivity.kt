@@ -76,13 +76,13 @@ class SignUpActivity : AppCompatActivity() {
             //reference 가 최상위-> child
             //child 로 경로 지정
             //경로가 존재하지 않으면 생성, 있으면 그 경로를 가져옴
-            val userRef = Firebase.database.reference.child(DB_USERS).child(userId)
+            val currentUserRef = Firebase.database.reference.child(DB_USERS).child(userId)
             val user = mutableMapOf<String, Any>()
             user[USER_ID] = userId
             user[USER_NAME] = name
             user[USER_EMAIL] = email
             user[PROFILE_IMAGE] = ""
-            userRef.updateChildren(user)
+            currentUserRef.updateChildren(user)
 
             startActivity(Intent(this, LogInActivity::class.java))
             //이제 필요없는 화면이므로 파괴

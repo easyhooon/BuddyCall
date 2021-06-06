@@ -54,6 +54,16 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="@string/nickname"
+            android:textSize="12sp"
+            android:textColor="@color/black"
+            app:layout_constraintStart_toEndOf="@id/profileImageView"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/titleTextView"/>
+
+        <TextView
             android:id="@+id/titleTextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

@@ -11,7 +11,7 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
 import kr.ac.konkuk.koogle.Fragment.CommunityFragment
-import kr.ac.konkuk.koogle.Fragment.ChatListFragment
+import kr.ac.konkuk.koogle.Fragment.GroupFragment
 import kr.ac.konkuk.koogle.Fragment.CardFragment
 import kr.ac.konkuk.koogle.R
 import kr.ac.konkuk.koogle.databinding.ActivityMainBinding
@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
 
                 R.id.nav_group -> {
-                    moveToFragment(ChatListFragment())
+                    moveToFragment(GroupFragment())
                     return@OnNavigationItemSelectedListener true
                 }
 

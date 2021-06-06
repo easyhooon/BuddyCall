@@ -51,7 +51,6 @@ class ArticleActivity : AppCompatActivity() {
     private fun initDB() {
         val intent = intent
         val articleId = intent.getStringExtra(ARTICLE_ID).toString()
-//        val articleId = intent.extras?.getString(ARTICLE_ID).toString()
         Log.d("Intent", "articleId: $articleId")
         currentArticleRef = Firebase.database.reference.child(DB_ARTICLES).child(articleId)
 

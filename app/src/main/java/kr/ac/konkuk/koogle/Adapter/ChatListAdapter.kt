@@ -20,8 +20,8 @@ class ChatListAdapter(val onItemClicked: (ChatListModel) -> Unit): ListAdapter<C
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        //context는 parent에 있다
-        //parent는 ViewGroup
+        //context 는 parent 에 있다
+        //parent 는 ViewGroup
         return ViewHolder(ItemChatListBinding.inflate(LayoutInflater.from(parent.context),parent,false))
     }
 

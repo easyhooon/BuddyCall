@@ -21,6 +21,7 @@ class ArticleAdapter(val onItemClicked: (ArticleModel) -> Unit): ListAdapter<Art
             val date = Date(articleModel.articleCreatedAt)
             //createAt으로 현재 시간을 long타입으로 받아왔는데 그것을 Date타입으로 바꾼다음에
             //simpleDateFormat을 통해 포매팅 완성
+            binding.writerNameTextView.text = articleModel.writerName
             binding.titleTextView.text = articleModel.articleTitle
             binding.dateTextView.text = format.format(date).toString()
             binding.contentTextView.text = articleModel.articleContent
@@ -49,7 +50,7 @@ class ArticleAdapter(val onItemClicked: (ArticleModel) -> Unit): ListAdapter<Art
     companion object {
         val diffUtil = object : DiffUtil.ItemCallback<ArticleModel>() {
             override fun areItemsTheSame(oldModel: ArticleModel, newModel: ArticleModel): Boolean {
-                return oldModel.articleCreatedAt == newModel.articleCreatedAt
+                return oldModel.articleId == newModel.articleId
             }
 
             override fun areContentsTheSame(oldModel: ArticleModel, newModel: ArticleModel): Boolean {

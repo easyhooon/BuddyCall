@@ -1,14 +1,14 @@
 package kr.ac.konkuk.koogle.Model
 
 data class CardModel(
-    val userId: String,
-    val userName: String,
-    val profileImage: String,
-    val postId: String,
-    val postTitle: String,
-    val postImageUrl: String,
-    val postContent:String
+    val writerId: String,
+    val writerName: String,
+    val writerProfileImageUrl: String,
+    val articleId: String,
+    val articleTitle: String,
+    val articleImageUrl: String,
+    val articleContent:String
 ){
-    constructor(): this("","", "", "", "","","")
+    constructor(): this("","","", "", "", "","")
 }
 

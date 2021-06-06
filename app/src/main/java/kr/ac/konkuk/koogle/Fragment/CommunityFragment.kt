@@ -75,38 +75,10 @@ class CommunityFragment : Fragment() {
         //초기화 코드
         articleAdapter = ArticleAdapter(onItemClicked = { articleModel ->
             if(auth.currentUser != null) {
-                //로그인을 한 상태
-//                if(auth.currentUser!!.uid != articleItem.writerId) {
-//                    //채팅방을 염
-//                    val chatRoom = ChatListModel(
-//                        buyerId = auth.currentUser!!.uid,
-//                        sellerId = articleItem.writerId,
-//                        itemTitle = articleItem.articleTitle,
-//                        key = System.currentTimeMillis()
-//                    )
-//
-//                    userDB.child(auth.currentUser!!.uid)
-//                        .child(CHILD_CHAT)
-//                        .push()
-//                        .setValue(chatRoom)
-//
-//                    userDB.child(articleItem.writerId)
-//                        .child(CHILD_CHAT)
-//                        .push()
-//                        .setValue(chatRoom)
-//
-//                    Toast.makeText(context, "채팅방이 생성되었습니다. 채팅앱에서 확인해주세요.", Toast.LENGTH_SHORT).show()
-//
-//                } else {
-//                    //내가 올린 아이템임
-//                    Toast.makeText(context, "내가 올린 글입니다.", Toast.LENGTH_LONG).show()
-//                }
                 val intent = Intent(context, ArticleActivity::class.java)
                 intent.putExtra(ARTICLE_ID, articleModel.articleId)
-//                intent.putExtra("articleId", articleModel.articleId)
 
-
-                //fragment에서 액티비티로 전달이라..
+                //fragment에서 다른 액티비티로 데이터 전달
                 Log.d("CommunityFragment", "articleId: ${articleModel.articleId}")
                 activity?.startActivity(intent)
             }else {

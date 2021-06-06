@@ -13,7 +13,7 @@ import kr.ac.konkuk.koogle.Model.ChatListModel
 import kr.ac.konkuk.koogle.databinding.FragmentChatListBinding
 
 
-class ChatListFragment : Fragment() {
+class GroupFragment : Fragment() {
 
     private var binding : FragmentChatListBinding? = null
 
