@@ -10,6 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Koogle">
         <activity android:name=".Activity.ArticleActivity"></activity>
+        <activity android:name=".Activity.AddNewTagActivity" />
         <activity android:name=".Activity.AccountInfoActivity" />
         <activity android:name=".Activity.ProfileEditActivity" />
         <activity android:name=".Activity.AddArticleActivity" />
