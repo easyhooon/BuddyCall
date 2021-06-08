@@ -28,7 +28,6 @@ import kr.ac.konkuk.koogle.databinding.ActivityLogInBinding
 class LogInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedListener {
 
     private var backBtnTime: Long = 0 // 뒤로가기 두번 눌러 종료 용 변수
-    private lateinit var auth: FirebaseAuth
 
     //페이스북 로그인버튼을 눌르면 페이스북 앱이 열림, 그리고 로그인 완료가 되면 다시 액티비티로 넘어옴(Activity Callback) -> onActivityResult 가 열림
     // 페이스북에 갔다가 onActivityResult 에서 가져온 값을 다시 페이스북 sdk 에 전달해 줌으로써 실제로 로그인이 되었는지를 판단함
@@ -38,13 +37,15 @@ class LogInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLis
 
     private lateinit var googleApiClient: GoogleApiClient
 
+    //java에서 Firebase.getInstance()와 같이 Firebase Auth를 initialize 해주는 코드
+    private val auth: FirebaseAuth by lazy {
+        Firebase.auth
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLogInBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        //java에서 Firebase.getInstance()와 같이 Firebase Auth를 initialize 해주는 코드
-        auth = Firebase.auth
 
         if (auth.currentUser != null) {
             val intent = Intent(this, MainActivity::class.java)

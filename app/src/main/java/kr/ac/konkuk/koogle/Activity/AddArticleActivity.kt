@@ -28,13 +28,13 @@ import kr.ac.konkuk.koogle.DBKeys.Companion.ADMIN_PROFILE_IMAGE_URL
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_CONTENT
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_CREATED_AT
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_ID
+import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_IMAGE_PATH
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_IMAGE_URL
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_TITLE
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_ARTICLES
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_GROUPS
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
 import kr.ac.konkuk.koogle.DBKeys.Companion.GROUP_ID
-import kr.ac.konkuk.koogle.DBKeys.Companion.PHOTO_PATH
 import kr.ac.konkuk.koogle.DBKeys.Companion.USER_ID
 import kr.ac.konkuk.koogle.DBKeys.Companion.USER_NAME
 import kr.ac.konkuk.koogle.DBKeys.Companion.USER_PROFILE_IMAGE_URL
@@ -225,13 +225,13 @@ class AddArticleActivity : AppCompatActivity() {
     private fun uploadPhoto(uri: Uri, successHandler: (String) -> Unit, errorHandler: () -> Unit) {
         //파일명이 중복이 되지 않도록
         //이렇게 두면 이거 삭제는 어떻게 하남
-        val fileName = "${System.currentTimeMillis()}.png"
-        storage.reference.child(PHOTO_PATH).child(fileName)
+        val fileName = "${articleId}.png"
+        storage.reference.child(ARTICLE_IMAGE_PATH).child(fileName)
             .putFile(uri)
             //성공했는지 여부를 체크
             .addOnCompleteListener {
                 if (it.isSuccessful) {
-                    storage.reference.child(PHOTO_PATH).child(fileName).downloadUrl
+                    storage.reference.child(ARTICLE_IMAGE_PATH).child(fileName).downloadUrl
                         .addOnSuccessListener { uri ->
                             //업로드를 성공하면 download url을 가져옴
                             successHandler(uri.toString())
@@ -304,10 +304,6 @@ class AddArticleActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
-        if (resultCode != Activity.RESULT_OK) {
-            return
-        }
 
         when (requestCode) {
             2020 -> {

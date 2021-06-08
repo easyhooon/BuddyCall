@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -44,12 +45,12 @@ class ProfileActivity : AppCompatActivity() {
     lateinit var recommendAdapter: RecommendAdapter
 
     //파이어베이스 인증 객체 초기화
-    private val auth = Firebase.auth
+    private val auth: FirebaseAuth by lazy {
+        Firebase.auth
+    }
 
     //DB 객체 초기화
     private val firebaseUser = auth.currentUser!!
-    private val storage = FirebaseStorage.getInstance()
-//    private val storageRef = storage.reference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

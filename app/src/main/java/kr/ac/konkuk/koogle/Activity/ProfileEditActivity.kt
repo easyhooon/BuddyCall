@@ -1,30 +1,38 @@
 package kr.ac.konkuk.koogle.Activity
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
-import kr.ac.konkuk.koogle.Adapter.RecommendAdapter
+import com.google.firebase.storage.StorageReference
+import com.theartofdev.edmodo.cropper.CropImage
 import kr.ac.konkuk.koogle.Adapter.TagAdapter
 import kr.ac.konkuk.koogle.DBKeys
+import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
+import kr.ac.konkuk.koogle.DBKeys.Companion.USER_NAME
+import kr.ac.konkuk.koogle.DBKeys.Companion.USER_PROFILE_IMAGE_PATH
+import kr.ac.konkuk.koogle.DBKeys.Companion.USER_PROFILE_IMAGE_URL
 import kr.ac.konkuk.koogle.Model.TagModel
 import kr.ac.konkuk.koogle.Model.UserModel
 import kr.ac.konkuk.koogle.R
 import kr.ac.konkuk.koogle.databinding.ActivityEditProfileBinding
-import kr.ac.konkuk.koogle.databinding.ActivityProfileBinding
+import java.util.*
+import kotlin.collections.ArrayList
+
 
 class ProfileEditActivity : AppCompatActivity() {
     private var tag_debug_data: ArrayList<TagModel> = ArrayList()
@@ -33,22 +41,27 @@ class ProfileEditActivity : AppCompatActivity() {
     lateinit var tagRecyclerView: RecyclerView
     lateinit var tagAdapter: TagAdapter
 
-    //파이어베이스 인증 객체 초기화
-    private val auth = Firebase.auth
+    lateinit var imageUri: Uri
 
+    lateinit var fileRef:StorageReference
+
+    //파이어베이스 인증 객체 초기화
+    private val auth: FirebaseAuth by lazy {
+        Firebase.auth
+    }
     //DB 객체 초기화
     private val firebaseUser = auth.currentUser!!
     private val storage = FirebaseStorage.getInstance()
-//    private val storageRef = storage.reference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityEditProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        init()
-    }
 
-    fun init() {
+        if(auth.currentUser == null){
+            val intent = Intent(this, LogInActivity::class.java)
+            startActivity(intent)
+        }
         initData()
         initTagRecyclerView()
         initUserInfo()
@@ -73,12 +86,18 @@ class ProfileEditActivity : AppCompatActivity() {
             val intent = Intent(this, AddNewTagActivity::class.java)
             startActivity(intent)
         }
+        binding.userProfileChangeBtn.setOnClickListener {
+            //에뮬레이터에는 해당 저장소가 존재하지 않아 기능하지 않음, 실기기에 연결해서 수행해야함
+            CropImage.activity()
+                .setAspectRatio(1,1)
+                .start(this);
+        }
     }
 
     // 유저 네임 변경 상태 활성화, 비활성화
     private fun setActiveChangeUserName(active: Boolean){
         val uid = firebaseUser.uid
-        val currentUserRef = Firebase.database.reference.child(DBKeys.DB_USERS).child(uid)
+        val currentUserRef = Firebase.database.reference.child(DB_USERS).child(uid)
         if(active){
             // 이름 입력 뷰 표시
             binding.userNameText.visibility = View.GONE
@@ -88,7 +107,7 @@ class ProfileEditActivity : AppCompatActivity() {
             binding.userNameChangeBtn.visibility = View.GONE
         }else{
             // 변경 사항 업데이트
-            currentUserRef.child(DBKeys.USER_NAME).setValue(binding.userNameEdit.text.toString())
+            currentUserRef.child(USER_NAME).setValue(binding.userNameEdit.text.toString())
 
             // 이름 입력 뷰에서 표시 뷰로 변경
             binding.userNameText.visibility = View.VISIBLE
@@ -96,6 +115,8 @@ class ProfileEditActivity : AppCompatActivity() {
             // 닉네임 변경 버튼으로 변경
             binding.userNameChangeUpdateBtn.visibility = View.GONE
             binding.userNameChangeBtn.visibility = View.VISIBLE
+
+            Toast.makeText(this, "닉네임을 변경하였습니다", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -206,5 +227,59 @@ class ProfileEditActivity : AppCompatActivity() {
         )
         tag_debug_data.add(TagModel("전공", arrayListOf("컴퓨터", "컴퓨터공학")))
 
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            val result = CropImage.getActivityResult(data)
+            if (resultCode == RESULT_OK) {
+                imageUri = result.uri
+                binding.userProfileImage.setImageURI(imageUri)
+                
+                updateProfileImage(imageUri)
+                
+            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                Toast.makeText(this, "${result.error}", Toast.LENGTH_SHORT).show() 
+            }
+        }
+    }
+
+    private fun updateProfileImage(imageUri: Uri?) {
+        if (imageUri == null) {
+            Toast.makeText(this, "이미지가 존재하지 않습니다.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val uid = firebaseUser.uid
+
+        fileRef = FirebaseStorage.getInstance().reference.child(USER_PROFILE_IMAGE_PATH).child("$uid.jpg")
+
+        val uploadTask = fileRef.putFile(imageUri)
+
+        uploadTask.continueWithTask { task ->
+            if (!task.isSuccessful) {
+                throw task.exception!!
+            }
+
+            // Continue with the task to get the download URL
+            fileRef.downloadUrl
+        }.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val downloadUrl = task.result
+                val updatedProfileImageUrl = downloadUrl.toString()
+                val currentUserRef = Firebase.database.reference.child(DB_USERS).child(uid)
+//                val user = mutableMapOf<String, Any>()
+//                user[USER_PROFILE_IMAGE_URL] = updatedProfileImageUrl
+//                currentUserRef.updateChildren(user)
+
+//                updateChildren으로 하면 화면이 깜빡거려서 UI상 보기 안좋아서 수정
+                currentUserRef.child(USER_PROFILE_IMAGE_URL).setValue(updatedProfileImageUrl)
+
+                Toast.makeText(this, "프로필 사진이 변경되었습니다.", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "프로필 사진 변경을 실패하였습니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 }

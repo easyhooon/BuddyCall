@@ -27,7 +27,10 @@ class AccountInfoActivity : AppCompatActivity() {
     lateinit var binding: ActivityAccountInfoBinding
 
     //파이어베이스 인증 객체 초기화
-    private val auth = Firebase.auth
+    //java에서 Firebase.getInstance()와 같이 Firebase Auth를 initialize 해주는 코드
+    private val auth: FirebaseAuth by lazy {
+        Firebase.auth
+    }
 
     //DB 객체 초기화
     private val firebaseUser = auth.currentUser

@@ -9,10 +9,11 @@ class DBKeys {
         const val USER_NAME = "userName"
         const val USER_EMAIL = "userEmail"
         const val USER_PROFILE_IMAGE_URL = "userProfileImageUrl"
+        const val USER_PROFILE_IMAGE_PATH = "profile/photo"
 
         //Community, Card
         const val DB_ARTICLES = "Articles"
-        const val PHOTO_PATH = "article/photo"
+        const val ARTICLE_IMAGE_PATH = "article/photo"
         const val ARTICLE_ID = "articleId"
         const val ARTICLE_TITLE = "articleTitle"
         const val ARTICLE_CONTENT = "articleContent"
