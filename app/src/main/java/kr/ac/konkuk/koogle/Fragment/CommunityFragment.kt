@@ -87,6 +87,7 @@ class CommunityFragment : Fragment() {
             }
         })
 
+
         binding!!.articleRecyclerView.layoutManager = LinearLayoutManager(context)
         binding!!.articleRecyclerView.adapter = articleAdapter
 

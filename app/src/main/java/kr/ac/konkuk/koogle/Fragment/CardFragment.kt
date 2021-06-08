@@ -1,28 +1,30 @@
 package kr.ac.konkuk.koogle.Fragment
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateInterpolator
+import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import com.yuyakaido.android.cardstackview.CardStackLayoutManager
-import com.yuyakaido.android.cardstackview.CardStackListener
-import com.yuyakaido.android.cardstackview.Direction
-import com.yuyakaido.android.cardstackview.StackFrom
+import com.yuyakaido.android.cardstackview.*
+import kr.ac.konkuk.koogle.Activity.ArticleActivity
+import kr.ac.konkuk.koogle.Adapter.ArticleAdapter
 import kr.ac.konkuk.koogle.Adapter.CardAdapter
+import kr.ac.konkuk.koogle.DBKeys
+import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_ID
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_ARTICLES
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
 import kr.ac.konkuk.koogle.DBKeys.Companion.WRITER_ID
 import kr.ac.konkuk.koogle.Model.CardModel
 import kr.ac.konkuk.koogle.databinding.FragmentCardBinding
-
-//todo 아직 작동 불가능, 데이터가 안불러와짐
 
 class CardFragment : Fragment(), CardStackListener {
 
@@ -35,7 +37,7 @@ class CardFragment : Fragment(), CardStackListener {
     private val auth: FirebaseAuth by lazy {
         Firebase.auth
     }
-    private val cardAdapter = CardAdapter()
+    private lateinit var cardAdapter: CardAdapter
 
     private val cardList = mutableListOf<CardModel>()
     private val manager by lazy {
@@ -48,6 +50,19 @@ class CardFragment : Fragment(), CardStackListener {
     ): View {
         // Inflate the layout for this fragment
         binding = FragmentCardBinding.inflate(layoutInflater, container, false)
+
+//        cardAdapter = CardAdapter(onItemChecked = { cardModel ->
+//            if(auth.currentUser != null) {
+//                val intent = Intent(context, ArticleActivity::class.java)
+//                intent.putExtra(DBKeys.ARTICLE_ID, cardModel.articleId)
+//
+//                //fragment 에서 다른 액티비티로 데이터 전달
+//                activity?.startActivity(intent)
+//            }else {
+//                //로그인을 안한 상태
+//                Toast.makeText(context, "로그인 후 사용해주세요", Toast.LENGTH_LONG).show()
+//            }
+//        })
 
         initCardStackView()
         initDB()
@@ -78,13 +93,19 @@ class CardFragment : Fragment(), CardStackListener {
     }
 
     private fun initButton() {
-        binding?.cancelImageView?.setOnClickListener {
-
-        }
-
-        binding?.checkImageView?.setOnClickListener {
-            //todo 이거 누르면 그룹으로 가는지, 글 내용으로 가는지
-        }
+//        binding?.cancelImageView?.setOnClickListener {
+//
+//        }
+//
+//        binding?.checkImageView?.setOnClickListener {
+//            val setting = SwipeAnimationSetting.Builder()
+//                .setDirection(Direction.Right)
+//                .setDuration(Duration.Normal.duration)
+//                .setInterpolator(AccelerateInterpolator())
+//                .build()
+//            manager.setSwipeAnimationSetting(setting)
+//            binding?.cardStackView?.swipe()
+//        }
     }
 
     private fun getUnSelectedArticles() {
@@ -115,12 +136,44 @@ class CardFragment : Fragment(), CardStackListener {
     }
 
     private fun initCardStackView() {
+        cardAdapter = CardAdapter()
+
         binding?.cardStackView?.layoutManager = CardStackLayoutManager(context, this)
         binding?.cardStackView?.adapter = cardAdapter
 
         manager.setStackFrom(StackFrom.Top)
         manager.setTranslationInterval(8.0f)
         manager.setSwipeThreshold(0.1f)
+
+        cardAdapter.itemClickListener = object: CardAdapter.OnItemClickListener{
+            override fun onItemChecked(
+                holder: CardAdapter.ViewHolder,
+                view: View,
+                data: CardModel,
+                position: Int
+            ) {
+                if(auth.currentUser != null) {
+                    val intent = Intent(context, ArticleActivity::class.java)
+                    intent.putExtra(ARTICLE_ID, data.articleId)
+
+                    //fragment 에서 다른 액티비티로 데이터 전달
+                    activity?.startActivity(intent)
+                }else {
+                    //로그인을 안한 상태
+                    Toast.makeText(context, "로그인 후 사용해주세요", Toast.LENGTH_LONG).show()
+                }
+            }
+
+            override fun onItemCanceled(
+                holder: CardAdapter.ViewHolder,
+                view: View,
+                data: CardModel,
+                position: Int
+            ) {
+
+            }
+
+        }
     }
 
     override fun onCardSwiped(direction: Direction?) {}

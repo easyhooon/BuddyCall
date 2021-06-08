@@ -107,12 +107,7 @@ class AddArticleActivity : AppCompatActivity() {
             val articleTitle = binding.titleEditText.text.toString()
             val articleContent = binding.contentEditText.text.toString()
             val writerId = auth.currentUser?.uid.orEmpty()
-//            if (auth.currentUser?.displayName != null){
-//                writerName = auth.currentUser?.displayName.toString()
-//            }
-//            else{
-//
-//            }
+
             if (auth.currentUser?.photoUrl != null) {
                 writerProfileImageUrl = auth.currentUser?.photoUrl.toString()
             }

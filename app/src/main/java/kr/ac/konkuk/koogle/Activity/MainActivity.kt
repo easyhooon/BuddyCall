@@ -39,7 +39,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     moveToFragment(GroupFragment())
                     return@OnNavigationItemSelectedListener true
                 }
-
             }
             false
         }
@@ -49,7 +48,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        //프래그먼트 위에 있는 editText에 입력을 할때 키보드에 의해 가려질때 사용
+        //프래그먼트 위에 있는 editText 에 입력을 할때 키보드에 의해 가려질때 사용
         window.setSoftInputMode(
             WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN
         )

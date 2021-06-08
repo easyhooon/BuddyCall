@@ -72,7 +72,7 @@ class ArticleActivity : AppCompatActivity() {
 
                     if (articleModel != null) {
                         if (articleModel.writerProfileImageUrl.isEmpty()) {
-                            binding.photoImageView.setImageResource(R.drawable.profile_image)
+                            binding.profileImageView.setImageResource(R.drawable.profile_image)
                         } else {
                             Glide.with(binding.profileImageView)
                                 .load(articleModel.writerProfileImageUrl)
