@@ -37,6 +37,10 @@ class DBKeys {
         const val CHAT_CONTENT = "chatContent"
         const val CHAT_CREATED_AT = "chatCreatedAt"
 
+//        //ViewType
+//        const val LEFT_CHAT = 1;
+//        const val RIGHT_CHAT = 2;
+
 
     }
 }

@@ -3,7 +3,6 @@ package kr.ac.konkuk.koogle.Activity
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.ProgressBar
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
@@ -12,6 +11,8 @@ import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import kr.ac.konkuk.koogle.Adapter.ChatAdapter
+import kr.ac.konkuk.koogle.Adapter.ChatAdapter.Companion.LEFT_CHAT
+import kr.ac.konkuk.koogle.Adapter.ChatAdapter.Companion.RIGHT_CHAT
 import kr.ac.konkuk.koogle.DBKeys.Companion.CHAT_CONTENT
 import kr.ac.konkuk.koogle.DBKeys.Companion.CHAT_CREATED_AT
 import kr.ac.konkuk.koogle.DBKeys.Companion.CHAT_ID
@@ -24,7 +25,6 @@ import kr.ac.konkuk.koogle.DBKeys.Companion.WRITER_NAME
 import kr.ac.konkuk.koogle.DBKeys.Companion.WRITER_PROFILE_IMAGE_URL
 import kr.ac.konkuk.koogle.Model.ChatModel
 import kr.ac.konkuk.koogle.Model.UserModel
-import kr.ac.konkuk.koogle.R
 import kr.ac.konkuk.koogle.databinding.ActivityChatRoomBinding
 
 class ChatRoomActivity : AppCompatActivity() {
@@ -45,9 +45,11 @@ class ChatRoomActivity : AppCompatActivity() {
         Firebase.auth
     }
 
+    private val FirebaseUser = auth.currentUser!!
+
     private val chatList = mutableListOf<ChatModel>()
 
-    private val chatAdapter = ChatAdapter()
+    private val chatAdapter = ChatAdapter(this, chatList)
 
     private val listener = object : ChildEventListener {
         override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
@@ -55,8 +57,14 @@ class ChatRoomActivity : AppCompatActivity() {
             val chatModel = snapshot.getValue(ChatModel::class.java)
             chatModel ?: return
 
+            if (chatModel.writerId == FirebaseUser.uid){
+                chatModel.viewType = RIGHT_CHAT
+            }
+            else
+                chatModel.viewType = LEFT_CHAT
+
             chatList.add(chatModel)
-            chatAdapter.submitList(chatList)
+            chatAdapter.notifyDataSetChanged()
         }
 
         override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
