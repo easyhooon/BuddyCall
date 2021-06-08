@@ -85,6 +85,8 @@ class ChatRoomActivity : AppCompatActivity() {
             showProgress()
 
             sendChat(writerId, writerName, writerProfileImageUrl, content)
+
+            binding.messageEditText.text = null
         }
     }
 
