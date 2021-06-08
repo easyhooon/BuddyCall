@@ -8,8 +8,7 @@ class DBKeys {
         const val USER_ID = "userId"
         const val USER_NAME = "userName"
         const val USER_EMAIL = "userEmail"
-        const val PROFILE_IMAGE = "userProfileImage"
-        const val CHILD_CHAT = "chat"
+        const val USER_PROFILE_IMAGE_URL = "userProfileImageUrl"
 
         //Community, Card
         const val DB_ARTICLES = "Articles"
@@ -25,7 +24,18 @@ class DBKeys {
 
 
         //Group
-        const val DB_CHATS = "chat"
+        const val DB_GROUPS = "Groups"
+        const val GROUP_ID = "groupId"
+        const val ADMIN_ID ="adminId"
+        const val ADMIN_NAME ="adminName"
+        const val ADMIN_PROFILE_IMAGE_URL = "adminProfileImageUrl"
+
+        //Chat
+        const val DB_MESSAGES = "Messages"
+        const val CHAT_ID = "chatId"
+        const val CHAT_CONTENT = "chatContent"
+        const val CHAT_CREATED_AT = "chatCreatedAt"
+
 
     }
 }

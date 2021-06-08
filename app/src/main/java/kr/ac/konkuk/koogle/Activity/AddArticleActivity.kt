@@ -22,14 +22,22 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
+import kr.ac.konkuk.koogle.DBKeys.Companion.ADMIN_ID
+import kr.ac.konkuk.koogle.DBKeys.Companion.ADMIN_NAME
+import kr.ac.konkuk.koogle.DBKeys.Companion.ADMIN_PROFILE_IMAGE_URL
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_CONTENT
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_CREATED_AT
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_ID
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_IMAGE_URL
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_TITLE
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_ARTICLES
+import kr.ac.konkuk.koogle.DBKeys.Companion.DB_GROUPS
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
+import kr.ac.konkuk.koogle.DBKeys.Companion.GROUP_ID
 import kr.ac.konkuk.koogle.DBKeys.Companion.PHOTO_PATH
+import kr.ac.konkuk.koogle.DBKeys.Companion.USER_ID
+import kr.ac.konkuk.koogle.DBKeys.Companion.USER_NAME
+import kr.ac.konkuk.koogle.DBKeys.Companion.USER_PROFILE_IMAGE_URL
 import kr.ac.konkuk.koogle.DBKeys.Companion.WRITER_ID
 import kr.ac.konkuk.koogle.DBKeys.Companion.WRITER_NAME
 import kr.ac.konkuk.koogle.DBKeys.Companion.WRITER_PROFILE_IMAGE_URL
@@ -43,6 +51,8 @@ class AddArticleActivity : AppCompatActivity() {
 
     lateinit var writerProfileImageUrl: String
 
+    lateinit var articleId: String
+
     private var selectedUri: Uri? = null
     private val auth: FirebaseAuth by lazy {
         Firebase.auth
@@ -52,6 +62,9 @@ class AddArticleActivity : AppCompatActivity() {
     }
     private val articleRef: DatabaseReference by lazy {
         Firebase.database.reference.child(DB_ARTICLES)
+    }
+    private val groupRef: DatabaseReference by lazy {
+        Firebase.database.reference.child(DB_GROUPS)
     }
     private val userRef: DatabaseReference by lazy {
         Firebase.database.reference.child(DB_USERS)
@@ -103,7 +116,7 @@ class AddArticleActivity : AppCompatActivity() {
         })
 
         binding.submitButton.setOnClickListener {
-            val articleId = articleRef.push().key.toString()
+            articleId = articleRef.push().key.toString()
             val articleTitle = binding.titleEditText.text.toString()
             val articleContent = binding.contentEditText.text.toString()
             val writerId = auth.currentUser?.uid.orEmpty()
@@ -136,6 +149,13 @@ class AddArticleActivity : AppCompatActivity() {
                             articleContent,
                             uri
                         )
+                        createChatRoom(
+                            writerId,
+                            writerName,
+                            writerProfileImageUrl,
+                            articleTitle,
+                            articleContent,
+                        )
                     },
                     errorHandler = {
                         //작업을 취소
@@ -155,8 +175,50 @@ class AddArticleActivity : AppCompatActivity() {
                     articleContent,
                     ""
                 )
+                createChatRoom(
+                    writerId,
+                    writerName,
+                    writerProfileImageUrl,
+                    articleTitle,
+                    articleContent,
+                )
             }
         }
+    }
+
+    private fun createChatRoom(
+        adminId: String,
+        adminName: String,
+        adminProfileImageUrl: String,
+        articleTitle: String,
+        articleContent: String)
+    {
+        val currentGroupRef = groupRef.child(articleId)
+        val group = mutableMapOf<String, Any>()
+
+        group[GROUP_ID] = articleId
+        group[ARTICLE_TITLE] = articleTitle
+        group[ARTICLE_CONTENT] = articleContent
+        group[ADMIN_ID] = adminId
+        group[ADMIN_NAME] = adminName
+        group[ADMIN_PROFILE_IMAGE_URL] = adminProfileImageUrl
+
+        currentGroupRef.updateChildren(group)
+
+        //채팅방 생성 후에 방장(admin)이 채팅방에 참여자로 등록
+
+        //채팅방은 유저ref와 메세지 ref로 구성
+        val currentGroupUserRef = currentGroupRef.child(DB_USERS).child(adminId)
+        val user = mutableMapOf<String, Any>()
+        user[USER_ID] = adminId
+        user[USER_NAME] = adminName
+        user[USER_PROFILE_IMAGE_URL] = adminProfileImageUrl
+
+        currentGroupUserRef.updateChildren(user)
+
+        hideProgress()
+        finish()
+
     }
 
     //successHandler의 반환값 String
@@ -207,7 +269,6 @@ class AddArticleActivity : AppCompatActivity() {
 
         hideProgress()
         finish()
-
     }
 
     override fun onRequestPermissionsResult(
@@ -233,11 +294,12 @@ class AddArticleActivity : AppCompatActivity() {
     }
 
     private fun showProgress() {
-        findViewById<ProgressBar>(R.id.progressBar).isVisible = true
+
+        binding.progressBar.isVisible = true
     }
 
     private fun hideProgress() {
-        findViewById<ProgressBar>(R.id.progressBar).isVisible = false
+        binding.progressBar.isVisible = false
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

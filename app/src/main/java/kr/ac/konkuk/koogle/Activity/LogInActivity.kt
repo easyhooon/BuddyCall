@@ -18,10 +18,10 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
-import kr.ac.konkuk.koogle.DBKeys.Companion.PROFILE_IMAGE
 import kr.ac.konkuk.koogle.DBKeys.Companion.USER_EMAIL
 import kr.ac.konkuk.koogle.DBKeys.Companion.USER_ID
 import kr.ac.konkuk.koogle.DBKeys.Companion.USER_NAME
+import kr.ac.konkuk.koogle.DBKeys.Companion.USER_PROFILE_IMAGE_URL
 import kr.ac.konkuk.koogle.R
 import kr.ac.konkuk.koogle.databinding.ActivityLogInBinding
 
@@ -165,7 +165,7 @@ class LogInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLis
             user[USER_ID] = userId
             user[USER_NAME] = userName
             user[USER_EMAIL] = userEmail
-            user[PROFILE_IMAGE] = userProfileImage
+            user[USER_PROFILE_IMAGE_URL] = userProfileImage
             userRef.updateChildren(user)
 
             startActivity(Intent(this, MainActivity::class.java))

@@ -14,25 +14,4 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-<!--    <de.hdodenhof.circleimageview.CircleImageView-->
-<!--        android:id="@+id/cancelImageView"-->
-<!--        android:layout_width="60dp"-->
-<!--        android:layout_height="60dp"-->
-<!--        android:layout_marginBottom="84dp"-->
-<!--        android:src="@drawable/ic_baseline_cancel_24"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:layout_constraintEnd_toStartOf="@id/checkImageView"-->
-<!--        app:layout_constraintStart_toStartOf="parent" />-->
-
-<!--    <de.hdodenhof.circleimageview.CircleImageView-->
-<!--        android:id="@+id/checkImageView"-->
-<!--        android:layout_width="60dp"-->
-<!--        android:layout_height="60dp"-->
-<!--        android:layout_marginBottom="84dp"-->
-<!--        android:src="@drawable/ic_baseline_check_circle_24"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintStart_toEndOf="@id/cancelImageView" />-->
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>

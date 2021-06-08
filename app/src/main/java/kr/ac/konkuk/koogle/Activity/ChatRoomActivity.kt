@@ -2,83 +2,141 @@ package kr.ac.konkuk.koogle.Activity
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import android.widget.ProgressBar
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.database.ChildEventListener
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import kr.ac.konkuk.koogle.Adapter.ChatAdapter
-import kr.ac.konkuk.koogle.DBKeys.Companion.DB_CHATS
+import kr.ac.konkuk.koogle.DBKeys.Companion.CHAT_CONTENT
+import kr.ac.konkuk.koogle.DBKeys.Companion.CHAT_CREATED_AT
+import kr.ac.konkuk.koogle.DBKeys.Companion.CHAT_ID
+import kr.ac.konkuk.koogle.DBKeys.Companion.DB_GROUPS
+import kr.ac.konkuk.koogle.DBKeys.Companion.DB_MESSAGES
+import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
+import kr.ac.konkuk.koogle.DBKeys.Companion.GROUP_ID
+import kr.ac.konkuk.koogle.DBKeys.Companion.WRITER_ID
+import kr.ac.konkuk.koogle.DBKeys.Companion.WRITER_NAME
+import kr.ac.konkuk.koogle.DBKeys.Companion.WRITER_PROFILE_IMAGE_URL
 import kr.ac.konkuk.koogle.Model.ChatModel
+import kr.ac.konkuk.koogle.Model.UserModel
+import kr.ac.konkuk.koogle.R
 import kr.ac.konkuk.koogle.databinding.ActivityChatRoomBinding
 
 class ChatRoomActivity : AppCompatActivity() {
-    //todo 아직 미구현
 
     lateinit var binding: ActivityChatRoomBinding
+
+    private lateinit var chatRef:DatabaseReference
+
+    private lateinit var writerName:String
+
+    private lateinit var writerId:String
+
+    private lateinit var writerProfileImageUrl:String
+
+    private lateinit var chatId:String
 
     private val auth: FirebaseAuth by lazy {
         Firebase.auth
     }
 
     private val chatList = mutableListOf<ChatModel>()
-    private val adapter = ChatAdapter()
-    private var chatRef: DatabaseReference?= null
+
+    private val chatAdapter = ChatAdapter()
+
+    private val listener = object : ChildEventListener {
+        override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+            //model 클래스 자체를 업로드하고 다운받음
+            val chatModel = snapshot.getValue(ChatModel::class.java)
+            chatModel ?: return
+
+            chatList.add(chatModel)
+            chatAdapter.submitList(chatList)
+        }
+
+        override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
+        override fun onChildRemoved(snapshot: DataSnapshot) {}
+        override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
+        override fun onCancelled(error: DatabaseError) {}
+
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityChatRoomBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val chatKey = intent.getLongExtra("chatKey", -1)
+        initDB()
+        initButton()
 
-        //채팅방 KEY를 하나 받아옴
-        chatRef = Firebase.database.reference.child(DB_CHATS).child("$chatKey")
+        chatRef.addChildEventListener(listener)
+    }
 
-        chatRef?.addChildEventListener(object: ChildEventListener {
-            override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
-                val chatItem = snapshot.getValue(ChatModel::class.java)
-                chatItem ?: return
+    private fun initButton() {
+        binding.sendButton.setOnClickListener {
+            writerId = auth.currentUser?.uid.toString()
+            val content = binding.messageEditText.text.toString()
 
-                chatList.add(chatItem)
-                //갱신
-                adapter.submitList(chatList)
-                //key가 없어 DiffUtil 이 제대로 동작안할 수도 있기 때문에
-                //Todo key를 만들어줘야겠네
-                adapter.notifyDataSetChanged()
-            }
+            showProgress()
 
-            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+            sendChat(writerId, writerName, writerProfileImageUrl, content)
+        }
+    }
 
-            }
+    private fun sendChat(writerId: String, writerName: String, writerProfileImageUrl: String, content: String) {
+        chatId = chatRef.push().key.toString()
+        val currentChatRef = chatRef.child(chatId)
+        val message = mutableMapOf<String, Any>()
 
-            override fun onChildRemoved(snapshot: DataSnapshot) {
+        message[CHAT_ID] = chatId
+        message[WRITER_ID] = writerId
+        message[WRITER_NAME] = writerName
+        message[WRITER_PROFILE_IMAGE_URL] = writerProfileImageUrl
+        message[CHAT_CONTENT] = content
+        message[CHAT_CREATED_AT] = System.currentTimeMillis()
 
-            }
+        currentChatRef.updateChildren(message)
 
-            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
+        hideProgress()
+    }
 
+    private fun initDB() {
+        val intent = intent
+        val groupId = intent.getStringExtra(GROUP_ID).toString()
+
+        chatRef = Firebase.database.reference.child(DB_GROUPS).child(groupId).child(DB_MESSAGES)
+
+        binding.chatRecyclerView.adapter = chatAdapter
+        binding.chatRecyclerView.layoutManager = LinearLayoutManager(this)
+
+        val currentUserRef = Firebase.database.reference.child(DB_USERS).child(auth.currentUser?.uid.toString())
+        currentUserRef.addListenerForSingleValueEvent(object: ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val userModel: UserModel? = snapshot.getValue(UserModel::class.java)
+                if (userModel != null) {
+                    Log.d("onDataChange", "userName: ${userModel.userName}")
+                    writerName = userModel.userName
+                    writerProfileImageUrl = userModel.userProfileImageUrl
+                }
             }
 
             override fun onCancelled(error: DatabaseError) {
-
+                Log.d("onCancelled: ", "데이터로드 실패")
             }
-
         })
 
-        binding.chatRecyclerView.adapter = adapter
-        binding.chatRecyclerView.layoutManager = LinearLayoutManager(this)
+    }
 
-        binding.sendButton.setOnClickListener {
-            val chatItem = ChatModel(
-                senderId = auth.currentUser!!.uid,
-                message = binding.messageEditText.text.toString()
-            )
-            chatRef?.push()?.setValue(chatItem)
-        }
+    private fun showProgress() {
+        binding.progressBar.isVisible = true
+    }
+
+    private fun hideProgress() {
+        binding.progressBar.isVisible = false
     }
 }

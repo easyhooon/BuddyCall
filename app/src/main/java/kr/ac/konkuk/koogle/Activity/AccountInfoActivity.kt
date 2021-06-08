@@ -66,11 +66,11 @@ class AccountInfoActivity : AppCompatActivity() {
                         val userModel: UserModel? = snapshot.getValue(UserModel::class.java)
 
                         if (userModel != null) {
-                            if (userModel.userProfileImage.isEmpty()) {
+                            if (userModel.userProfileImageUrl.isEmpty()) {
                                 binding.ivProfileImage.setImageResource(R.drawable.profile_image)
                             } else {
                                 Glide.with(binding.ivProfileImage)
-                                    .load(userModel.userProfileImage)
+                                    .load(userModel.userProfileImageUrl)
                                     .into(binding.ivProfileImage)
                             }
                         }
@@ -97,28 +97,28 @@ class AccountInfoActivity : AppCompatActivity() {
             finish()
         }
 
-//        binding.btnDeleteAccount.setOnClickListener {
-//            val ad = AlertDialog.Builder(this@AccountInfoActivity)
-//            ad.setMessage("정말 회원 탈퇴를 하시겠습니까?")
-//            ad.setPositiveButton(
-//                "아니오"
-//            ) { dialog, _ ->
-//                Toast.makeText(this@AccountInfoActivity, "회원 탈퇴가 취소되었습니다", Toast.LENGTH_SHORT)
-//                    .show()
-//                dialog.dismiss()
-//            }
-//            ad.setNegativeButton(
-//                "네"
-//            ) { dialog, _ ->
-//                deleteAccount()
-//                Toast.makeText(this@AccountInfoActivity, "회원 탈퇴가 완료되었습니다", Toast.LENGTH_SHORT).show()
-//                val intent = Intent(this@AccountInfoActivity, LogInActivity::class.java)
-//                startActivity(intent)
-//                finish()
-//                dialog.dismiss()
-//            }
-//            ad.show()
-//        }
+        binding.btnDeleteAccount.setOnClickListener {
+            val ad = AlertDialog.Builder(this@AccountInfoActivity)
+            ad.setMessage("정말 회원 탈퇴를 하시겠습니까?")
+            ad.setPositiveButton(
+                "아니오"
+            ) { dialog, _ ->
+                Toast.makeText(this@AccountInfoActivity, "회원 탈퇴가 취소되었습니다", Toast.LENGTH_SHORT)
+                    .show()
+                dialog.dismiss()
+            }
+            ad.setNegativeButton(
+                "네"
+            ) { dialog, _ ->
+                deleteAccount()
+                Toast.makeText(this@AccountInfoActivity, "회원 탈퇴가 완료되었습니다", Toast.LENGTH_SHORT).show()
+                val intent = Intent(this@AccountInfoActivity, LogInActivity::class.java)
+                startActivity(intent)
+                finish()
+                dialog.dismiss()
+            }
+            ad.show()
+        }
 
         binding.backButton.setOnClickListener {
             val intent = Intent(this, ProfileActivity::class.java)

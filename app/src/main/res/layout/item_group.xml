@@ -5,7 +5,7 @@
     android:layout_height="wrap_content">
 
     <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/writerProfileImage"
+        android:id="@+id/adminProfileImageView"
         android:layout_width="84dp"
         android:layout_height="84dp"
         android:padding="16dp"
@@ -16,16 +16,6 @@
         app:srcCompat="@drawable/ic_launcher_foreground" />
 
     <TextView
-        android:layout_marginTop="8dp"
-        android:id="@+id/writerNameTextView"
-        android:layout_width="0dp"
-        android:textSize="12sp"
-        android:layout_height="wrap_content"
-        android:text="@string/nickname"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toEndOf="@id/writerProfileImage"/>
-
-    <TextView
         android:id="@+id/titleTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -33,22 +23,9 @@
         android:text="title"
         android:textColor="@color/black"
         android:textSize="18sp"
-        app:layout_constraintTop_toBottomOf="@+id/writerNameTextView"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/contentTextView"
-        app:layout_constraintEnd_toStartOf="@id/dateTextView"
-        app:layout_constraintStart_toEndOf="@id/writerProfileImage" />
-
-    <TextView
-        android:id="@+id/dateTextView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="date"
-        android:textColor="@color/black"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toEndOf="@+id/adminProfileImageView" />
 
     <TextView
         android:id="@+id/contentTextView"
@@ -62,6 +39,7 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/titleTextView"
         app:layout_constraintStart_toStartOf="@id/titleTextView" />
 
     <View

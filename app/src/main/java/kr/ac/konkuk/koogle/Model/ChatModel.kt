@@ -1,8 +1,12 @@
 package kr.ac.konkuk.koogle.Model
 
 data class ChatModel (
-    val senderId: String,
-    val message: String
+    val writerId: String,
+    val writerName: String,
+    val writerProfileImageUrl: String,
+    val chatContent: String,
+    val chatCreatedAt: Long
+
 ) {
-    constructor(): this("","")
+    constructor(): this("","","","", 0)
 }

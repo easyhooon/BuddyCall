@@ -96,11 +96,11 @@ class ProfileActivity : AppCompatActivity() {
                 if (snapshot.exists()) {
                     val userModel: UserModel? = snapshot.getValue(UserModel::class.java)
                     if (userModel != null) {
-                        if (userModel.userProfileImage.isEmpty()) {
+                        if (userModel.userProfileImageUrl.isEmpty()) {
                             binding.userProfileImage.setImageResource(R.drawable.profile_image)
                         } else {
                             Glide.with(binding.userProfileImage)
-                                .load(userModel.userProfileImage)
+                                .load(userModel.userProfileImageUrl)
                                 .into(binding.userProfileImage)
                         }
                     }

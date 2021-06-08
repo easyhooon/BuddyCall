@@ -26,7 +26,6 @@ class ArticleAdapter(val onItemClicked: (ArticleModel) -> Unit): ListAdapter<Art
             binding.dateTextView.text = format.format(date).toString()
             binding.contentTextView.text = articleModel.articleContent
 
-            //glide 사용
             if(articleModel.writerProfileImageUrl.isNotEmpty()){
                 Glide.with(binding.writerProfileImage)
                     .load(articleModel.writerProfileImageUrl)

@@ -1,89 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:layout_margin="24dp"
-    app:cardCornerRadius="16dp"
-    android:layout_height="match_parent">
+    app:cardCornerRadius="16dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/writerInfoLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/writerInfoLayout"
+        <TextView
+            android:id="@+id/nicknameTextView"
             android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintStart_toStartOf="parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:hint="@string/nickname"
+            android:textColor="@color/black"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toTopOf="@id/titleTextView"
+            app:layout_constraintStart_toEndOf="@id/profileImageView" />
+
+        <TextView
+            android:id="@+id/titleTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="@string/article_title"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="@+id/profileImageView"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
+            app:layout_constraintStart_toEndOf="@id/profileImageView"
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/profileImageView"
-                android:layout_width="84dp"
-                android:layout_height="84dp"
-                android:layout_margin="16dp"
-                android:padding="16dp"
-                android:src="@drawable/profile_image"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/contentTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="64dp"
+            android:layout_marginEnd="16dp"
+            android:hint="@string/content"
+            app:layout_constraintTop_toBottomOf="@id/titleTextView" />
 
-            <TextView
-                android:id="@+id/nicknameTextView"
-                android:layout_width="0dp"
-                android:layout_marginTop="16dp"
-                android:layout_height="wrap_content"
-                android:hint="@string/nickname"
-                android:textColor="@color/black"
-                android:textSize="12sp"
-                app:layout_constraintStart_toEndOf="@id/profileImageView"
-                app:layout_constraintBottom_toTopOf="@id/titleTextView" />
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/profileImageView"
+            android:layout_width="84dp"
+            android:layout_height="84dp"
+            android:layout_margin="16dp"
+            android:padding="16dp"
+            android:src="@drawable/profile_image"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
-                android:id="@+id/titleTextView"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:hint="@string/article_title"
-                android:textColor="@color/black"
-                android:textSize="20sp"
-                app:layout_constraintBottom_toBottomOf="@+id/profileImageView"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/profileImageView"
-                app:layout_constraintTop_toTopOf="parent" />
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/cancelImageView"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginBottom="40dp"
+            android:src="@drawable/ic_baseline_cancel_24"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/checkImageView"
+            app:layout_constraintStart_toStartOf="parent" />
 
-            <TextView
-                android:layout_marginTop="64dp"
-                android:id="@+id/contentTextView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/titleTextView"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:hint="@string/content"/>
-
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/cancelImageView"
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    android:layout_marginBottom="40dp"
-                    android:src="@drawable/ic_baseline_cancel_24"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/checkImageView"
-                    app:layout_constraintStart_toStartOf="parent" />
-
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/checkImageView"
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    android:layout_marginBottom="40dp"
-                    android:src="@drawable/ic_baseline_check_circle_24"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/cancelImageView" />
-
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/checkImageView"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginBottom="40dp"
+            android:src="@drawable/ic_baseline_check_circle_24"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/cancelImageView" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
