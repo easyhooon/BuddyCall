@@ -11,8 +11,6 @@ import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import kr.ac.konkuk.koogle.Adapter.ChatAdapter
-import kr.ac.konkuk.koogle.Adapter.ChatAdapter.Companion.LEFT_CHAT
-import kr.ac.konkuk.koogle.Adapter.ChatAdapter.Companion.RIGHT_CHAT
 import kr.ac.konkuk.koogle.DBKeys.Companion.CHAT_CONTENT
 import kr.ac.konkuk.koogle.DBKeys.Companion.CHAT_CREATED_AT
 import kr.ac.konkuk.koogle.DBKeys.Companion.CHAT_ID
@@ -20,6 +18,8 @@ import kr.ac.konkuk.koogle.DBKeys.Companion.DB_GROUPS
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_MESSAGES
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
 import kr.ac.konkuk.koogle.DBKeys.Companion.GROUP_ID
+import kr.ac.konkuk.koogle.DBKeys.Companion.LEFT_CHAT
+import kr.ac.konkuk.koogle.DBKeys.Companion.RIGHT_CHAT
 import kr.ac.konkuk.koogle.DBKeys.Companion.WRITER_ID
 import kr.ac.konkuk.koogle.DBKeys.Companion.WRITER_NAME
 import kr.ac.konkuk.koogle.DBKeys.Companion.WRITER_PROFILE_IMAGE_URL
@@ -45,7 +45,7 @@ class ChatRoomActivity : AppCompatActivity() {
         Firebase.auth
     }
 
-    private val FirebaseUser = auth.currentUser!!
+    private val firebaseUser = auth.currentUser!!
 
     private val chatList = mutableListOf<ChatModel>()
 
@@ -57,7 +57,7 @@ class ChatRoomActivity : AppCompatActivity() {
             val chatModel = snapshot.getValue(ChatModel::class.java)
             chatModel ?: return
 
-            if (chatModel.writerId == FirebaseUser.uid){
+            if (chatModel.writerId == firebaseUser.uid){
                 chatModel.viewType = RIGHT_CHAT
             }
             else

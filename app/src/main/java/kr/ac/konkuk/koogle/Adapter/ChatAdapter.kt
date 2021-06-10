@@ -11,6 +11,8 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import de.hdodenhof.circleimageview.CircleImageView
+import kr.ac.konkuk.koogle.DBKeys.Companion.LEFT_CHAT
+import kr.ac.konkuk.koogle.DBKeys.Companion.RIGHT_CHAT
 import kr.ac.konkuk.koogle.Model.ChatModel
 import kr.ac.konkuk.koogle.R
 import kr.ac.konkuk.koogle.databinding.ItemLeftChatBinding
@@ -20,12 +22,6 @@ import java.util.*
 
 class ChatAdapter(val context: Context, private val chatList: MutableList<ChatModel>) :
     RecyclerView.Adapter<ChatAdapter.BaseViewHolder<*>>() {
-
-    companion object {
-        const val LEFT_CHAT = 1
-        const val RIGHT_CHAT = 2
-    }
-
 
     abstract class BaseViewHolder<T>(itemView: View) : RecyclerView.ViewHolder(itemView) {
         abstract fun bind(item: T)
@@ -53,29 +49,6 @@ class ChatAdapter(val context: Context, private val chatList: MutableList<ChatMo
                 Glide.with(iv_writerProfileImage)
                     .load(chatModel.writerProfileImageUrl)
                     .into(iv_writerProfileImage)
-
-
-//            fun bind(item: ChatModel){
-//                tv_writerName.text = item.writerName
-//                tv_chatContent.text = item.chatContent
-//                tv_createTime.text = format.format(time).toString()
-//
-//                if(chatModel.writerProfileImageUrl.isNotEmpty()){
-//                    Glide.with(iv_writerProfileImage)
-//                        .load(chatModel.writerProfileImageUrl)
-//                        .into(iv_writerProfileImage)
-//                }
-//
-//            }
-//            binding.writerNameTextView.text = chatModel.writerName
-//            binding.contentTextView.text = chatModel.chatContent
-//            binding.timeTextView.text = format.format(time).toString()
-//
-//            if(chatModel.writerProfileImageUrl.isNotEmpty()){
-//                Glide.with(binding.writerProfileImage)
-//                    .load(chatModel.writerProfileImageUrl)
-//                    .into(binding.writerProfileImage)
-//            }
             }
         }
     }
@@ -94,14 +67,6 @@ class ChatAdapter(val context: Context, private val chatList: MutableList<ChatMo
             tv_chatContent.text = chatModel.chatContent
             tv_createTime.text = format.format(time).toString()
         }
-
-//            fun bind(item: ChatModel){
-//                tv_chatContent.text = item.chatContent
-//                tv_createTime.text = format.format(time).toString()
-//            }
-
-//            binding.contentTextView.text = chatModel.chatContent
-//            binding.timeTextView.text = format.format(time).toString()
     }
 
 

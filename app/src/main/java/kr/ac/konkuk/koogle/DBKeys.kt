@@ -37,10 +37,9 @@ class DBKeys {
         const val CHAT_CONTENT = "chatContent"
         const val CHAT_CREATED_AT = "chatCreatedAt"
 
-//        //ViewType
-//        const val LEFT_CHAT = 1;
-//        const val RIGHT_CHAT = 2;
-
+        //ViewType
+        const val LEFT_CHAT = 1; //남들의 채팅(프로필과 이름 내용 모두 보임)
+        const val RIGHT_CHAT = 2; //내 채팅(내용만 보임)
 
     }
 }
