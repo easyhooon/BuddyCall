@@ -166,7 +166,7 @@ class ProfileActivity : AppCompatActivity() {
 
     private fun initData() {
         // 임시 데이터
-        tag_debug_data.add(TagModel("언어", arrayListOf("한국어", "영어")))
+        tag_debug_data.add(TagModel("언어", arrayListOf("C", "한국어", "C++", "Python", "영어", "Java", "독일어")))
         tag_debug_data.add(TagModel("성격", arrayListOf("활동적인", "솔직한")))
         tag_debug_data.add(
             TagModel(

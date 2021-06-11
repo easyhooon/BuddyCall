@@ -3,10 +3,10 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="facebook_app_id">488375495701555</string>
     <string name="fb_login_protocol_scheme">fb488375495701555</string>
-    <string name="summary">요약</string>
+    <string name="summary">피드</string>
     <string name="search">검색</string>
-    <string name="group_chat">그룹</string>
-    <string name="full_list">전체목록</string>
+    <string name="group_chat">모임체팅</string>
+    <string name="full_list">모임검색</string>
     <string name="option">옵션</string>
     <string name="sign_up">회원가입</string>
     <string name="email">Email</string>

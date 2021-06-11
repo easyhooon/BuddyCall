@@ -11,5 +11,6 @@
     <color name="test_dark_gray">#CDC4BD</color>
     <color name="gray_cc">#CCCCCC</color>
     <color name="gray_ec">#ECECEC</color>
-    <color name="colorMain">#03bc9c</color>
+    <color name="colorMain">#92A8D1</color>
+    <color name="tint">#F7CAC9</color>
 </resources>
