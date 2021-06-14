@@ -57,6 +57,8 @@ class ArticleActivity : AppCompatActivity() {
         initButton()
     }
 
+    //todo 글의 수정, 삭제 메뉴 옵션 구현 해야 함
+
     private fun initButton() {
         binding.backButton.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)

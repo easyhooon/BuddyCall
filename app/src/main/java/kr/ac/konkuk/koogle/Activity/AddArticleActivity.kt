@@ -77,6 +77,27 @@ class AddArticleActivity : AppCompatActivity() {
         binding = ActivityAddArticleBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        val currentUserRef = userRef.child(auth.currentUser?.uid.toString())
+        currentUserRef.addListenerForSingleValueEvent(object: ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val userModel: UserModel? = snapshot.getValue(UserModel::class.java)
+                if (userModel != null) {
+                    Log.d("onDataChange", "userName: ${userModel.userName}")
+                    writerName = userModel.userName
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.d("onCancelled: ", "데이터로드 실패")
+            }
+
+        })
+
+        initButton()
+
+    }
+
+    private fun initButton() {
         binding.imageAddButton.setOnClickListener {
             when {
                 ContextCompat.checkSelfPermission(
@@ -98,22 +119,6 @@ class AddArticleActivity : AppCompatActivity() {
                 }
             }
         }
-
-        val currentUserRef = userRef.child(auth.currentUser?.uid.toString())
-        currentUserRef.addListenerForSingleValueEvent(object: ValueEventListener{
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val userModel: UserModel? = snapshot.getValue(UserModel::class.java)
-                if (userModel != null) {
-                    Log.d("onDataChange", "userName: ${userModel.userName}")
-                    writerName = userModel.userName
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.d("onCancelled: ", "데이터로드 실패")
-            }
-
-        })
 
         binding.submitButton.setOnClickListener {
             articleId = articleRef.push().key.toString()
@@ -184,6 +189,18 @@ class AddArticleActivity : AppCompatActivity() {
                 )
             }
         }
+
+        binding.backButton.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
+
+        //todo 기능 구현중
+//        binding.locationAddButton.setOnClickListener {
+//            val intent = Intent(this, LocationSearchActivity::class.java)
+//            startActivity(intent)
+//        }
     }
 
     private fun createChatRoom(

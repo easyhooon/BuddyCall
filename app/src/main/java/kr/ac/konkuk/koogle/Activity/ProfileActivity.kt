@@ -33,8 +33,6 @@ import kr.ac.konkuk.koogle.databinding.ActivityProfileBinding
     initRecommandRecyclerView: 타 유저의 추천(후기) 글 리스트
  */
 
-//private var backBtnTime: Long = 0 // 뒤로가기 두번 눌러 종료 용 변수
-
 class ProfileActivity : AppCompatActivity() {
     private var tag_debug_data: ArrayList<TagModel> = ArrayList()
     private var recommend_debug_data: ArrayList<ArrayList<String>> = ArrayList()
@@ -213,18 +211,4 @@ class ProfileActivity : AppCompatActivity() {
             )
         )
     }
-
-//    //뒤로가기 두번 눌러 종료
-//    override fun onBackPressed() {
-//        val curTime = System.currentTimeMillis()
-//        val gapTime: Long = curTime - backBtnTime
-//
-//        //뒤로가기를 한번 누른 후에 2초가 지나기전에 한번 더 눌렀을 경우 if문 진입
-//        if (gapTime in 0..2000) {
-//            super.onBackPressed()
-//        } else {
-//            backBtnTime = curTime
-//            Toast.makeText(this, "한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show()
-//        }
-//    }
 }

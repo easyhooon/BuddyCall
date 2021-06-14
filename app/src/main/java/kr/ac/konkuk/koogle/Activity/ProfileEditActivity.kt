@@ -153,10 +153,9 @@ class ProfileEditActivity : AppCompatActivity() {
     }
 
     private fun initTagRecyclerView() {
-        tagRecyclerView = findViewById<RecyclerView>(R.id.tagRecyclerView)
-        tagRecyclerView.layoutManager = LinearLayoutManager(this)
+        binding.tagRecyclerView.layoutManager = LinearLayoutManager(this)
         // 구분선 넣기
-        tagRecyclerView.addItemDecoration(DividerItemDecoration(tagRecyclerView.context, 1))
+        binding.tagRecyclerView.addItemDecoration(DividerItemDecoration(tagRecyclerView.context, 1))
 
         tagAdapter = TagAdapter(this, tag_debug_data)
         tagAdapter.itemClickListener = object : TagAdapter.OnItemClickListener {
@@ -169,7 +168,7 @@ class ProfileEditActivity : AppCompatActivity() {
                 // 미구현
             }
         }
-        tagRecyclerView.adapter = tagAdapter
+        binding.tagRecyclerView.adapter = tagAdapter
         val simpleCallBack = object : ItemTouchHelper.SimpleCallback(
             ItemTouchHelper.DOWN or ItemTouchHelper.UP,
             ItemTouchHelper.RIGHT

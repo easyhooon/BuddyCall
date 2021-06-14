@@ -134,7 +134,4 @@ class LocationSearchActivity : AppCompatActivity(), CoroutineScope {
         super.onDestroy()
         job.cancel()
     }
-
-
-
 }
