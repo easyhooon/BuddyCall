@@ -10,9 +10,4 @@ data class ChatModel (
     val chatId: String
 ) {
     constructor(): this(0,"","","","", 0, "")
-
-//    companion object {
-//        const val LEFT_CHAT = 1
-//        const val RIGHT_CHAT = 2
-//    }
 }

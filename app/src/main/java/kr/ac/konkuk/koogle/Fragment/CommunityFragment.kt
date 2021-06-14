@@ -19,7 +19,7 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import kr.ac.konkuk.koogle.Activity.AddArticleActivity
 import kr.ac.konkuk.koogle.Activity.ArticleActivity
-import kr.ac.konkuk.koogle.Adapter.ArticleAdapter
+import kr.ac.konkuk.koogle.Adapter.CommunityAdapter
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_ID
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_ARTICLES
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
@@ -33,7 +33,7 @@ class CommunityFragment : Fragment() {
 
     private lateinit var userRef: DatabaseReference
     private lateinit var articleRef: DatabaseReference
-    private lateinit var articleAdapter: ArticleAdapter
+    private lateinit var communityAdapter: CommunityAdapter
 
     private val articleList = mutableListOf<ArticleModel>()
 
@@ -48,7 +48,7 @@ class CommunityFragment : Fragment() {
             articleModel ?: return
 
             articleList.add(articleModel)
-            articleAdapter.submitList(articleList)
+            communityAdapter.submitList(articleList)
         }
 
         override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
@@ -86,7 +86,7 @@ class CommunityFragment : Fragment() {
     private fun initRecyclerView() {
         articleList.clear()
         //초기화 코드
-        articleAdapter = ArticleAdapter(onItemClicked = { articleModel ->
+        communityAdapter = CommunityAdapter(onItemClicked = { articleModel ->
             if(auth.currentUser != null) {
                 val intent = Intent(context, ArticleActivity::class.java)
                 intent.putExtra(ARTICLE_ID, articleModel.articleId)
@@ -102,7 +102,7 @@ class CommunityFragment : Fragment() {
 
 
         binding!!.articleRecyclerView.layoutManager = LinearLayoutManager(context)
-        binding!!.articleRecyclerView.adapter = articleAdapter
+        binding!!.articleRecyclerView.adapter = communityAdapter
     }
 
     private fun initButton() {
@@ -130,7 +130,7 @@ class CommunityFragment : Fragment() {
         super.onResume()
 
         //view가 다시 보일때마다 뷰를 다시 그림
-        articleAdapter.notifyDataSetChanged()
+        communityAdapter.notifyDataSetChanged()
     }
 
     override fun onDestroyView() {

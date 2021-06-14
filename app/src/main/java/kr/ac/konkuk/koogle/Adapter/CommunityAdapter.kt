@@ -12,7 +12,7 @@ import kr.ac.konkuk.koogle.databinding.ItemArticleBinding
 import java.text.SimpleDateFormat
 import java.util.*
 
-class ArticleAdapter(val onItemClicked: (ArticleModel) -> Unit): ListAdapter<ArticleModel, ArticleAdapter.ViewHolder>(diffUtil){
+class CommunityAdapter(val onItemClicked: (ArticleModel) -> Unit): ListAdapter<ArticleModel, CommunityAdapter.ViewHolder>(diffUtil){
     inner class ViewHolder(private val binding: ItemArticleBinding): RecyclerView.ViewHolder(binding.root) {
 
         @SuppressLint("SimpleDateFormat")

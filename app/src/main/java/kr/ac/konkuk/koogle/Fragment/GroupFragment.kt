@@ -2,7 +2,6 @@ package kr.ac.konkuk.koogle.Fragment
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -17,14 +16,10 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import kr.ac.konkuk.koogle.Activity.AddArticleActivity
-import kr.ac.konkuk.koogle.Activity.ArticleActivity
 import kr.ac.konkuk.koogle.Activity.ChatRoomActivity
-import kr.ac.konkuk.koogle.Adapter.ArticleAdapter
 import kr.ac.konkuk.koogle.Adapter.GroupAdapter
 import kr.ac.konkuk.koogle.DBKeys
 import kr.ac.konkuk.koogle.DBKeys.Companion.GROUP_ID
-import kr.ac.konkuk.koogle.Model.ArticleModel
 import kr.ac.konkuk.koogle.Model.GroupModel
 import kr.ac.konkuk.koogle.databinding.FragmentGroupBinding
 

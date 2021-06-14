@@ -23,5 +23,8 @@
     <string name="delete">삭제하기</string>
     <string name="delte">수정하기</string>
     <string name="edit">수정하기</string>
+    <string name="input_content">내용을 입력하세요.</string>
+    <string name="show_map">지도로 보기</string>
+    <string name="current_location">현재 위치</string>
 
 </resources>
