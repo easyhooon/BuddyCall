@@ -42,7 +42,6 @@ class SignUpActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-
             if (email.isEmpty()) {
                 Toast.makeText(this, LogInActivity.ENTER_EMAIL, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
