@@ -9,7 +9,7 @@
         android:id="@+id/titleEditText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="12dp"
+        android:layout_marginHorizontal="16dp"
         android:background="@android:color/transparent"
         android:hint="글 제목"
         android:paddingVertical="16dp"
@@ -98,24 +98,13 @@
             android:padding="16dp" />
 
         <TextView
+            android:id="@+id/locationTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="6dp"
             android:padding="16dp"
             android:text="@string/location"
             android:layout_gravity="center"/>
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="12dp"
-            android:layout_gravity="end|center"
-            android:text="@string/show_map" />
 
     </LinearLayout>
 
@@ -145,6 +134,21 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/recruitmentNumberLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:paddingVertical="16dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/recruitmentNumberEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="모집인원"
+                    android:inputType="number"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
             <EditText
                 android:id="@+id/contentEditText"
                 android:layout_width="match_parent"
@@ -152,6 +156,7 @@
                 android:layout_marginHorizontal="16dp"
                 android:background="@android:color/transparent"
                 android:hint="@string/input_content"
+                android:paddingVertical="16dp"
                 android:lines="12"
                 android:gravity="top"
                 android:inputType="textMultiLine"
@@ -176,7 +181,6 @@
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
-
 
     <View
         android:id="@+id/toolbarUnderLineView"

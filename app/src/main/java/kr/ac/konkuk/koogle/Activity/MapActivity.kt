@@ -3,14 +3,15 @@ package kr.ac.konkuk.koogle.Activity
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -21,6 +22,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.*
+import kr.ac.konkuk.koogle.Activity.LocationSearchActivity.Companion.TEMP
 import kr.ac.konkuk.koogle.Model.Entity.LocationLatLngEntity
 import kr.ac.konkuk.koogle.Model.Entity.SearchResultEntity
 import kr.ac.konkuk.koogle.R
@@ -56,10 +58,25 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, CoroutineScope {
         if(::searchResult.isInitialized.not()){
             intent?.let{
                 searchResult = it.getParcelableExtra(SEARCH_RESULT_EXTRA_KEY) ?: throw Exception("데이터가 존재하지 않습니다.")
+                Log.i("MapActivity", "onCreate: fullAddress: ${searchResult.fullAddress}")
                 setupGoogleMap()
             }
         }
         bindViews()
+        bindButton()
+    }
+
+    private fun bindButton() {
+        binding.checkButton.setOnClickListener {
+            val intent = Intent()
+            intent.putExtra(TEMP, searchResult)
+            setResult(RESULT_OK)
+            finish()
+        }
+        binding.cancelButton.setOnClickListener {
+            setResult(RESULT_CANCELED)
+            finish()
+        }
     }
 
     private fun bindViews() = with(binding) {
@@ -183,7 +200,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, CoroutineScope {
                                 currentSelectMarker?.showInfoWindow()
                             }
                         }
-
                     }
                 }
             }

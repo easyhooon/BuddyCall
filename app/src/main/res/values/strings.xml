@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Koogle</string>
+    <string name="app_name">BuddyCall</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="facebook_app_id">488375495701555</string>
     <string name="fb_login_protocol_scheme">fb488375495701555</string>
@@ -8,7 +8,6 @@
     <string name="group_chat">모임체팅</string>
     <string name="full_list">모임검색</string>
     <string name="option">옵션</string>
-    <string name="sign_up">회원가입</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
     <string name="nickname">닉네임</string>
@@ -25,8 +24,10 @@
     <string name="input_content">내용을 입력하세요.</string>
     <string name="show_map">지도로 보기</string>
     <string name="location">위치</string>
-    <string name="please_input_search_keyword">검색어를 입력해주세요.</string>
+    <string name="please_input_search_keyword">  검색어를 입력해주세요.</string>
     <string name="empty_result">검색 결과가 없습니다</string>
     <string name="title">제목</string>
+    <string name="sign_up">회원가입</string>
+    <string name="log_in">로그인</string>
 
 </resources>

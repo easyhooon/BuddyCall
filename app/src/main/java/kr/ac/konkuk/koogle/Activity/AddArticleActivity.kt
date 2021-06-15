@@ -41,8 +41,8 @@ import kr.ac.konkuk.koogle.DBKeys.Companion.USER_PROFILE_IMAGE_URL
 import kr.ac.konkuk.koogle.DBKeys.Companion.WRITER_ID
 import kr.ac.konkuk.koogle.DBKeys.Companion.WRITER_NAME
 import kr.ac.konkuk.koogle.DBKeys.Companion.WRITER_PROFILE_IMAGE_URL
+import kr.ac.konkuk.koogle.Model.Entity.SearchResultEntity
 import kr.ac.konkuk.koogle.Model.UserModel
-import kr.ac.konkuk.koogle.R
 import kr.ac.konkuk.koogle.databinding.ActivityAddArticleBinding
 
 class AddArticleActivity : AppCompatActivity() {
@@ -52,6 +52,8 @@ class AddArticleActivity : AppCompatActivity() {
     lateinit var writerProfileImageUrl: String
 
     lateinit var articleId: String
+
+    private lateinit var searchResult: SearchResultEntity
 
     private var selectedUri: Uri? = null
     private val auth: FirebaseAuth by lazy {
@@ -197,10 +199,10 @@ class AddArticleActivity : AppCompatActivity() {
         }
 
         //todo 기능 구현중
-//        binding.locationAddButton.setOnClickListener {
-//            val intent = Intent(this, LocationSearchActivity::class.java)
-//            startActivity(intent)
-//        }
+        binding.locationAddButton.setOnClickListener {
+            val intent = Intent(this, LocationSearchActivity::class.java)
+            startActivityForResult(intent, LOCATION_SEARCH_REQUEST_CODE)
+        }
     }
 
     private fun createChatRoom(
@@ -307,7 +309,7 @@ class AddArticleActivity : AppCompatActivity() {
     private fun startContentProvider() {
         val intent = Intent(Intent.ACTION_GET_CONTENT)
         intent.type = "image/*"
-        startActivityForResult(intent, 2020)
+        startActivityForResult(intent, CONTENT_PROVIDER_REQUEST_CODE)
     }
 
     private fun showProgress() {
@@ -323,19 +325,29 @@ class AddArticleActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
 
         when (requestCode) {
-            2020 -> {
+            CONTENT_PROVIDER_REQUEST_CODE -> {
                 //data 안에 사진의 uri 가 넘어온것
                 //우선 null 처리
                 val uri = data?.data
                 if (uri != null) {
-                    findViewById<ImageView>(R.id.photoImageView).setImageURI(uri)
+                    binding.photoImageView.setImageURI(uri)
                     selectedUri = uri
                 } else {
                     Toast.makeText(this, "사진을 가져오지 못했습니다.", Toast.LENGTH_SHORT).show()
                 }
             }
-            else -> {
-                Toast.makeText(this, "사진을 가져오지 못했습니다.", Toast.LENGTH_SHORT).show()
+            LOCATION_SEARCH_REQUEST_CODE -> {
+                data.let{
+                    if (it != null) {
+                        searchResult = it.getParcelableExtra(TMP)!!
+                        Log.i("AddArticleActivity", "onActivityResult: fullAddress: ${searchResult.fullAddress}")
+                        binding.locationTextView.text = searchResult.fullAddress
+                    }
+                    else{
+                        Log.i("AddArticleActivity", "onActivityResult: 데이터를 가져오지 못함")
+                        Toast.makeText(this, "위치를 가져오지 못했습니다.", Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
         }
     }
@@ -350,5 +362,11 @@ class AddArticleActivity : AppCompatActivity() {
             }
             .create()
             .show()
+    }
+
+    companion object {
+        const val LOCATION_SEARCH_REQUEST_CODE = 100
+        const val CONTENT_PROVIDER_REQUEST_CODE = 200
+        const val TMP = "tmp"
     }
 }
