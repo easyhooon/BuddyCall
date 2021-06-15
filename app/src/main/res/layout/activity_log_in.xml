@@ -30,8 +30,8 @@
         android:layout_width="224dp"
         android:layout_height="0dp"
         android:layout_marginTop="77dp"
-        android:layout_marginBottom="108dp"
-        app:layout_constraintBottom_toTopOf="@+id/passwordEditTextLayout"
+        android:layout_marginBottom="24dp"
+        app:layout_constraintBottom_toTopOf="@+id/emailEditTextLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -41,22 +41,20 @@
         android:id="@+id/facebookLoginButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="24dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="17dp"
-        android:layout_marginEnd="24dp"
+        android:layout_marginHorizontal="124dp"
+        android:layout_marginTop="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/googleLoginButton" />
 
     <com.google.android.gms.common.SignInButton
         android:id="@+id/googleLoginButton"
-        android:layout_width="363dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="24dp"
-        android:layout_marginTop="18dp"
-        app:layout_constraintEnd_toStartOf="@+id/signUpButton"
-        app:layout_constraintStart_toStartOf="@+id/signUpButton"
+        android:layout_marginHorizontal="120dp"
+        android:layout_marginTop="24dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/loginButton" />
 
     <com.google.android.material.textfield.TextInputLayout
@@ -80,17 +78,15 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/passwordEditTextLayout"
-        android:layout_width="363dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
         android:layout_marginHorizontal="24dp"
-        android:layout_marginTop="9dp"
-        android:layout_marginBottom="252dp"
         app:counterEnabled="true"
         app:counterMaxLength="15"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/signUpButton"
-        app:layout_constraintStart_toStartOf="@+id/signUpButton"
-        app:layout_constraintTop_toBottomOf="@+id/imageView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/emailEditTextLayout"
         app:passwordToggleEnabled="true">
 
         <com.google.android.material.textfield.TextInputEditText
