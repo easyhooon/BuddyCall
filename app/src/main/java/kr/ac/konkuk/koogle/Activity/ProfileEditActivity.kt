@@ -38,7 +38,7 @@ class ProfileEditActivity : AppCompatActivity() {
     private var tag_debug_data: ArrayList<TagModel> = ArrayList()
     private var recommend_debug_data: ArrayList<ArrayList<String>> = ArrayList()
     lateinit var binding: ActivityEditProfileBinding
-    lateinit var tagRecyclerView: RecyclerView
+//    lateinit var tagRecyclerView: RecyclerView
     lateinit var tagAdapter: TagAdapter
 
     lateinit var imageUri: Uri
@@ -92,6 +92,9 @@ class ProfileEditActivity : AppCompatActivity() {
             CropImage.activity()
                 .setAspectRatio(1,1)
                 .start(this);
+        }
+        binding.profileEditButton.setOnClickListener {
+            finish()
         }
     }
 
@@ -156,7 +159,7 @@ class ProfileEditActivity : AppCompatActivity() {
     private fun initTagRecyclerView() {
         binding.tagRecyclerView.layoutManager = LinearLayoutManager(this)
         // 구분선 넣기
-        binding.tagRecyclerView.addItemDecoration(DividerItemDecoration(tagRecyclerView.context, 1))
+        binding.tagRecyclerView.addItemDecoration(DividerItemDecoration(this, 1))
 
         tagAdapter = TagAdapter(this, tag_debug_data)
         tagAdapter.itemClickListener = object : TagAdapter.OnItemClickListener {
@@ -188,7 +191,7 @@ class ProfileEditActivity : AppCompatActivity() {
             }
         }
         val itemTouchHelper = ItemTouchHelper(simpleCallBack)
-        itemTouchHelper.attachToRecyclerView(tagRecyclerView)
+        itemTouchHelper.attachToRecyclerView(binding.tagRecyclerView)
     }
 
     private fun initData() {

@@ -84,6 +84,11 @@ class AddArticleActivity : AppCompatActivity() {
         binding = ActivityAddArticleBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        initDB()
+        initButton()
+    }
+
+    private fun initDB() {
         val currentUserRef = userRef.child(auth.currentUser?.uid.toString())
         currentUserRef.addListenerForSingleValueEvent(object: ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -91,6 +96,7 @@ class AddArticleActivity : AppCompatActivity() {
                 if (userModel != null) {
                     Log.d("onDataChange", "userName: ${userModel.userName}")
                     writerName = userModel.userName
+                    writerProfileImageUrl = userModel.userProfileImageUrl
                 }
             }
 
@@ -101,7 +107,6 @@ class AddArticleActivity : AppCompatActivity() {
         })
 
         initButton()
-
     }
 
     private fun initButton() {
@@ -134,15 +139,7 @@ class AddArticleActivity : AppCompatActivity() {
             val writerId = auth.currentUser?.uid.orEmpty()
             val recruitmentNumber = binding.recruitmentNumberEditText.text.toString().toInt()
 
-            if (auth.currentUser?.photoUrl != null) {
-                writerProfileImageUrl = auth.currentUser?.photoUrl.toString()
-            }
-            else {
-                writerProfileImageUrl = ""
-            }
-
             showProgress()
-
 
             //중간에 이미지가 있으면 업로드 과정을 추가
             if (selectedUri != null) {
@@ -232,8 +229,8 @@ class AddArticleActivity : AppCompatActivity() {
         group[GROUP_LAST_CHAT] = ""
         group[GROUP_LAST_CHAT_CREATED_AT] = 0
 
-        currentGroupRef.setValue(group)
-//        currentGroupRef.updateChildren(group)
+//        currentGroupRef.setValue(group)
+        currentGroupRef.updateChildren(group)
 
         //채팅방 생성 후에 방장(admin)이 채팅방에 참여자로 등록
 
@@ -244,8 +241,8 @@ class AddArticleActivity : AppCompatActivity() {
         user[USER_NAME] = adminName
         user[USER_PROFILE_IMAGE_URL] = adminProfileImageUrl
 
-        currentGroupUserRef.setValue(user)
-//        currentGroupUserRef.updateChildren(user)
+//        currentGroupUserRef.setValue(user)
+        currentGroupUserRef.updateChildren(user)
 
         hideProgress()
         finish()

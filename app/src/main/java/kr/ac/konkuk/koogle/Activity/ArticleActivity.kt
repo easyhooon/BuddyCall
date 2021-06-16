@@ -1,6 +1,7 @@
 package kr.ac.konkuk.koogle.Activity
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.provider.ContactsContract
@@ -55,6 +56,7 @@ class ArticleActivity : AppCompatActivity() {
     private val auth: FirebaseAuth by lazy {
         Firebase.auth
     }
+    private val firebaseUser = auth.currentUser!!
 
     private val currentUserRef: DatabaseReference by lazy {
         Firebase.database.reference.child(DB_USERS).child(auth.currentUser?.uid.toString())
@@ -62,6 +64,10 @@ class ArticleActivity : AppCompatActivity() {
 
     private val currentArticleRef: DatabaseReference by lazy{
         Firebase.database.reference.child(DB_ARTICLES).child(articleId)
+    }
+
+    private val currentGroupRef: DatabaseReference by lazy {
+        Firebase.database.reference.child(DB_GROUPS).child(articleId)
     }
 
     private val currentGroupUserRef: DatabaseReference by lazy {
@@ -88,21 +94,45 @@ class ArticleActivity : AppCompatActivity() {
         }
     }
 
-    //todo 글의 수정, 삭제 메뉴 옵션 구현 해야 함
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        val menuInflater = menuInflater
-        menuInflater.inflate(R.menu.article_option_menu, menu)
-
+        //글 작성자만 메뉴 옵션을 볼 수 있도록
+        if(firebaseUser.uid == writerId){
+            val menuInflater = menuInflater
+            menuInflater.inflate(R.menu.article_option_menu, menu)
+        }
         return super.onCreateOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.updateArticle -> {
-
+                val intent = Intent(this, EditArticleActivity::class.java)
+                //쉽지않네 두 상황(글 처음 작성, 글 수정) 같은 액티비티에서 어떻게 구분하지 -> 액티비티를 구분
+                //intent.putExtra(ARTICLE_INFO, articleModel)
+                //근데 글 수정하면 기존에 채팅방은 어떻게 하지 -> 그냥 남기자
+                startActivity(intent)
+                finish()
             }
             R.id.deleteArticle -> {
                 //dialog 한번 뿌리고 진짜 삭제
+                val ad = AlertDialog.Builder(this@ArticleActivity)
+                ad.setMessage("정말 글을 삭제하시겠습니까?")
+                ad.setPositiveButton(
+                    "아니오"
+                ) { dialog, _ ->
+                    dialog.dismiss()
+                }
+                ad.setNegativeButton(
+                    "네"
+                ) { dialog, _ ->
+                    //글과 그룹 모두 삭제
+                    deleteArticle()
+                    val intent = Intent(this@ArticleActivity,MainActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                    dialog.dismiss()
+                }
+                ad.show()
             }
             else -> {
                 //뒤로가기
@@ -111,6 +141,11 @@ class ArticleActivity : AppCompatActivity() {
         }
 
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun deleteArticle() {
+        currentArticleRef.setValue(null)
+        currentGroupRef.setValue(null)
     }
 
     private fun initButton() {
@@ -140,7 +175,6 @@ class ArticleActivity : AppCompatActivity() {
                     Toast.makeText(this, "모집인원을 초과하였습니다", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
-
             }
         }
 
@@ -156,7 +190,7 @@ class ArticleActivity : AppCompatActivity() {
         articleId = intent.getStringExtra(ARTICLE_ID).toString()
         //파이어베이스 데이터베이스의 정보 가져오기
         currentArticleRef.addListenerForSingleValueEvent(object : ValueEventListener {
-            @SuppressLint("SimpleDateFormat")
+            @SuppressLint("SimpleDateFormat", "SetTextI18n")
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
                     val articleModel: ArticleModel? = snapshot.getValue(ArticleModel::class.java)
@@ -188,6 +222,7 @@ class ArticleActivity : AppCompatActivity() {
                             binding.locationTextView.text = articleModel.desiredLocation.fullAddress
                             binding.writerNameTextView.text =articleModel.writerName
                             binding.titleTextView.text = articleModel.articleTitle
+                            binding.recruitmentNumberTextView.text = articleModel.recruitmentNumber.toString()+"명"
                             val date = Date(articleModel.articleCreatedAt)
                             binding.dateTextView.text = format.format(date).toString()
                             binding.contentTextView.text = articleModel.articleContent
@@ -200,6 +235,7 @@ class ArticleActivity : AppCompatActivity() {
                             binding.locationInfoLayout.visibility =  View.GONE
                             binding.writerNameTextView.text =articleModel.writerName
                             binding.titleTextView.text = articleModel.articleTitle
+                            binding.recruitmentNumberTextView.text = articleModel.recruitmentNumber.toString()+"명"
                             val date = Date(articleModel.articleCreatedAt)
                             binding.dateTextView.text = format.format(date).toString()
                             binding.contentTextView.text = articleModel.articleContent
@@ -292,5 +328,6 @@ class ArticleActivity : AppCompatActivity() {
 
     companion object {
         const val MAP_INFO = "MAP_INFO"
+        const val ARTICLE_INFO = "ARTICLE_INFO"
     }
 }

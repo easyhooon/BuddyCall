@@ -4,12 +4,13 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/app_logo"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Koogle">
-        <activity android:name=".Activity.CheckMapActivity"/>
+        <activity android:name=".Activity.EditArticleActivity"></activity>
+        <activity android:name=".Activity.CheckMapActivity" />
         <activity android:name=".Activity.MapActivity" />
         <activity android:name=".Activity.LocationSearchActivity" />
         <activity android:name=".Activity.ArticleActivity" />
@@ -56,10 +57,10 @@
             android:value="@string/google_map" />
     </application>
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
 
 </manifest>

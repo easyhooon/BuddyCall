@@ -1,11 +1,14 @@
 package kr.ac.konkuk.koogle.Activity
 
+import android.app.AlertDialog
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,6 +22,8 @@ import kr.ac.konkuk.koogle.Adapter.ChatAdapter
 import kr.ac.konkuk.koogle.DBKeys.Companion.CHAT_CONTENT
 import kr.ac.konkuk.koogle.DBKeys.Companion.CHAT_CREATED_AT
 import kr.ac.konkuk.koogle.DBKeys.Companion.CHAT_ID
+import kr.ac.konkuk.koogle.DBKeys.Companion.CURRENT_NUMBER
+import kr.ac.konkuk.koogle.DBKeys.Companion.DB_ARTICLES
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_GROUPS
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_MESSAGES
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
@@ -42,29 +47,43 @@ class ChatRoomActivity : AppCompatActivity() {
 
 //    private lateinit var chatRef:DatabaseReference
 
-    private lateinit var writerName:String
+    private lateinit var writerName: String
 
-    private lateinit var writerId:String
+    private lateinit var writerId: String
 
-    private lateinit var writerProfileImageUrl:String
+    private lateinit var writerProfileImageUrl: String
 
-    private lateinit var chatId:String
+    private lateinit var chatId: String
 
-    private lateinit var groupId:String
+    private lateinit var groupId: String
+
+    private lateinit var currentNumber: String
+
+    private lateinit var adminId: String
 
     private val auth: FirebaseAuth by lazy {
         Firebase.auth
     }
 
-    private val currentGroupRef:DatabaseReference by lazy {
+    private val firebaseUser = auth.currentUser!!
+
+    private val currentArticleRef: DatabaseReference by lazy {
+        Firebase.database.reference.child(DB_ARTICLES).child(groupId)
+    }
+
+    private val currentGroupRef: DatabaseReference by lazy {
         Firebase.database.reference.child(DB_GROUPS).child(groupId)
     }
 
-    private val chatRef:DatabaseReference by lazy {
+    private val currentGroupUserRef: DatabaseReference by lazy {
+        Firebase.database.reference.child(DB_GROUPS).child(groupId).child(DB_USERS)
+            .child(firebaseUser.uid)
+    }
+
+    private val chatRef: DatabaseReference by lazy {
         currentGroupRef.child(DB_MESSAGES)
     }
 
-    private val firebaseUser = auth.currentUser!!
 
     private val chatList = mutableListOf<ChatModel>()
 
@@ -76,15 +95,14 @@ class ChatRoomActivity : AppCompatActivity() {
             val chatModel = snapshot.getValue(ChatModel::class.java)
             chatModel ?: return
 
-            if (chatModel.writerId == firebaseUser.uid){
+            if (chatModel.writerId == firebaseUser.uid) {
                 chatModel.viewType = RIGHT_CHAT
-            }
-            else
+            } else
                 chatModel.viewType = LEFT_CHAT
 
             chatList.add(chatModel)
             chatAdapter.notifyDataSetChanged()
-            binding.chatRecyclerView.scrollToPosition(chatAdapter.itemCount -1);
+            binding.chatRecyclerView.scrollToPosition(chatAdapter.itemCount - 1);
         }
 
         override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
@@ -112,14 +130,13 @@ class ChatRoomActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.articleToolbar)
         val actionBar = supportActionBar!!
-        actionBar.apply{
+        actionBar.apply {
             setDisplayShowCustomEnabled(true)
             setDisplayShowTitleEnabled(false) //기본 제목을 없애줌
             setDisplayHomeAsUpEnabled(true) // 자동으로 뒤로가기 버튼 만들어줌
         }
     }
 
-    //todo 글의 수정, 삭제 메뉴 옵션 구현 해야 함
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         val menuInflater = menuInflater
         menuInflater.inflate(R.menu.chat_option_menu, menu)
@@ -130,7 +147,50 @@ class ChatRoomActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.exitChatRoom -> {
-                //dialog 한번 뿌리고 확인 누르면 진짜 나가기
+                if (firebaseUser.uid == adminId) {
+                    //방장인 경우
+                    //글, 그룹 삭제하는 걸로
+                    //dialog 한번 뿌리고 진짜 삭제
+                    val ad = AlertDialog.Builder(this@ChatRoomActivity)
+                    ad.setMessage("정말 글과 그룹을 삭제하시겠습니까?")
+                    ad.setPositiveButton(
+                        "아니오"
+                    ) { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    ad.setNegativeButton(
+                        "네"
+                    ) { dialog, _ ->
+                        //글과 그룹 모두 삭제
+                        deleteArticle()
+                        val intent = Intent(this@ChatRoomActivity, MainActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                        dialog.dismiss()
+                    }
+                    ad.show()
+                } else {
+                    //방장이 아닌 경우
+                    //dialog 한번 뿌리고 확인 누르면 진짜 나가기
+                    val ad = AlertDialog.Builder(this@ChatRoomActivity)
+                    ad.setMessage("정말 그룹을 나가시겠습니까?")
+                    ad.setPositiveButton(
+                        "아니오"
+                    ) { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    ad.setNegativeButton(
+                        "네"
+                    ) { dialog, _ ->
+                        exitChatRoom()
+                        val intent = Intent(this@ChatRoomActivity, MainActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                        dialog.dismiss()
+                    }
+                    ad.show()
+                }
+
             }
             else -> {
                 //뒤로가기
@@ -141,12 +201,24 @@ class ChatRoomActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+    private fun exitChatRoom() {
+        //currentNumber 갱신
+        currentGroupUserRef.setValue(null)
+        val group = mutableMapOf<String, Any>()
+        group[CURRENT_NUMBER] = currentNumber.toInt() - 1
+        currentGroupRef.updateChildren(group)
+    }
+
+    private fun deleteArticle() {
+        currentArticleRef.setValue(null)
+        currentGroupRef.setValue(null)
+    }
+
     private fun initButton() {
         binding.messageEditText.addTextChangedListener {
-            if (it.toString() == ""){
+            if (it.toString() == "") {
                 binding.sendButton.isEnabled = false
-            }
-            else{
+            } else {
                 binding.sendButton.isEnabled = true
             }
         }
@@ -163,7 +235,12 @@ class ChatRoomActivity : AppCompatActivity() {
         }
     }
 
-    private fun sendChat(writerId: String, writerName: String, writerProfileImageUrl: String, content: String) {
+    private fun sendChat(
+        writerId: String,
+        writerName: String,
+        writerProfileImageUrl: String,
+        content: String
+    ) {
         chatId = chatRef.push().key.toString()
         val currentChatRef = chatRef.child(chatId)
         val message = mutableMapOf<String, Any>()
@@ -190,12 +267,14 @@ class ChatRoomActivity : AppCompatActivity() {
         val intent = intent
         groupId = intent.getStringExtra(GROUP_ID).toString()
 
-        currentGroupRef.addListenerForSingleValueEvent(object: ValueEventListener{
+        currentGroupRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val groupModel: GroupModel? = snapshot.getValue(GroupModel::class.java)
                 if (groupModel != null) {
+                    adminId = groupModel.adminId
+                    currentNumber = groupModel.currentNumber.toString()
                     binding.chatTitleTextView.text = groupModel.articleTitle
-                    binding.currentNumberTextView.text = groupModel.currentNumber.toString()
+                    binding.currentNumberTextView.text = currentNumber
                 }
             }
 
@@ -204,8 +283,9 @@ class ChatRoomActivity : AppCompatActivity() {
             }
 
         })
-        val currentUserRef = Firebase.database.reference.child(DB_USERS).child(auth.currentUser?.uid.toString())
-        currentUserRef.addListenerForSingleValueEvent(object: ValueEventListener {
+        val currentUserRef =
+            Firebase.database.reference.child(DB_USERS).child(auth.currentUser?.uid.toString())
+        currentUserRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val userModel: UserModel? = snapshot.getValue(UserModel::class.java)
                 if (userModel != null) {
