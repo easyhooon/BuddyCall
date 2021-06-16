@@ -42,8 +42,27 @@ class DBKeys {
         const val CHAT_CREATED_AT = "chatCreatedAt"
 
         //ViewType
-        const val LEFT_CHAT = 1; //남들의 채팅(프로필과 이름 내용 모두 보임)
-        const val RIGHT_CHAT = 2; //내 채팅(내용만 보임)
+        const val LEFT_CHAT = 1 //남들의 채팅(프로필과 이름 내용 모두 보임)
+        const val RIGHT_CHAT = 2 //내 채팅(내용만 보임)
 
+        // 대분류 태그
+        const val DB_MAIN_TAGS = "Tags"
+        const val TAG_ID = "tagId"
+        const val TAG_NAME = "tagName"
+        const val USED_NUM = "usedNum"
+
+        // 소분류 태그
+        const val DB_SUB_TAGS = "SubTags"
+        const val SUB_TAG_ID = "subTagId"
+        const val SUB_TAG_NAME = "tagName"
+
+        // 대분류-소분류 관계 테이블
+        const val DB_TAG_REL = "RelTags"
+
+        // 유저-태그 관계 테이블(프로필)
+        const val DB_USER_TAGS = "UserTags"
+
+        // 유저태그-소분류 태그 연결 테이블(프로필)
+        const val DB_USER_TAGS_REL = "UserRelTags"
     }
 }
