@@ -2,7 +2,10 @@ package kr.ac.konkuk.koogle.Activity
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.ContactsContract
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -28,14 +31,16 @@ import kr.ac.konkuk.koogle.DBKeys.Companion.WRITER_ID
 import kr.ac.konkuk.koogle.DBKeys.Companion.WRITER_NAME
 import kr.ac.konkuk.koogle.DBKeys.Companion.WRITER_PROFILE_IMAGE_URL
 import kr.ac.konkuk.koogle.Model.ChatModel
+import kr.ac.konkuk.koogle.Model.GroupModel
 import kr.ac.konkuk.koogle.Model.UserModel
+import kr.ac.konkuk.koogle.R
 import kr.ac.konkuk.koogle.databinding.ActivityChatRoomBinding
 
 class ChatRoomActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityChatRoomBinding
 
-    private lateinit var chatRef:DatabaseReference
+//    private lateinit var chatRef:DatabaseReference
 
     private lateinit var writerName:String
 
@@ -49,6 +54,14 @@ class ChatRoomActivity : AppCompatActivity() {
 
     private val auth: FirebaseAuth by lazy {
         Firebase.auth
+    }
+
+    private val currentGroupRef:DatabaseReference by lazy {
+        Firebase.database.reference.child(DB_GROUPS).child(groupId)
+    }
+
+    private val chatRef:DatabaseReference by lazy {
+        currentGroupRef.child(DB_MESSAGES)
     }
 
     private val firebaseUser = auth.currentUser!!
@@ -87,9 +100,45 @@ class ChatRoomActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         initDB()
+        initViews()
         initButton()
 
         chatRef.addChildEventListener(listener)
+    }
+
+    private fun initViews() {
+        binding.chatRecyclerView.adapter = chatAdapter
+        binding.chatRecyclerView.layoutManager = LinearLayoutManager(this)
+
+        setSupportActionBar(binding.articleToolbar)
+        val actionBar = supportActionBar!!
+        actionBar.apply{
+            setDisplayShowCustomEnabled(true)
+            setDisplayShowTitleEnabled(false) //기본 제목을 없애줌
+            setDisplayHomeAsUpEnabled(true) // 자동으로 뒤로가기 버튼 만들어줌
+        }
+    }
+
+    //todo 글의 수정, 삭제 메뉴 옵션 구현 해야 함
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val menuInflater = menuInflater
+        menuInflater.inflate(R.menu.chat_option_menu, menu)
+
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.exitChatRoom -> {
+                //dialog 한번 뿌리고 확인 누르면 진짜 나가기
+            }
+            else -> {
+                //뒤로가기
+                finish()
+            }
+        }
+
+        return super.onOptionsItemSelected(item)
     }
 
     private fun initButton() {
@@ -128,7 +177,6 @@ class ChatRoomActivity : AppCompatActivity() {
 
         currentChatRef.updateChildren(message)
 
-        val currentGroupRef = Firebase.database.reference.child(DB_GROUPS).child(groupId)
         val group = mutableMapOf<String, Any>()
         group[GROUP_LAST_CHAT] = content
         group[GROUP_LAST_CHAT_CREATED_AT] = System.currentTimeMillis()
@@ -142,11 +190,20 @@ class ChatRoomActivity : AppCompatActivity() {
         val intent = intent
         groupId = intent.getStringExtra(GROUP_ID).toString()
 
-        chatRef = Firebase.database.reference.child(DB_GROUPS).child(groupId).child(DB_MESSAGES)
+        currentGroupRef.addListenerForSingleValueEvent(object: ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val groupModel: GroupModel? = snapshot.getValue(GroupModel::class.java)
+                if (groupModel != null) {
+                    binding.chatTitleTextView.text = groupModel.articleTitle
+                    binding.currentNumberTextView.text = groupModel.currentNumber.toString()
+                }
+            }
 
-        binding.chatRecyclerView.adapter = chatAdapter
-        binding.chatRecyclerView.layoutManager = LinearLayoutManager(this)
+            override fun onCancelled(error: DatabaseError) {
+                Log.d("onCancelled: ", "데이터로드 실패")
+            }
 
+        })
         val currentUserRef = Firebase.database.reference.child(DB_USERS).child(auth.currentUser?.uid.toString())
         currentUserRef.addListenerForSingleValueEvent(object: ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {

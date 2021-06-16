@@ -4,53 +4,50 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/writerProfileImage"
-        android:layout_width="84dp"
-        android:layout_height="84dp"
-        android:padding="12dp"
-        android:src="@drawable/profile_image"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:srcCompat="@drawable/ic_launcher_foreground" />
-
     <TextView
         android:id="@+id/writerNameTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
         android:layout_marginStart="6dp"
+        android:layout_marginTop="12dp"
         android:maxLines="1"
         android:text="@string/nickname"
         android:textColor="@color/black"
         android:textSize="16sp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toEndOf="@id/writerProfileImage" />
+        app:layout_constraintStart_toEndOf="@id/writerProfileImage"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/timeTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
+        android:layout_marginEnd="6dp"
+        android:text="@string/created_at"
+        android:textColor="@color/black"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/cardView" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_marginTop="12dp"
-        android:layout_marginHorizontal="6dp"
         app:cardCornerRadius="16dp"
-        app:layout_constraintStart_toEndOf="@id/writerProfileImage"
-        app:layout_constraintTop_toBottomOf="@id/writerNameTextView"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintStart_toStartOf="@id/writerNameTextView"
+        app:layout_constraintTop_toBottomOf="@id/writerNameTextView">
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:paddingVertical="6dp"
-            android:paddingHorizontal="9dp">
-
+            android:paddingHorizontal="9dp"
+            android:paddingVertical="6dp">
             <TextView
-                android:maxWidth="280dp"
-                android:layout_gravity="center"
                 android:id="@+id/contentTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:maxWidth="240dp"
                 android:text="@string/content"
                 android:textColor="@color/black"
                 android:textSize="16sp"
@@ -62,14 +59,13 @@
 
     </androidx.cardview.widget.CardView>
 
-    <TextView
-        android:layout_marginEnd="6dp"
-        android:id="@+id/timeTextView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toEndOf="@id/cardView"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:text="@string/created_at"
-        android:layout_marginStart="6dp"
-        android:textColor="@color/black"/>
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/writerProfileImage"
+        android:layout_width="84dp"
+        android:layout_height="84dp"
+        android:src="@drawable/profile_image"
+        android:padding="12dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

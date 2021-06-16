@@ -9,7 +9,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Koogle">
-        <activity android:name=".Activity.CheckMapActivity"></activity>
+        <activity android:name=".Activity.CheckMapActivity"/>
         <activity android:name=".Activity.MapActivity" />
         <activity android:name=".Activity.LocationSearchActivity" />
         <activity android:name=".Activity.ArticleActivity" />

@@ -6,8 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import de.hdodenhof.circleimageview.CircleImageView
@@ -15,8 +13,6 @@ import kr.ac.konkuk.koogle.DBKeys.Companion.LEFT_CHAT
 import kr.ac.konkuk.koogle.DBKeys.Companion.RIGHT_CHAT
 import kr.ac.konkuk.koogle.Model.ChatModel
 import kr.ac.konkuk.koogle.R
-import kr.ac.konkuk.koogle.databinding.ItemLeftChatBinding
-import kr.ac.konkuk.koogle.databinding.ItemRightChatBinding
 import java.text.SimpleDateFormat
 import java.util.*
 

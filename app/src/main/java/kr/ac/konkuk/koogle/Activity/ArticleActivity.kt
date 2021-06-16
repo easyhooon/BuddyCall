@@ -1,11 +1,12 @@
 package kr.ac.konkuk.koogle.Activity
 
 import android.annotation.SuppressLint
-import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
+import android.provider.ContactsContract
 import android.util.Log
 import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -27,18 +28,15 @@ import kr.ac.konkuk.koogle.DBKeys.Companion.USER_PROFILE_IMAGE_URL
 import kr.ac.konkuk.koogle.Model.ArticleModel
 import kr.ac.konkuk.koogle.Model.Entity.SearchResultEntity
 import kr.ac.konkuk.koogle.Model.UserModel
-import kr.ac.konkuk.koogle.R
 import kr.ac.konkuk.koogle.databinding.ActivityArticleBinding
 import java.text.SimpleDateFormat
 import java.util.*
+import kr.ac.konkuk.koogle.R
+
 
 class ArticleActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityArticleBinding
-
-    private lateinit var currentArticleRef: DatabaseReference
-    private lateinit var currentGroupUserRef:DatabaseReference
-
 
     private lateinit var writerId:String
     private lateinit var articleId:String
@@ -58,25 +56,64 @@ class ArticleActivity : AppCompatActivity() {
         Firebase.auth
     }
 
+    private val currentUserRef: DatabaseReference by lazy {
+        Firebase.database.reference.child(DB_USERS).child(auth.currentUser?.uid.toString())
+    }
+
+    private val currentArticleRef: DatabaseReference by lazy{
+        Firebase.database.reference.child(DB_ARTICLES).child(articleId)
+    }
+
+    private val currentGroupUserRef: DatabaseReference by lazy {
+        Firebase.database.reference.child(DB_GROUPS).child(articleId).child(DB_USERS)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityArticleBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         initDB()
+        initViews()
         initButton()
     }
 
-    //todo 글의 수정, 삭제 메뉴 옵션 구현 해야 함
-    //todo 그룹 인원이 초과된 경우 채팅방에 들어가지 못하게 해야함
+    private fun initViews() {
+       setSupportActionBar(binding.articleToolbar)
+        val actionBar = supportActionBar!!
+        actionBar.apply{
+            setDisplayShowCustomEnabled(true)
+            setDisplayShowTitleEnabled(false) //기본 제목을 없애줌
+            setDisplayHomeAsUpEnabled(true) // 자동으로 뒤로가기 버튼 만들어줌
+        }
+    }
 
-    private fun initButton() {
-        binding.backButton.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-            finish()
+    //todo 글의 수정, 삭제 메뉴 옵션 구현 해야 함
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val menuInflater = menuInflater
+        menuInflater.inflate(R.menu.article_option_menu, menu)
+
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.updateArticle -> {
+
+            }
+            R.id.deleteArticle -> {
+                //dialog 한번 뿌리고 진짜 삭제
+            }
+            else -> {
+                //뒤로가기
+                finish()
+            }
         }
 
+        return super.onOptionsItemSelected(item)
+    }
+
+    private fun initButton() {
         binding.contactButton.setOnClickListener {
             currentUserId = auth.currentUser!!.uid
 
@@ -107,13 +144,6 @@ class ArticleActivity : AppCompatActivity() {
             }
         }
 
-//        binding.optionButton.setOnClickListener {
-//            val dialog = Dialog(this@ArticleActivity)
-//            dialog.setContentView(R.layout.option_dialog)
-//
-//            dialog.show()
-//        }
-
         binding.showMapButton.setOnClickListener {
             val intent = Intent(this, CheckMapActivity::class.java)
             intent.putExtra(MAP_INFO, mapInfo)
@@ -124,11 +154,6 @@ class ArticleActivity : AppCompatActivity() {
     private fun initDB() {
         val intent = intent
         articleId = intent.getStringExtra(ARTICLE_ID).toString()
-
-        currentArticleRef = Firebase.database.reference.child(DB_ARTICLES).child(articleId)
-
-        currentGroupUserRef = Firebase.database.reference.child(DB_GROUPS).child(articleId).child(DB_USERS)
-
         //파이어베이스 데이터베이스의 정보 가져오기
         currentArticleRef.addListenerForSingleValueEvent(object : ValueEventListener {
             @SuppressLint("SimpleDateFormat")
@@ -190,7 +215,7 @@ class ArticleActivity : AppCompatActivity() {
             }
         })
 
-        currentGroupUserRef.addValueEventListener(object : ValueEventListener {
+        currentGroupUserRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 userIdList.clear()
 
@@ -210,7 +235,6 @@ class ArticleActivity : AppCompatActivity() {
 
         })
 
-        val currentUserRef = Firebase.database.reference.child(DB_USERS).child(auth.currentUser?.uid.toString())
         currentUserRef.addListenerForSingleValueEvent(object: ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
                 val userModel: UserModel? = snapshot.getValue(UserModel::class.java)
