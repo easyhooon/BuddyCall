@@ -24,17 +24,39 @@
         android:textColor="@color/black"
         android:textSize="18sp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/contentTextView"
+        app:layout_constraintBottom_toTopOf="@+id/lastChatTextView"
         app:layout_constraintStart_toEndOf="@+id/adminProfileImageView" />
 
     <TextView
-        android:id="@+id/contentTextView"
+        android:id="@+id/currentNumberTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="content"
+        android:text="4"
+        android:textSize="16sp"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginStart="4dp"
+        android:textColor="@color/gray_cc"
+        app:layout_constraintStart_toEndOf="@id/titleTextView"
+        app:layout_constraintBottom_toTopOf="@id/lastChatTextView"/>
+
+    <TextView
+        android:id="@+id/lastChatCreatedAtTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/created_at"
+        android:textSize="16sp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="18dp"
+        android:layout_marginEnd="12dp"/>
+
+    <TextView
+        android:id="@+id/lastChatTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="lastChat"
         android:maxLines="1"
-        android:textColor="@color/black"
-        android:textSize="12sp"
+        android:textSize="16sp"
         android:layout_marginBottom="8dp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"

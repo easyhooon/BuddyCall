@@ -23,6 +23,7 @@ class DBKeys {
         const val WRITER_NAME = "writerName"
         const val WRITER_PROFILE_IMAGE_URL = "writerProfileImageUrl"
         const val RECRUITMENT_NUMBER = "recruitmentNumber"
+        const val CURRENT_NUMBER = "currentNumber"
         const val DESIRED_LOCATION = "desiredLocation"
 
 
@@ -32,6 +33,8 @@ class DBKeys {
         const val ADMIN_ID ="adminId"
         const val ADMIN_NAME ="adminName"
         const val ADMIN_PROFILE_IMAGE_URL = "adminProfileImageUrl"
+        const val GROUP_LAST_CHAT = "groupLastChat"
+        const val GROUP_LAST_CHAT_CREATED_AT = "groupLastChatCreatedAt"
 
         //Chat
         const val DB_MESSAGES = "Messages"

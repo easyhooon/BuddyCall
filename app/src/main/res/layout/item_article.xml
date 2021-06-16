@@ -86,6 +86,7 @@
                 android:layout_height="wrap_content" />
 
             <TextView
+                android:id="@+id/slash"
                 android:text="/"
                 android:layout_weight="1"
                 android:textSize="40sp"
@@ -104,15 +105,14 @@
                 android:gravity="start"
                 android:layout_height="wrap_content" />
 
-
         </LinearLayout>
 
         <TextView
             android:id="@+id/dateTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginVertical="4dp"
             android:text="date"
+            android:layout_marginBottom="4dp"
             android:layout_gravity="center"
             android:textColor="@color/black"
             android:textSize="12sp" />

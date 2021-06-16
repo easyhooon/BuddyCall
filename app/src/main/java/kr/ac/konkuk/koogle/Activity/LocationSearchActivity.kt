@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.core.view.isVisible
+import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.*
@@ -67,6 +68,15 @@ class LocationSearchActivity : AppCompatActivity(), CoroutineScope {
         adapter.notifyDataSetChanged()
     }
     private fun bindViews() = with(binding) {
+        binding.searchEditText.addTextChangedListener {
+            if (it.toString() == ""){
+                binding.searchButton.isEnabled = false
+            }
+            else{
+                binding.searchButton.isEnabled = true
+            }
+        }
+
         searchButton.setOnClickListener {
             searchKeyword(searchEditText.text.toString())
         }

@@ -4,12 +4,14 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import androidx.core.view.isVisible
+import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import kotlinx.android.synthetic.main.activity_chat_room.*
 import kr.ac.konkuk.koogle.Adapter.ChatAdapter
 import kr.ac.konkuk.koogle.DBKeys.Companion.CHAT_CONTENT
 import kr.ac.konkuk.koogle.DBKeys.Companion.CHAT_CREATED_AT
@@ -18,6 +20,8 @@ import kr.ac.konkuk.koogle.DBKeys.Companion.DB_GROUPS
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_MESSAGES
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
 import kr.ac.konkuk.koogle.DBKeys.Companion.GROUP_ID
+import kr.ac.konkuk.koogle.DBKeys.Companion.GROUP_LAST_CHAT
+import kr.ac.konkuk.koogle.DBKeys.Companion.GROUP_LAST_CHAT_CREATED_AT
 import kr.ac.konkuk.koogle.DBKeys.Companion.LEFT_CHAT
 import kr.ac.konkuk.koogle.DBKeys.Companion.RIGHT_CHAT
 import kr.ac.konkuk.koogle.DBKeys.Companion.WRITER_ID
@@ -40,6 +44,8 @@ class ChatRoomActivity : AppCompatActivity() {
     private lateinit var writerProfileImageUrl:String
 
     private lateinit var chatId:String
+
+    private lateinit var groupId:String
 
     private val auth: FirebaseAuth by lazy {
         Firebase.auth
@@ -87,6 +93,15 @@ class ChatRoomActivity : AppCompatActivity() {
     }
 
     private fun initButton() {
+        binding.messageEditText.addTextChangedListener {
+            if (it.toString() == ""){
+                binding.sendButton.isEnabled = false
+            }
+            else{
+                binding.sendButton.isEnabled = true
+            }
+        }
+
         binding.sendButton.setOnClickListener {
             writerId = auth.currentUser?.uid.toString()
             val content = binding.messageEditText.text.toString()
@@ -113,12 +128,19 @@ class ChatRoomActivity : AppCompatActivity() {
 
         currentChatRef.updateChildren(message)
 
+        val currentGroupRef = Firebase.database.reference.child(DB_GROUPS).child(groupId)
+        val group = mutableMapOf<String, Any>()
+        group[GROUP_LAST_CHAT] = content
+        group[GROUP_LAST_CHAT_CREATED_AT] = System.currentTimeMillis()
+
+        currentGroupRef.updateChildren(group)
+
         hideProgress()
     }
 
     private fun initDB() {
         val intent = intent
-        val groupId = intent.getStringExtra(GROUP_ID).toString()
+        groupId = intent.getStringExtra(GROUP_ID).toString()
 
         chatRef = Firebase.database.reference.child(DB_GROUPS).child(groupId).child(DB_MESSAGES)
 

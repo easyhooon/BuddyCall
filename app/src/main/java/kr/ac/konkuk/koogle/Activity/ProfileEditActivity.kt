@@ -72,6 +72,7 @@ class ProfileEditActivity : AppCompatActivity() {
         binding.backButton.setOnClickListener {
             val intent = Intent(this, ProfileActivity::class.java)
             startActivity(intent)
+            finish()
         }
 
         binding.userNameChangeBtn.setOnClickListener {

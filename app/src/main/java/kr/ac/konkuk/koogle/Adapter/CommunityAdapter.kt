@@ -1,6 +1,7 @@
 package kr.ac.konkuk.koogle.Adapter
 
 import android.annotation.SuppressLint
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -25,6 +26,8 @@ class CommunityAdapter(val onItemClicked: (ArticleModel) -> Unit): ListAdapter<A
             binding.titleTextView.text = articleModel.articleTitle
             binding.dateTextView.text = format.format(date).toString()
             binding.recruitmentNumberTextView.text = articleModel.recruitmentNumber.toString()
+            //현재 그룹에 속한 사람의 수를 계산하여 넣음
+            binding.currentNumberTextView.text = articleModel.currentNumber.toString()
             binding.contentTextView.text = articleModel.articleContent
 
             if(articleModel.writerProfileImageUrl.isNotEmpty()){
@@ -34,6 +37,12 @@ class CommunityAdapter(val onItemClicked: (ArticleModel) -> Unit): ListAdapter<A
             }
             binding.root.setOnClickListener {
                 onItemClicked(articleModel)
+            }
+
+            if(articleModel.currentNumber == articleModel.recruitmentNumber){
+                binding.currentNumberTextView.setTextColor(Color.RED)
+                binding.slash.setTextColor(Color.RED)
+                binding.recruitmentNumberTextView.setTextColor(Color.RED)
             }
         }
     }

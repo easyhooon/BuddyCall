@@ -17,6 +17,7 @@ import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_ID
+import kr.ac.konkuk.koogle.DBKeys.Companion.CURRENT_NUMBER
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_ARTICLES
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_GROUPS
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
@@ -35,8 +36,8 @@ class ArticleActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityArticleBinding
 
-    lateinit var currentArticleRef: DatabaseReference
-    lateinit var currentGroupUserRef:DatabaseReference
+    private lateinit var currentArticleRef: DatabaseReference
+    private lateinit var currentGroupUserRef:DatabaseReference
 
 
     private lateinit var writerId:String
@@ -45,6 +46,9 @@ class ArticleActivity : AppCompatActivity() {
     private lateinit var currentUserId:String
     private lateinit var currentUserName:String
     private lateinit var currentUserProfileImage:String
+
+    private lateinit var recruitmentNumber:String
+    private lateinit var currentNumber:String
 
     private var userIdList:MutableList<String> = mutableListOf()
 
@@ -83,15 +87,23 @@ class ArticleActivity : AppCompatActivity() {
             }
 
             //연락하여 이미 그룹에 포함되어있을 경우
-            else if (writerId in userIdList){
+            else if (currentUserId in userIdList){
                 Toast.makeText(this, "이미 그룹에 가입하였습니다", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             else{
                 //글을 올린 사람이 내가 아닌 경우
-                //채팅방에 참여자로 등록
-                showProgress()
-                joinGroup(currentUserId, currentUserName, currentUserProfileImage)
+                //채팅방 인원 + 1 명이 모집인원 보다 적을 경우
+                if (currentNumber.toInt() + 1 <= recruitmentNumber.toInt())
+                {
+                    showProgress()
+                    joinGroup(currentUserId, currentUserName, currentUserProfileImage)
+                }
+                else {
+                    Toast.makeText(this, "모집인원을 초과하였습니다", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+
             }
         }
 
@@ -154,6 +166,8 @@ class ArticleActivity : AppCompatActivity() {
                             val date = Date(articleModel.articleCreatedAt)
                             binding.dateTextView.text = format.format(date).toString()
                             binding.contentTextView.text = articleModel.articleContent
+                            recruitmentNumber = articleModel.recruitmentNumber.toString()
+                            currentNumber = articleModel.currentNumber.toString()
                         }
                         else {
                             //장소를 기입하지 않았을 경우
@@ -164,9 +178,9 @@ class ArticleActivity : AppCompatActivity() {
                             val date = Date(articleModel.articleCreatedAt)
                             binding.dateTextView.text = format.format(date).toString()
                             binding.contentTextView.text = articleModel.articleContent
+                            recruitmentNumber = articleModel.recruitmentNumber.toString()
+                            currentNumber = articleModel.currentNumber.toString()
                         }
-
-
                     }
                 }
             }
@@ -221,7 +235,21 @@ class ArticleActivity : AppCompatActivity() {
         user[USER_NAME] = userName
         user[USER_PROFILE_IMAGE_URL] = userProfileImage
 
-        currentGroupUserRef.updateChildren(user)
+        currentGroupUserRef.setValue(user)
+//        currentGroupUserRef.updateChildren(user)
+
+        //그룹과 현 게시글에 가입 인원 갱신
+        val currentGroupRef = Firebase.database.reference.child(DB_GROUPS).child(articleId)
+        val group = mutableMapOf<String, Any>()
+        group[CURRENT_NUMBER] = currentNumber.toInt() + 1
+//        currentGroupRef.setValue(group)
+        currentGroupRef.updateChildren(group)
+
+        val currentArticleRef = Firebase.database.reference.child(DB_ARTICLES).child(articleId)
+        val article = mutableMapOf<String, Any>()
+        article[CURRENT_NUMBER] = currentNumber.toInt() + 1
+//        currentGroupRef.setValue(group)
+        currentArticleRef.updateChildren(article)
 
         hideProgress()
 

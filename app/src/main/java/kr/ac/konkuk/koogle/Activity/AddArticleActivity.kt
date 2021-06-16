@@ -31,11 +31,14 @@ import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_ID
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_IMAGE_PATH
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_IMAGE_URL
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_TITLE
+import kr.ac.konkuk.koogle.DBKeys.Companion.CURRENT_NUMBER
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_ARTICLES
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_GROUPS
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
 import kr.ac.konkuk.koogle.DBKeys.Companion.DESIRED_LOCATION
 import kr.ac.konkuk.koogle.DBKeys.Companion.GROUP_ID
+import kr.ac.konkuk.koogle.DBKeys.Companion.GROUP_LAST_CHAT
+import kr.ac.konkuk.koogle.DBKeys.Companion.GROUP_LAST_CHAT_CREATED_AT
 import kr.ac.konkuk.koogle.DBKeys.Companion.RECRUITMENT_NUMBER
 import kr.ac.konkuk.koogle.DBKeys.Companion.USER_ID
 import kr.ac.konkuk.koogle.DBKeys.Companion.USER_NAME
@@ -165,7 +168,6 @@ class AddArticleActivity : AppCompatActivity() {
                             writerName,
                             writerProfileImageUrl,
                             articleTitle,
-                            articleContent,
                             recruitmentNumber,
                         )
                     },
@@ -193,7 +195,6 @@ class AddArticleActivity : AppCompatActivity() {
                     writerName,
                     writerProfileImageUrl,
                     articleTitle,
-                    articleContent,
                     recruitmentNumber
                 )
             }
@@ -216,7 +217,6 @@ class AddArticleActivity : AppCompatActivity() {
         adminName: String,
         adminProfileImageUrl: String,
         articleTitle: String,
-        articleContent: String,
         recruitmentNumber: Int)
     {
         val currentGroupRef = groupRef.child(articleId)
@@ -224,11 +224,13 @@ class AddArticleActivity : AppCompatActivity() {
 
         group[GROUP_ID] = articleId
         group[ARTICLE_TITLE] = articleTitle
-        group[ARTICLE_CONTENT] = articleContent
         group[ADMIN_ID] = adminId
         group[ADMIN_NAME] = adminName
         group[ADMIN_PROFILE_IMAGE_URL] = adminProfileImageUrl
         group[RECRUITMENT_NUMBER] = recruitmentNumber
+        group[CURRENT_NUMBER] = 1
+        group[GROUP_LAST_CHAT] = ""
+        group[GROUP_LAST_CHAT_CREATED_AT] = 0
 
         currentGroupRef.setValue(group)
 //        currentGroupRef.updateChildren(group)
@@ -242,7 +244,7 @@ class AddArticleActivity : AppCompatActivity() {
         user[USER_NAME] = adminName
         user[USER_PROFILE_IMAGE_URL] = adminProfileImageUrl
 
-        currentGroupUserRef.setValue(group)
+        currentGroupUserRef.setValue(user)
 //        currentGroupUserRef.updateChildren(user)
 
         hideProgress()
@@ -295,6 +297,7 @@ class AddArticleActivity : AppCompatActivity() {
         article[WRITER_NAME] = writerName
         article[WRITER_PROFILE_IMAGE_URL] = writerProfileImageUrl
         article[RECRUITMENT_NUMBER] = recruitmentNumber
+        article[CURRENT_NUMBER] = 1
         article[DESIRED_LOCATION] = searchResult
 
 //        currentArticleRef.updateChildren(article)
