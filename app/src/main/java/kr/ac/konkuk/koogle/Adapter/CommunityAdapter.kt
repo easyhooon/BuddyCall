@@ -24,6 +24,7 @@ class CommunityAdapter(val onItemClicked: (ArticleModel) -> Unit): ListAdapter<A
             binding.writerNameTextView.text = articleModel.writerName
             binding.titleTextView.text = articleModel.articleTitle
             binding.dateTextView.text = format.format(date).toString()
+            binding.recruitmentNumberTextView.text = articleModel.recruitmentNumber.toString()
             binding.contentTextView.text = articleModel.articleContent
 
             if(articleModel.writerProfileImageUrl.isNotEmpty()){

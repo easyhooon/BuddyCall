@@ -1,5 +1,7 @@
 package kr.ac.konkuk.koogle.Model
 
+import kr.ac.konkuk.koogle.Model.Entity.SearchResultEntity
+
 
 data class ArticleModel(
     val writerId: String,
@@ -8,11 +10,13 @@ data class ArticleModel(
     val articleId: String,
     val articleTitle: String,
     val articleCreatedAt: Long,
+    val recruitmentNumber: Int,
     val articleContent: String,
-    val articleImageUrl: String
+    val articleImageUrl: String,
+    val desiredLocation: SearchResultEntity?,
 ) {
 
     //firebase realtime DB에서 그대로 MODEL 클래스를 사용하려면 빈 생성자가 필수로 있어야야 함
-    constructor(): this("", "","","", "",0, "", "")
-
+    constructor(): this("", "","","", "",
+        0, 0,"", "", null)
 }

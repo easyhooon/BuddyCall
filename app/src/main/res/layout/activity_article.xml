@@ -64,6 +64,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
+            android:id="@+id/writerNameTextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:hint="@string/nickname"
@@ -109,22 +110,88 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
-                android:layout_marginTop="64dp"
-                android:id="@+id/contentTextView"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:hint="@string/content"/>
+                android:orientation="horizontal"
+                android:paddingVertical="16dp"
+                android:layout_marginHorizontal="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:text="모집인원"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:layout_marginHorizontal="8dp"
+                    android:text=":"/>
+
+
+                <TextView
+                    android:id="@+id/recruitmentNumberTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:text="4명"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/locationInfoLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/borderline_top_bottom">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_baseline_location_24"
+                    android:gravity="start|center"
+                    android:layout_marginStart="6dp"
+                    android:padding="16dp" />
+
+                <TextView
+                    android:id="@+id/locationTextView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:padding="16dp"
+                    android:layout_gravity="center"
+                    android:text="@string/location"
+                    android:layout_weight="1"/>
+
+                <Button
+                    android:id="@+id/showMapButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginEnd="6dp"
+                    android:text="지도로 보기"/>
+            </LinearLayout>
 
             <ImageView
                 android:id="@+id/photoImageView"
                 android:layout_marginTop="32dp"
-                android:layout_width="250dp"
-                android:layout_height="250dp"
+                android:layout_width="280dp"
+                android:layout_height="280dp"
                 android:layout_gravity="center"/>
 
+            <TextView
+                android:layout_marginTop="16dp"
+                android:id="@+id/contentTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:paddingVertical="16dp"
+                android:textSize="16sp"
+                android:lines="12"
+                android:gravity="top"
+                android:hint="@string/content"/>
 
         </LinearLayout>
 

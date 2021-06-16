@@ -1,5 +1,6 @@
 package kr.ac.konkuk.koogle.Activity
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
@@ -23,9 +24,12 @@ import kr.ac.konkuk.koogle.DBKeys.Companion.USER_ID
 import kr.ac.konkuk.koogle.DBKeys.Companion.USER_NAME
 import kr.ac.konkuk.koogle.DBKeys.Companion.USER_PROFILE_IMAGE_URL
 import kr.ac.konkuk.koogle.Model.ArticleModel
+import kr.ac.konkuk.koogle.Model.Entity.SearchResultEntity
 import kr.ac.konkuk.koogle.Model.UserModel
 import kr.ac.konkuk.koogle.R
 import kr.ac.konkuk.koogle.databinding.ActivityArticleBinding
+import java.text.SimpleDateFormat
+import java.util.*
 
 class ArticleActivity : AppCompatActivity() {
 
@@ -44,6 +48,8 @@ class ArticleActivity : AppCompatActivity() {
 
     private var userIdList:MutableList<String> = mutableListOf()
 
+    private lateinit var mapInfo:SearchResultEntity
+
     private val auth: FirebaseAuth by lazy {
         Firebase.auth
     }
@@ -58,6 +64,7 @@ class ArticleActivity : AppCompatActivity() {
     }
 
     //todo 글의 수정, 삭제 메뉴 옵션 구현 해야 함
+    //todo 그룹 인원이 초과된 경우 채팅방에 들어가지 못하게 해야함
 
     private fun initButton() {
         binding.backButton.setOnClickListener {
@@ -94,6 +101,12 @@ class ArticleActivity : AppCompatActivity() {
 //
 //            dialog.show()
 //        }
+
+        binding.showMapButton.setOnClickListener {
+            val intent = Intent(this, CheckMapActivity::class.java)
+            intent.putExtra(MAP_INFO, mapInfo)
+            startActivity(intent)
+        }
     }
 
     private fun initDB() {
@@ -106,9 +119,11 @@ class ArticleActivity : AppCompatActivity() {
 
         //파이어베이스 데이터베이스의 정보 가져오기
         currentArticleRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            @SuppressLint("SimpleDateFormat")
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
                     val articleModel: ArticleModel? = snapshot.getValue(ArticleModel::class.java)
+                    val format = SimpleDateFormat("MM월 dd일")
                     if (articleModel != null) {
                         writerId = articleModel.writerId
                         if (articleModel.articleImageUrl.isEmpty()) {
@@ -130,8 +145,28 @@ class ArticleActivity : AppCompatActivity() {
                         }
                     }
                     if (articleModel != null) {
-                        binding.titleTextView.text = articleModel.articleTitle
-                        binding.contentTextView.text = articleModel.articleContent
+                        //작성 글에 장소를 기입했을 경우
+                        if (articleModel.desiredLocation != null){
+                            mapInfo = articleModel.desiredLocation
+                            binding.locationTextView.text = articleModel.desiredLocation.fullAddress
+                            binding.writerNameTextView.text =articleModel.writerName
+                            binding.titleTextView.text = articleModel.articleTitle
+                            val date = Date(articleModel.articleCreatedAt)
+                            binding.dateTextView.text = format.format(date).toString()
+                            binding.contentTextView.text = articleModel.articleContent
+                        }
+                        else {
+                            //장소를 기입하지 않았을 경우
+                            //위치 관련 레이아웃이 아예 보이지 않게
+                            binding.locationInfoLayout.visibility =  View.GONE
+                            binding.writerNameTextView.text =articleModel.writerName
+                            binding.titleTextView.text = articleModel.articleTitle
+                            val date = Date(articleModel.articleCreatedAt)
+                            binding.dateTextView.text = format.format(date).toString()
+                            binding.contentTextView.text = articleModel.articleContent
+                        }
+
+
                     }
                 }
             }
@@ -201,5 +236,9 @@ class ArticleActivity : AppCompatActivity() {
 
     private fun hideProgress() {
         binding.progressBar.isVisible = false
+    }
+
+    companion object {
+        const val MAP_INFO = "MAP_INFO"
     }
 }

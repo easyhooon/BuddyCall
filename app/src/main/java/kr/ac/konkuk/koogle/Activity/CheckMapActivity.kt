@@ -8,10 +8,10 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -22,16 +22,16 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.*
-import kr.ac.konkuk.koogle.Activity.LocationSearchActivity.Companion.SEARCH_RESULT_MID
+import kr.ac.konkuk.koogle.Activity.ArticleActivity.Companion.MAP_INFO
 import kr.ac.konkuk.koogle.Model.Entity.LocationLatLngEntity
 import kr.ac.konkuk.koogle.Model.Entity.SearchResultEntity
 import kr.ac.konkuk.koogle.R
 import kr.ac.konkuk.koogle.Utility.RetrofitUtil
-import kr.ac.konkuk.koogle.databinding.ActivityMapBinding
+import kr.ac.konkuk.koogle.databinding.ActivityCheckMapBinding
 import kotlin.coroutines.CoroutineContext
 
-class MapActivity : AppCompatActivity(), OnMapReadyCallback, CoroutineScope {
-    private lateinit var binding: ActivityMapBinding
+class CheckMapActivity : AppCompatActivity(), OnMapReadyCallback, CoroutineScope {
+    private lateinit var binding: ActivityCheckMapBinding
     private lateinit var map: GoogleMap
     private var currentSelectMarker: Marker? = null
 
@@ -40,7 +40,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
 
-    private lateinit var searchResult: SearchResultEntity
+    private lateinit var mapInfo: SearchResultEntity
 
     //안드로이드에서 위치정보를 가져올때 관리를 해주는 유틸리티 클래스
     private lateinit var locationManager: LocationManager
@@ -50,15 +50,15 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, CoroutineScope {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMapBinding.inflate(layoutInflater)
+        binding = ActivityCheckMapBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         job = Job()
 
-        if(::searchResult.isInitialized.not()){
+        if(::mapInfo.isInitialized.not()){
             intent?.let{
-                searchResult = it.getParcelableExtra(SEARCH_RESULT_INFO) ?: throw Exception("데이터가 존재하지 않습니다.")
-                Log.i("MapActivity", "onCreate: fullAddress: ${searchResult.fullAddress}")
+                mapInfo = it.getParcelableExtra(MAP_INFO) ?: throw Exception("데이터가 존재하지 않습니다.")
+                Log.i("CheckMapActivity", "onCreate: fullAddress: ${mapInfo.fullAddress}")
                 setupGoogleMap()
             }
         }
@@ -69,13 +69,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, CoroutineScope {
             getMyLocation()
         }
         binding.checkButton.setOnClickListener {
-            val intent = Intent()
-            intent.putExtra(SEARCH_RESULT_MID, searchResult)
-            setResult(RESULT_OK, intent)
-            finish()
-        }
-        binding.cancelButton.setOnClickListener {
-            setResult(RESULT_CANCELED)
             finish()
         }
     }
@@ -87,7 +80,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, CoroutineScope {
 
     override fun onMapReady(map: GoogleMap) {
         this.map = map
-        currentSelectMarker = setupMarker(searchResult)
+        currentSelectMarker = setupMarker(mapInfo)
 
         currentSelectMarker?.showInfoWindow()
     }
@@ -106,7 +99,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, CoroutineScope {
         //지도의 줌 설정
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(positionLatLng, CAMERA_ZOOM_LEVEL))
 
-        return map.addMarker(markerOptions)!!
+        return map.addMarker(markerOptions)
     }
 
     private fun getMyLocation() {
@@ -200,7 +193,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, CoroutineScope {
             }
             catch (e: Exception) {
                 e.printStackTrace()
-                Toast.makeText(this@MapActivity, "검색하는 과정에서 에러가 발생했습니다. : ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@CheckMapActivity, "검색하는 과정에서 에러가 발생했습니다. : ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -240,7 +233,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, CoroutineScope {
     }
 
     companion object {
-        const val SEARCH_RESULT_INFO = "SEARCH_RESULT_INFO"
         const val CAMERA_ZOOM_LEVEL = 17f
         const val PERMISSION_REQUEST_CODE = 101
     }

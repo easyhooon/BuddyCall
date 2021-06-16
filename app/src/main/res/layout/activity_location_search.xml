@@ -8,8 +8,8 @@
 
     <EditText
         android:id="@+id/searchEditText"
-        android:layout_marginTop="6dp"
-        android:layout_marginStart="6dp"
+        android:layout_marginTop="18dp"
+        android:layout_marginStart="12dp"
         android:layout_marginEnd="6dp"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -19,7 +19,9 @@
         android:hint="@string/please_input_search_keyword"/>
 
     <Button
+        android:layout_marginTop="12dp"
         android:id="@+id/searchButton"
+        android:layout_marginEnd="12dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
@@ -29,6 +31,7 @@
         android:text="@string/search"/>
 
     <androidx.recyclerview.widget.RecyclerView
+        android:padding="12dp"
         android:id="@+id/locationRecyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"

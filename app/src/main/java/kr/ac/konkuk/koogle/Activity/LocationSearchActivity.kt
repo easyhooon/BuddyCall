@@ -9,7 +9,8 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.*
-import kr.ac.konkuk.koogle.Activity.MapActivity.Companion.SEARCH_RESULT_EXTRA_KEY
+import kr.ac.konkuk.koogle.Activity.AddArticleActivity.Companion.SEARCH_RESULT_FINAL
+import kr.ac.konkuk.koogle.Activity.MapActivity.Companion.SEARCH_RESULT_INFO
 import kr.ac.konkuk.koogle.Adapter.SearchRecyclerAdapter
 import kr.ac.konkuk.koogle.Model.Entity.LocationLatLngEntity
 import kr.ac.konkuk.koogle.Model.Entity.SearchResultEntity
@@ -19,7 +20,6 @@ import kr.ac.konkuk.locationsearchmapapp.Response.Search.Poi
 import kr.ac.konkuk.locationsearchmapapp.Response.Search.Pois
 import java.lang.Exception
 import kotlin.coroutines.CoroutineContext
-import kotlin.math.log
 
 class LocationSearchActivity : AppCompatActivity(), CoroutineScope {
     private lateinit var job: Job
@@ -87,14 +87,8 @@ class LocationSearchActivity : AppCompatActivity(), CoroutineScope {
         adapter.setSearchResultList(dataList) {
 //            Toast.makeText(this, "빌딩이름 : {${it.name} 주소 : ${it.fullAddress}} 위도 : ${it.locationLatLng} ", Toast.LENGTH_SHORT).show()
             val intent = Intent(this, MapActivity::class.java)
-            intent.putExtra(SEARCH_RESULT_EXTRA_KEY, it)
+            intent.putExtra(SEARCH_RESULT_INFO, it)
             startActivityForResult(intent, CHOICE_LOCATION_REQUEST_CODE)
-//            startActivityForResult(
-//                Intent(this, MapActivity::class.java).apply {
-//                    putExtra(SEARCH_RESULT_EXTRA_KEY, it)
-//                }
-//            ,CHOICE_LOCATION_REQUEST_CODE
-//            )
         }
     }
 
@@ -128,7 +122,7 @@ class LocationSearchActivity : AppCompatActivity(), CoroutineScope {
         }
     }
 
-    //문장 보정
+    //문자열 보정
     private fun makeMainAddress(poi: Poi): String =
         if (poi.secondNo?.trim().isNullOrEmpty()) {
             (poi.upperAddrName?.trim() ?: "") + " " +
@@ -154,25 +148,19 @@ class LocationSearchActivity : AppCompatActivity(), CoroutineScope {
         super.onActivityResult(requestCode, resultCode, data)
         if(requestCode == CHOICE_LOCATION_REQUEST_CODE){
             if (resultCode == RESULT_OK){
-                data.let{
-                    if (it != null) {
-                        searchResult = it.getParcelableExtra(TEMP)!!
-                        Log.i("LocationSearchActivity", "onActivityResult: fullAddress: ${searchResult.fullAddress}")
-                        it.putExtra(SEARCH_RESULT_EXTRA_KEY, searchResult)
-                    }
-                    else {
-                        Log.i("LocationSearchActivity", "onActivityResult: 데이터를 가져오지 못함")
-                    }
-                }
+                searchResult = data?.getParcelableExtra(SEARCH_RESULT_MID)!!
+                data.putExtra(SEARCH_RESULT_FINAL, searchResult)
+                setResult(RESULT_OK, data)
                 finish()
             }
         }
-        else { }
+        else {
 
+        }
     }
 
     companion object {
         const val CHOICE_LOCATION_REQUEST_CODE = 1000
-        const val TEMP = "temp"
+        const val SEARCH_RESULT_MID = "SEARCH_RESULT_MID"
     }
 }

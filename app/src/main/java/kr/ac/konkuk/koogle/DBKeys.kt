@@ -22,6 +22,8 @@ class DBKeys {
         const val WRITER_ID = "writerId"
         const val WRITER_NAME = "writerName"
         const val WRITER_PROFILE_IMAGE_URL = "writerProfileImageUrl"
+        const val RECRUITMENT_NUMBER = "recruitmentNumber"
+        const val DESIRED_LOCATION = "desiredLocation"
 
 
         //Group

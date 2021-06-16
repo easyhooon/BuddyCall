@@ -8,7 +8,8 @@ data class GroupModel (
     val adminName: String,
     val adminProfileImageUrl: String,
     val articleTitle: String,
-    val articleContent: String
+    val articleContent: String,
+    val recruitmentNumber: Int
 ) {
-    constructor(): this("","","","","","")
+    constructor(): this("","","","","","", 0)
 }

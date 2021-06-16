@@ -34,7 +34,9 @@ import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_TITLE
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_ARTICLES
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_GROUPS
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
+import kr.ac.konkuk.koogle.DBKeys.Companion.DESIRED_LOCATION
 import kr.ac.konkuk.koogle.DBKeys.Companion.GROUP_ID
+import kr.ac.konkuk.koogle.DBKeys.Companion.RECRUITMENT_NUMBER
 import kr.ac.konkuk.koogle.DBKeys.Companion.USER_ID
 import kr.ac.konkuk.koogle.DBKeys.Companion.USER_NAME
 import kr.ac.konkuk.koogle.DBKeys.Companion.USER_PROFILE_IMAGE_URL
@@ -127,6 +129,7 @@ class AddArticleActivity : AppCompatActivity() {
             val articleTitle = binding.titleEditText.text.toString()
             val articleContent = binding.contentEditText.text.toString()
             val writerId = auth.currentUser?.uid.orEmpty()
+            val recruitmentNumber = binding.recruitmentNumberEditText.text.toString().toInt()
 
             if (auth.currentUser?.photoUrl != null) {
                 writerProfileImageUrl = auth.currentUser?.photoUrl.toString()
@@ -154,6 +157,7 @@ class AddArticleActivity : AppCompatActivity() {
                             articleId,
                             articleTitle,
                             articleContent,
+                            recruitmentNumber,
                             uri
                         )
                         createChatRoom(
@@ -162,6 +166,7 @@ class AddArticleActivity : AppCompatActivity() {
                             writerProfileImageUrl,
                             articleTitle,
                             articleContent,
+                            recruitmentNumber,
                         )
                     },
                     errorHandler = {
@@ -180,6 +185,7 @@ class AddArticleActivity : AppCompatActivity() {
                     articleId,
                     articleTitle,
                     articleContent,
+                    recruitmentNumber,
                     ""
                 )
                 createChatRoom(
@@ -188,6 +194,7 @@ class AddArticleActivity : AppCompatActivity() {
                     writerProfileImageUrl,
                     articleTitle,
                     articleContent,
+                    recruitmentNumber
                 )
             }
         }
@@ -198,7 +205,6 @@ class AddArticleActivity : AppCompatActivity() {
             finish()
         }
 
-        //todo 기능 구현중
         binding.locationAddButton.setOnClickListener {
             val intent = Intent(this, LocationSearchActivity::class.java)
             startActivityForResult(intent, LOCATION_SEARCH_REQUEST_CODE)
@@ -210,7 +216,8 @@ class AddArticleActivity : AppCompatActivity() {
         adminName: String,
         adminProfileImageUrl: String,
         articleTitle: String,
-        articleContent: String)
+        articleContent: String,
+        recruitmentNumber: Int)
     {
         val currentGroupRef = groupRef.child(articleId)
         val group = mutableMapOf<String, Any>()
@@ -221,8 +228,10 @@ class AddArticleActivity : AppCompatActivity() {
         group[ADMIN_ID] = adminId
         group[ADMIN_NAME] = adminName
         group[ADMIN_PROFILE_IMAGE_URL] = adminProfileImageUrl
+        group[RECRUITMENT_NUMBER] = recruitmentNumber
 
-        currentGroupRef.updateChildren(group)
+        currentGroupRef.setValue(group)
+//        currentGroupRef.updateChildren(group)
 
         //채팅방 생성 후에 방장(admin)이 채팅방에 참여자로 등록
 
@@ -233,7 +242,8 @@ class AddArticleActivity : AppCompatActivity() {
         user[USER_NAME] = adminName
         user[USER_PROFILE_IMAGE_URL] = adminProfileImageUrl
 
-        currentGroupUserRef.updateChildren(user)
+        currentGroupUserRef.setValue(group)
+//        currentGroupUserRef.updateChildren(user)
 
         hideProgress()
         finish()
@@ -270,6 +280,7 @@ class AddArticleActivity : AppCompatActivity() {
         articleId: String,
         articleTitle: String,
         articleContent: String,
+        recruitmentNumber: Int,
         articleImageUrl: String
     ) {
         val currentArticleRef = articleRef.child(articleId)
@@ -283,8 +294,11 @@ class AddArticleActivity : AppCompatActivity() {
         article[WRITER_ID] = writerId
         article[WRITER_NAME] = writerName
         article[WRITER_PROFILE_IMAGE_URL] = writerProfileImageUrl
+        article[RECRUITMENT_NUMBER] = recruitmentNumber
+        article[DESIRED_LOCATION] = searchResult
 
-        currentArticleRef.updateChildren(article)
+//        currentArticleRef.updateChildren(article)
+        currentArticleRef.setValue(article)
 
         hideProgress()
         finish()
@@ -337,16 +351,9 @@ class AddArticleActivity : AppCompatActivity() {
                 }
             }
             LOCATION_SEARCH_REQUEST_CODE -> {
-                data.let{
-                    if (it != null) {
-                        searchResult = it.getParcelableExtra(TMP)!!
-                        Log.i("AddArticleActivity", "onActivityResult: fullAddress: ${searchResult.fullAddress}")
-                        binding.locationTextView.text = searchResult.fullAddress
-                    }
-                    else{
-                        Log.i("AddArticleActivity", "onActivityResult: 데이터를 가져오지 못함")
-                        Toast.makeText(this, "위치를 가져오지 못했습니다.", Toast.LENGTH_SHORT).show()
-                    }
+                if(resultCode == RESULT_OK){
+                    searchResult = data?.getParcelableExtra(SEARCH_RESULT_FINAL)!!
+                    binding.locationTextView.text = searchResult.fullAddress
                 }
             }
         }
@@ -367,6 +374,6 @@ class AddArticleActivity : AppCompatActivity() {
     companion object {
         const val LOCATION_SEARCH_REQUEST_CODE = 100
         const val CONTENT_PROVIDER_REQUEST_CODE = 200
-        const val TMP = "tmp"
+        const val SEARCH_RESULT_FINAL = "SEARCH_RESULT_FINAL"
     }
 }

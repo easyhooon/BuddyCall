@@ -65,6 +65,7 @@ class ChatRoomActivity : AppCompatActivity() {
 
             chatList.add(chatModel)
             chatAdapter.notifyDataSetChanged()
+            binding.chatRecyclerView.scrollToPosition(chatAdapter.itemCount -1);
         }
 
         override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
