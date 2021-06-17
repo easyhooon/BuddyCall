@@ -7,8 +7,10 @@ data class CardModel(
     val articleId: String,
     val articleTitle: String,
     val articleImageUrl: String,
-    val articleContent:String
+    val articleContent:String,
+    val currentNumber:Int,
+    val recruitmentNumber:Int
 ){
-    constructor(): this("","","", "", "", "","")
+    constructor(): this("","","", "", "", "","",0,0)
 }
 

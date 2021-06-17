@@ -1,5 +1,6 @@
 package kr.ac.konkuk.koogle.Adapter
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,12 +31,19 @@ class CardAdapter: ListAdapter<CardModel, CardAdapter.ViewHolder>(diffUtil){
             binding.nicknameTextView.text = cardModel.writerName
             binding.titleTextView.text = cardModel.articleTitle
             binding.contentTextView.text = cardModel.articleContent
+            binding.recruitmentNumberTextView.text = cardModel.recruitmentNumber.toString()
+            binding.currentNumberTextView.text = cardModel.currentNumber.toString()
 
             //glide 사용
             if(cardModel.writerProfileImageUrl.isNotEmpty()){
                 Glide.with(binding.profileImageView)
                     .load(cardModel.writerProfileImageUrl)
                     .into(binding.profileImageView)
+            }
+            if(cardModel.currentNumber == cardModel.recruitmentNumber){
+                binding.currentNumberTextView.setTextColor(Color.RED)
+                binding.slash.setTextColor(Color.RED)
+                binding.recruitmentNumberTextView.setTextColor(Color.RED)
             }
             binding.checkImageView.setOnClickListener {
                 itemClickListener?.onItemChecked(

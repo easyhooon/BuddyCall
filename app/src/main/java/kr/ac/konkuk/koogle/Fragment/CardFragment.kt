@@ -20,23 +20,47 @@ import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_ID
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_ARTICLES
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
 import kr.ac.konkuk.koogle.DBKeys.Companion.WRITER_ID
+import kr.ac.konkuk.koogle.Model.ArticleModel
 import kr.ac.konkuk.koogle.Model.CardModel
 import kr.ac.konkuk.koogle.databinding.FragmentCardBinding
 
 class CardFragment : Fragment(), CardStackListener {
 
-
     var binding: FragmentCardBinding? = null
 
-    private lateinit var userRef: DatabaseReference
-    private lateinit var cardRef: DatabaseReference
+    private lateinit var cardAdapter: CardAdapter
+
+    private val cardList = mutableListOf<CardModel>()
 
     private val auth: FirebaseAuth by lazy {
         Firebase.auth
     }
-    private lateinit var cardAdapter: CardAdapter
 
-    private val cardList = mutableListOf<CardModel>()
+    private val firebaseUser = auth.currentUser!!
+
+    private val cardRef: DatabaseReference by lazy {
+        Firebase.database.reference.child(DB_ARTICLES)
+    }
+
+    private val listener = object : ChildEventListener {
+        override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+            if (snapshot.child(WRITER_ID).value != firebaseUser.uid)
+            {
+                val cardModel = snapshot.getValue(CardModel::class.java)
+                if (cardModel != null) {
+                    Log.d("onChildAdded", "cardModel: $cardModel")
+                    cardList.add(cardModel)
+                }
+                cardAdapter.submitList(cardList)
+            }
+        }
+
+        override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
+        override fun onChildRemoved(snapshot: DataSnapshot) {}
+        override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
+        override fun onCancelled(error: DatabaseError) {}
+    }
+
     private val manager by lazy {
         CardStackLayoutManager(context, this)
     }
@@ -48,88 +72,11 @@ class CardFragment : Fragment(), CardStackListener {
         // Inflate the layout for this fragment
         binding = FragmentCardBinding.inflate(layoutInflater, container, false)
 
-//        cardAdapter = CardAdapter(onItemChecked = { cardModel ->
-//            if(auth.currentUser != null) {
-//                val intent = Intent(context, ArticleActivity::class.java)
-//                intent.putExtra(DBKeys.ARTICLE_ID, cardModel.articleId)
-//
-//                //fragment 에서 다른 액티비티로 데이터 전달
-//                activity?.startActivity(intent)
-//            }else {
-//                //로그인을 안한 상태
-//                Toast.makeText(context, "로그인 후 사용해주세요", Toast.LENGTH_LONG).show()
-//            }
-//        })
-
         initCardStackView()
-        initDB()
+
+        cardRef.addChildEventListener(listener)
 
         return binding!!.root
-    }
-
-    private fun initDB() {
-
-        userRef = Firebase.database.reference.child(DB_USERS)
-
-        auth.uid?.let { userRef.child(it) }
-            ?.addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    // 유저정보를 갱신
-                    getUnSelectedArticles()
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-
-                }
-
-            })
-
-        initCardStackView()
-        initButton()
-
-    }
-
-    private fun initButton() {
-//        binding?.cancelImageView?.setOnClickListener {
-//
-//        }
-//
-//        binding?.checkImageView?.setOnClickListener {
-//            val setting = SwipeAnimationSetting.Builder()
-//                .setDirection(Direction.Right)
-//                .setDuration(Duration.Normal.duration)
-//                .setInterpolator(AccelerateInterpolator())
-//                .build()
-//            manager.setSwipeAnimationSetting(setting)
-//            binding?.cardStackView?.swipe()
-//        }
-    }
-
-    private fun getUnSelectedArticles() {
-        //전체 유저에 대한 table 의 change 를 다 관찰
-        cardRef = Firebase.database.reference.child(DB_ARTICLES)
-        cardRef.addChildEventListener(object: ChildEventListener {
-            //ArticleRef 안에서 발생하는 모든 변경사항들이 전부 이벤트로 떨어짐
-            override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
-                if (snapshot.child(WRITER_ID).value != auth.currentUser?.uid)
-                {
-                    val cardModel = snapshot.getValue(CardModel::class.java)
-                    if (cardModel != null) {
-                        Log.d("onChildAdded", "cardModel: $cardModel")
-                        cardList.add(cardModel)
-                    }
-                    cardAdapter.submitList(cardList)
-//                    cardAdapter.notifyDataSetChanged()
-                }
-            }
-
-            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
-            override fun onChildRemoved(snapshot: DataSnapshot) {}
-            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
-            override fun onCancelled(error: DatabaseError) {}
-
-        })
-
     }
 
     private fun initCardStackView() {
@@ -167,10 +114,22 @@ class CardFragment : Fragment(), CardStackListener {
                 data: CardModel,
                 position: Int
             ) {
-
+                //todo 구현
             }
-
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        //view가 다시 보일때마다 뷰를 다시 그림
+        cardAdapter.notifyDataSetChanged()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        cardRef.removeEventListener(listener)
     }
 
     override fun onCardSwiped(direction: Direction?) {}
