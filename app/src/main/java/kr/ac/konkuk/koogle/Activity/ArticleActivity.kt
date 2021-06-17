@@ -18,6 +18,10 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_ID
 import kr.ac.konkuk.koogle.DBKeys.Companion.CURRENT_NUMBER
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_ARTICLES
@@ -36,8 +40,9 @@ import kr.ac.konkuk.koogle.R
 
 
 class ArticleActivity : AppCompatActivity() {
-
     lateinit var binding: ActivityArticleBinding
+
+    val scope = CoroutineScope(Dispatchers.Main)
 
     private lateinit var writerId:String
     private lateinit var articleId:String
@@ -59,7 +64,7 @@ class ArticleActivity : AppCompatActivity() {
     private val firebaseUser = auth.currentUser!!
 
     private val currentUserRef: DatabaseReference by lazy {
-        Firebase.database.reference.child(DB_USERS).child(auth.currentUser?.uid.toString())
+        Firebase.database.reference.child(DB_USERS).child(firebaseUser.uid)
     }
 
     private val currentArticleRef: DatabaseReference by lazy{
@@ -96,10 +101,13 @@ class ArticleActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         //글 작성자만 메뉴 옵션을 볼 수 있도록
-        if(firebaseUser.uid == writerId){
-            val menuInflater = menuInflater
-            menuInflater.inflate(R.menu.article_option_menu, menu)
+        if(::writerId.isInitialized){
+            if(firebaseUser.uid == writerId){
+                val menuInflater = menuInflater
+                menuInflater.inflate(R.menu.article_option_menu, menu)
+            }
         }
+
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -108,8 +116,9 @@ class ArticleActivity : AppCompatActivity() {
             R.id.updateArticle -> {
                 val intent = Intent(this, EditArticleActivity::class.java)
                 //쉽지않네 두 상황(글 처음 작성, 글 수정) 같은 액티비티에서 어떻게 구분하지 -> 액티비티를 구분
-                //intent.putExtra(ARTICLE_INFO, articleModel)
                 //근데 글 수정하면 기존에 채팅방은 어떻게 하지 -> 그냥 남기자
+                intent.putExtra(ARTICLE_INFO, articleId)
+                Log.i("ArticleActivity", "onOptionsItemSelected: $articleId")
                 startActivity(intent)
                 finish()
             }
@@ -150,7 +159,7 @@ class ArticleActivity : AppCompatActivity() {
 
     private fun initButton() {
         binding.contactButton.setOnClickListener {
-            currentUserId = auth.currentUser!!.uid
+            currentUserId = firebaseUser.uid
 
             //글을 올린 사람이 나 인 경우
             if(writerId == currentUserId){
@@ -188,103 +197,111 @@ class ArticleActivity : AppCompatActivity() {
     private fun initDB() {
         val intent = intent
         articleId = intent.getStringExtra(ARTICLE_ID).toString()
+        Log.d("ArticleActivity", "articleId: $articleId")
         //파이어베이스 데이터베이스의 정보 가져오기
-        currentArticleRef.addListenerForSingleValueEvent(object : ValueEventListener {
-            @SuppressLint("SimpleDateFormat", "SetTextI18n")
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.exists()) {
-                    val articleModel: ArticleModel? = snapshot.getValue(ArticleModel::class.java)
-                    val format = SimpleDateFormat("MM월 dd일")
-                    if (articleModel != null) {
-                        writerId = articleModel.writerId
-                        if (articleModel.articleImageUrl.isEmpty()) {
-                            binding.photoImageView.visibility = View.GONE
-                        } else {
-                            Glide.with(binding.photoImageView)
-                                .load(articleModel.articleImageUrl)
-                                .into(binding.photoImageView)
+
+        scope.launch {
+            binding.progressBar.visibility = View.VISIBLE
+            CoroutineScope(Dispatchers.IO).async {
+                currentArticleRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                    @SuppressLint("SimpleDateFormat", "SetTextI18n")
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        if (snapshot.exists()) {
+                            val articleModel: ArticleModel? = snapshot.getValue(ArticleModel::class.java)
+                            val format = SimpleDateFormat("MM월 dd일")
+                            if (articleModel != null) {
+                                writerId = articleModel.writerId
+                                if (articleModel.articleImageUrl.isEmpty()) {
+                                    binding.photoImageView.visibility = View.GONE
+                                } else {
+                                    Glide.with(binding.photoImageView)
+                                        .load(articleModel.articleImageUrl)
+                                        .into(binding.photoImageView)
+                                }
+                            }
+
+                            if (articleModel != null) {
+                                if (articleModel.writerProfileImageUrl.isEmpty()) {
+                                    binding.profileImageView.setImageResource(R.drawable.profile_image)
+                                } else {
+                                    Glide.with(binding.profileImageView)
+                                        .load(articleModel.writerProfileImageUrl)
+                                        .into(binding.profileImageView)
+                                }
+                            }
+                            if (articleModel != null) {
+                                //작성 글에 장소를 기입했을 경우
+                                if (articleModel.desiredLocation != null){
+                                    mapInfo = articleModel.desiredLocation
+                                    binding.locationTextView.text = articleModel.desiredLocation.fullAddress
+                                    binding.writerNameTextView.text =articleModel.writerName
+                                    binding.titleTextView.text = articleModel.articleTitle
+                                    binding.recruitmentNumberTextView.text = articleModel.recruitmentNumber.toString()+"명"
+                                    val date = Date(articleModel.articleCreatedAt)
+                                    binding.dateTextView.text = format.format(date).toString()
+                                    binding.contentTextView.text = articleModel.articleContent
+                                    recruitmentNumber = articleModel.recruitmentNumber.toString()
+                                    currentNumber = articleModel.currentNumber.toString()
+                                }
+                                else {
+                                    //장소를 기입하지 않았을 경우
+                                    //위치 관련 레이아웃이 아예 보이지 않게
+                                    binding.locationInfoLayout.visibility =  View.GONE
+                                    binding.writerNameTextView.text = articleModel.writerName
+                                    binding.titleTextView.text = articleModel.articleTitle
+                                    binding.recruitmentNumberTextView.text = articleModel.recruitmentNumber.toString()+"명"
+                                    val date = Date(articleModel.articleCreatedAt)
+                                    binding.dateTextView.text = format.format(date).toString()
+                                    binding.contentTextView.text = articleModel.articleContent
+                                    recruitmentNumber = articleModel.recruitmentNumber.toString()
+                                    currentNumber = articleModel.currentNumber.toString()
+                                }
+                            }
                         }
                     }
 
-                    if (articleModel != null) {
-                        if (articleModel.writerProfileImageUrl.isEmpty()) {
-                            binding.profileImageView.setImageResource(R.drawable.profile_image)
-                        } else {
-                            Glide.with(binding.profileImageView)
-                                .load(articleModel.writerProfileImageUrl)
-                                .into(binding.profileImageView)
+                    override fun onCancelled(error: DatabaseError) {
+                        Toast.makeText(this@ArticleActivity, "데이터 로드 실패", Toast.LENGTH_SHORT).show()
+                    }
+                })
+
+                currentGroupUserRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        userIdList.clear()
+
+                        //그룹에 속한 유저들의 데이터를 가져옴
+                        for (snapshot in dataSnapshot.children) { //반복문을 통해 데이터 List를 추출해냄.
+                            val userModel = snapshot.getValue(UserModel::class.java)
+
+                            if (userModel != null) {
+                                userIdList.add(userModel.userId)
+                            }
                         }
                     }
-                    if (articleModel != null) {
-                        //작성 글에 장소를 기입했을 경우
-                        if (articleModel.desiredLocation != null){
-                            mapInfo = articleModel.desiredLocation
-                            binding.locationTextView.text = articleModel.desiredLocation.fullAddress
-                            binding.writerNameTextView.text =articleModel.writerName
-                            binding.titleTextView.text = articleModel.articleTitle
-                            binding.recruitmentNumberTextView.text = articleModel.recruitmentNumber.toString()+"명"
-                            val date = Date(articleModel.articleCreatedAt)
-                            binding.dateTextView.text = format.format(date).toString()
-                            binding.contentTextView.text = articleModel.articleContent
-                            recruitmentNumber = articleModel.recruitmentNumber.toString()
-                            currentNumber = articleModel.currentNumber.toString()
-                        }
-                        else {
-                            //장소를 기입하지 않았을 경우
-                            //위치 관련 레이아웃이 아예 보이지 않게
-                            binding.locationInfoLayout.visibility =  View.GONE
-                            binding.writerNameTextView.text =articleModel.writerName
-                            binding.titleTextView.text = articleModel.articleTitle
-                            binding.recruitmentNumberTextView.text = articleModel.recruitmentNumber.toString()+"명"
-                            val date = Date(articleModel.articleCreatedAt)
-                            binding.dateTextView.text = format.format(date).toString()
-                            binding.contentTextView.text = articleModel.articleContent
-                            recruitmentNumber = articleModel.recruitmentNumber.toString()
-                            currentNumber = articleModel.currentNumber.toString()
+                    override fun onCancelled(error: DatabaseError) {
+
+                    }
+
+                })
+
+                currentUserRef.addListenerForSingleValueEvent(object: ValueEventListener{
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        val userModel: UserModel? = snapshot.getValue(UserModel::class.java)
+                        if (userModel != null) {
+                            Log.d("onDataChange", "userName: ${userModel.userName}")
+                            currentUserName = userModel.userName
+                            currentUserProfileImage = userModel.userProfileImageUrl
                         }
                     }
-                }
-            }
 
-            override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(this@ArticleActivity, "데이터 로드 실패", Toast.LENGTH_SHORT).show()
-            }
-        })
-
-        currentGroupUserRef.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                userIdList.clear()
-
-                //그룹에 속한 유저들의 데이터를 가져옴
-                for (snapshot in dataSnapshot.children) { //반복문을 통해 데이터 List를 추출해냄.
-                    val userModel = snapshot.getValue(UserModel::class.java)
-
-                    if (userModel != null) {
-                        userIdList.add(userModel.userId)
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.d("onCancelled: ", "데이터로드 실패")
                     }
-                }
-            }
+                })
+            }.await()
+            binding.progressBar.visibility = View.GONE
+        }
 
-            override fun onCancelled(error: DatabaseError) {
-
-            }
-
-        })
-
-        currentUserRef.addListenerForSingleValueEvent(object: ValueEventListener{
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val userModel: UserModel? = snapshot.getValue(UserModel::class.java)
-                if (userModel != null) {
-                    Log.d("onDataChange", "userName: ${userModel.userName}")
-                    currentUserName = userModel.userName
-                    currentUserProfileImage = userModel.userProfileImageUrl
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.d("onCancelled: ", "데이터로드 실패")
-            }
-        })
     }
 
     private fun joinGroup(userId: String, userName: String, userProfileImage: String) {
@@ -302,13 +319,11 @@ class ArticleActivity : AppCompatActivity() {
         val currentGroupRef = Firebase.database.reference.child(DB_GROUPS).child(articleId)
         val group = mutableMapOf<String, Any>()
         group[CURRENT_NUMBER] = currentNumber.toInt() + 1
-//        currentGroupRef.setValue(group)
         currentGroupRef.updateChildren(group)
 
         val currentArticleRef = Firebase.database.reference.child(DB_ARTICLES).child(articleId)
         val article = mutableMapOf<String, Any>()
         article[CURRENT_NUMBER] = currentNumber.toInt() + 1
-//        currentGroupRef.setValue(group)
         currentArticleRef.updateChildren(article)
 
         hideProgress()

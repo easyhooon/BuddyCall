@@ -21,6 +21,7 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
+import kr.ac.konkuk.koogle.Activity.ArticleActivity.Companion.ARTICLE_INFO
 import kr.ac.konkuk.koogle.DBKeys
 import kr.ac.konkuk.koogle.DBKeys.Companion.ADMIN_ID
 import kr.ac.konkuk.koogle.DBKeys.Companion.ADMIN_NAME
@@ -43,19 +44,21 @@ import kr.ac.konkuk.koogle.DBKeys.Companion.WRITER_PROFILE_IMAGE_URL
 import kr.ac.konkuk.koogle.Model.ArticleModel
 import kr.ac.konkuk.koogle.Model.Entity.SearchResultEntity
 import kr.ac.konkuk.koogle.Model.UserModel
-import kr.ac.konkuk.koogle.databinding.ActivityAddArticleBinding
+import kr.ac.konkuk.koogle.databinding.ActivityEditArticleBinding
 
 //기존 글의 데이터 읽어오기
 class EditArticleActivity : AppCompatActivity() {
-    lateinit var binding: ActivityAddArticleBinding
+    lateinit var binding: ActivityEditArticleBinding
 
     lateinit var writerProfileImageUrl: String
-
-    lateinit var articleId: String
 
     private lateinit var searchResult: SearchResultEntity
 
     private var selectedUri: Uri? = null
+
+    private lateinit var articleId: String
+
+    private lateinit var currentNumber: String
 
     private val auth: FirebaseAuth by lazy {
         Firebase.auth
@@ -69,9 +72,8 @@ class EditArticleActivity : AppCompatActivity() {
     private val articleRef: DatabaseReference by lazy {
         Firebase.database.reference.child(DB_ARTICLES)
     }
-
     private val currentArticleRef: DatabaseReference by lazy {
-        articleRef.child(firebaseUser.uid)
+        articleRef.child(articleId)
     }
     private val groupRef: DatabaseReference by lazy {
         Firebase.database.reference.child(DB_GROUPS)
@@ -84,17 +86,23 @@ class EditArticleActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityAddArticleBinding.inflate(layoutInflater)
+        binding = ActivityEditArticleBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         initDB()
         initButton()
-
     }
 
     private fun initDB() {
-        val currentUserRef = userRef.child(auth.currentUser?.uid.toString())
-        currentUserRef.addListenerForSingleValueEvent(object: ValueEventListener {
+
+        if(::articleId.isInitialized.not()){
+            intent.let{
+                articleId = it.getStringExtra(ARTICLE_INFO).toString()
+                Log.i("EditArticleActivity", "initDB: $articleId")
+            }
+        }
+        val currentUserRef = userRef.child(firebaseUser.uid)
+        currentUserRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val userModel: UserModel? = snapshot.getValue(UserModel::class.java)
                 if (userModel != null) {
@@ -111,276 +119,247 @@ class EditArticleActivity : AppCompatActivity() {
 
         })
 
-        //todo 데이터가 안넘어오는 이슈..
         currentArticleRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val articleModel: ArticleModel? = snapshot.getValue(ArticleModel::class.java)
                 if (articleModel != null) {
-                    //업데이트 해주기전에 기존의 데이터를 뿌려놓고 싶은데 다 edittext라 뿌려놓기도 그렇네..
                     binding.titleEditText.setText(articleModel.articleTitle)
-                    binding.recruitmentNumberEditText.setText(articleModel.recruitmentNumber)
-                    binding.locationTextView.text = articleModel.desiredLocation.toString()
+                    binding.recruitmentNumberEditText.setText(articleModel.recruitmentNumber.toString())
+                    binding.locationTextView.text = articleModel.desiredLocation?.fullAddress ?: "위치"
                     if (articleModel.articleImageUrl.isNotEmpty()) {
                         Glide.with(binding.photoImageView)
                             .load(articleModel.articleImageUrl)
                             .into(binding.photoImageView)
                     }
                     binding.contentEditText.setText(articleModel.articleContent)
+                    currentNumber = articleModel.currentNumber.toString()
                 }
             }
+
             override fun onCancelled(error: DatabaseError) {
-                Log.d("onCancelled: ", "데이터로드 실패")
+                Log.d("EditArticleActivity", "onCancelled: 데이터로드 실패")
             }
 
-    })
-}
-
-private fun initButton() {
-    binding.imageAddButton.setOnClickListener {
-        when {
-            ContextCompat.checkSelfPermission(
-                this,
-                android.Manifest.permission.READ_EXTERNAL_STORAGE
-            ) == PackageManager.PERMISSION_GRANTED -> {
-                //Permission 이 허용이 됬을 경우, ContentProvider 로 넘어감
-                startContentProvider()
-            }
-            //교육용 팝업이 필요한 경우
-            shouldShowRequestPermissionRationale(android.Manifest.permission.READ_EXTERNAL_STORAGE) -> {
-                showPermissionContextPopup()
-            }
-            else -> {
-                requestPermissions(
-                    arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE),
-                    1010
-                )
-            }
-        }
+        })
     }
 
-    binding.submitButton.setOnClickListener {
-        articleId = articleRef.push().key.toString()
-        val articleTitle = binding.titleEditText.text.toString()
-        val articleContent = binding.contentEditText.text.toString()
-        val writerId = firebaseUser.uid
-        val recruitmentNumber = binding.recruitmentNumberEditText.text.toString().toInt()
+    private fun initButton() {
+        binding.imageAddButton.setOnClickListener {
+            when {
+                ContextCompat.checkSelfPermission(
+                    this,
+                    android.Manifest.permission.READ_EXTERNAL_STORAGE
+                ) == PackageManager.PERMISSION_GRANTED -> {
+                    //Permission 이 허용이 됬을 경우, ContentProvider 로 넘어감
+                    startContentProvider()
+                }
+                //교육용 팝업이 필요한 경우
+                shouldShowRequestPermissionRationale(android.Manifest.permission.READ_EXTERNAL_STORAGE) -> {
+                    showPermissionContextPopup()
+                }
+                else -> {
+                    requestPermissions(
+                        arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE),
+                        1010
+                    )
+                }
+            }
+        }
 
-        showProgress()
+        binding.submitButton.setOnClickListener {
+            val articleTitle = binding.titleEditText.text.toString()
+            val articleContent = binding.contentEditText.text.toString()
+            val writerId = firebaseUser.uid
+            val recruitmentNumber = binding.recruitmentNumberEditText.text.toString().toInt()
 
+            if (currentNumber.toInt() > recruitmentNumber) {
+                Toast.makeText(this, "이미 설정 인원보다 그룹 인원이 많습니다", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            } else {
 
-        //중간에 이미지가 있으면 업로드 과정을 추가
-        if (selectedUri != null) {
-            val photoUri = selectedUri ?: return@setOnClickListener
-            uploadPhoto(photoUri,
-                //내부 비동기
-                successHandler = { uri ->
-                    //이미지 uri를 첨부해서 업로드
-                    //이미지가 있는 상황
-                    //업로드한 url을 가져와서 같이 넣어줬기 때문에 url도 함께 들어갈 수 있음
+                showProgress()
+
+                //중간에 이미지가 있으면 업로드 과정을 추가
+                if (selectedUri != null) {
+                    val photoUri = selectedUri ?: return@setOnClickListener
+                    uploadPhoto(photoUri,
+                        //내부 비동기
+                        successHandler = { uri ->
+                            //이미지 uri를 첨부해서 업로드
+                            //이미지가 있는 상황
+                            //업로드한 url을 가져와서 같이 넣어줬기 때문에 url도 함께 들어갈 수 있음
+                            updateArticle(
+                                articleTitle,
+                                articleContent,
+                                recruitmentNumber,
+                                uri
+                            )
+                            updateChatRoom(
+                                articleTitle,
+                                recruitmentNumber,
+                            )
+                        },
+                        errorHandler = {
+                            //작업을 취소
+                            Toast.makeText(this, "사진 업로드에 실패했습니다", Toast.LENGTH_SHORT).show()
+                            hideProgress()
+                        }
+                    )
+                } else {
+                    //이미지가 없는 상황
                     updateArticle(
-                        writerId,
-                        writerName,
-                        writerProfileImageUrl,
-                        articleId,
                         articleTitle,
                         articleContent,
                         recruitmentNumber,
-                        uri
+                        ""
                     )
                     updateChatRoom(
-                        writerId,
-                        writerName,
-                        writerProfileImageUrl,
                         articleTitle,
-                        recruitmentNumber,
+                        recruitmentNumber
                     )
-                },
-                errorHandler = {
-                    //작업을 취소
-                    Toast.makeText(this, "사진 업로드에 실패했습니다", Toast.LENGTH_SHORT).show()
-                    hideProgress()
                 }
-            )
-        } else {
-            //동기
-            //이미지가 없는 상황
-            updateArticle(
-                writerId,
-                writerName,
-                writerProfileImageUrl,
-                articleId,
-                articleTitle,
-                articleContent,
-                recruitmentNumber,
-                ""
-            )
-            updateChatRoom(
-                writerId,
-                writerName,
-                writerProfileImageUrl,
-                articleTitle,
-                recruitmentNumber
-            )
+            }
+        }
+
+        binding.backButton.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
+
+        binding.locationAddButton.setOnClickListener {
+            val intent = Intent(this, LocationSearchActivity::class.java)
+            startActivityForResult(intent, AddArticleActivity.LOCATION_SEARCH_REQUEST_CODE)
         }
     }
 
-    binding.backButton.setOnClickListener {
-        val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
+
+    private fun updateChatRoom(
+        articleTitle: String,
+        recruitmentNumber: Int
+    ) {
+        val currentGroupRef = groupRef.child(articleId)
+        val group = mutableMapOf<String, Any>()
+        group[ARTICLE_TITLE] = articleTitle
+        group[RECRUITMENT_NUMBER] = recruitmentNumber
+
+        currentGroupRef.updateChildren(group)
+
+        hideProgress()
+        finish()
+
+    }
+
+    //successHandler의 반환값 String
+    private fun uploadPhoto(uri: Uri, successHandler: (String) -> Unit, errorHandler: () -> Unit) {
+        //파일명이 중복이 되지 않도록
+        //이렇게 두면 이거 삭제는 어떻게 하남
+        val fileName = "${articleId}.png"
+        storage.reference.child(DBKeys.ARTICLE_IMAGE_PATH).child(fileName)
+            .putFile(uri)
+            //성공했는지 여부를 체크
+            .addOnCompleteListener {
+                if (it.isSuccessful) {
+                    storage.reference.child(DBKeys.ARTICLE_IMAGE_PATH).child(fileName).downloadUrl
+                        .addOnSuccessListener { uri ->
+                            //업로드를 성공하면 download url을 가져옴
+                            successHandler(uri.toString())
+                        }.addOnFailureListener {
+                            errorHandler()
+                        }
+                } else {
+                    errorHandler()
+                }
+            }
+    }
+
+    private fun updateArticle(
+        articleTitle: String,
+        articleContent: String,
+        recruitmentNumber: Int,
+        articleImageUrl: String
+    ) {
+        val currentArticleRef = articleRef.child(articleId)
+        val article = mutableMapOf<String, Any>()
+
+        article[ARTICLE_TITLE] = articleTitle
+        article[ARTICLE_CONTENT] = articleContent
+        article[ARTICLE_IMAGE_URL] = articleImageUrl
+        article[ARTICLE_CREATED_AT] = System.currentTimeMillis()
+        article[RECRUITMENT_NUMBER] = recruitmentNumber
+        article[DESIRED_LOCATION] = searchResult
+
+        currentArticleRef.updateChildren(article)
+
+        hideProgress()
         finish()
     }
 
-    binding.locationAddButton.setOnClickListener {
-        val intent = Intent(this, LocationSearchActivity::class.java)
-        startActivityForResult(intent, AddArticleActivity.LOCATION_SEARCH_REQUEST_CODE)
-    }
-}
-
-//todo 현재 존재하는 currentNumber 보다 적은 수로 recruitmentNumber 를 수정할 수는 없음!!
-private fun updateChatRoom(
-    adminId: String,
-    adminName: String,
-    adminProfileImageUrl: String,
-    articleTitle: String,
-    recruitmentNumber: Int
-) {
-    val currentGroupRef = groupRef.child(articleId)
-    val group = mutableMapOf<String, Any>()
-
-    group[GROUP_ID] = articleId
-    group[ARTICLE_TITLE] = articleTitle
-    group[ADMIN_ID] = adminId
-    group[ADMIN_NAME] = adminName
-    group[ADMIN_PROFILE_IMAGE_URL] = adminProfileImageUrl
-    group[RECRUITMENT_NUMBER] = recruitmentNumber
-
-//        currentGroupRef.setValue(group)
-    currentGroupRef.updateChildren(group)
-
-    hideProgress()
-    finish()
-
-}
-
-//successHandler의 반환값 String
-private fun uploadPhoto(uri: Uri, successHandler: (String) -> Unit, errorHandler: () -> Unit) {
-    //파일명이 중복이 되지 않도록
-    //이렇게 두면 이거 삭제는 어떻게 하남
-    val fileName = "${articleId}.png"
-    storage.reference.child(DBKeys.ARTICLE_IMAGE_PATH).child(fileName)
-        .putFile(uri)
-        //성공했는지 여부를 체크
-        .addOnCompleteListener {
-            if (it.isSuccessful) {
-                storage.reference.child(DBKeys.ARTICLE_IMAGE_PATH).child(fileName).downloadUrl
-                    .addOnSuccessListener { uri ->
-                        //업로드를 성공하면 download url을 가져옴
-                        successHandler(uri.toString())
-                    }.addOnFailureListener {
-                        errorHandler()
-                    }
-            } else {
-                errorHandler()
-            }
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            1010 ->
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    startContentProvider()
+                } else {
+                    Toast.makeText(this, "권한을 거부하셨습니다", Toast.LENGTH_SHORT).show()
+                }
         }
-}
-
-private fun updateArticle(
-    writerId: String,
-    writerName: String,
-    writerProfileImageUrl: String,
-    articleId: String,
-    articleTitle: String,
-    articleContent: String,
-    recruitmentNumber: Int,
-    articleImageUrl: String
-) {
-    val currentArticleRef = articleRef.child(articleId)
-    val article = mutableMapOf<String, Any>()
-
-    article[ARTICLE_ID] = articleId
-    article[ARTICLE_TITLE] = articleTitle
-    article[ARTICLE_CONTENT] = articleContent
-    article[ARTICLE_IMAGE_URL] = articleImageUrl
-    article[ARTICLE_CREATED_AT] = System.currentTimeMillis()
-    article[WRITER_ID] = writerId
-    article[WRITER_NAME] = writerName
-    article[WRITER_PROFILE_IMAGE_URL] = writerProfileImageUrl
-    article[RECRUITMENT_NUMBER] = recruitmentNumber
-    article[CURRENT_NUMBER] = 1
-    article[DESIRED_LOCATION] = searchResult
-
-//        currentArticleRef.updateChildren(article)
-    currentArticleRef.setValue(article)
-
-    hideProgress()
-    finish()
-}
-
-override fun onRequestPermissionsResult(
-    requestCode: Int,
-    permissions: Array<out String>,
-    grantResults: IntArray
-) {
-    super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-    when (requestCode) {
-        1010 ->
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                startContentProvider()
-            } else {
-                Toast.makeText(this, "권한을 거부하셨습니다", Toast.LENGTH_SHORT).show()
-            }
     }
-}
 
-private fun startContentProvider() {
-    val intent = Intent(Intent.ACTION_GET_CONTENT)
-    intent.type = "image/*"
-    startActivityForResult(intent, AddArticleActivity.CONTENT_PROVIDER_REQUEST_CODE)
-}
+    private fun startContentProvider() {
+        val intent = Intent(Intent.ACTION_GET_CONTENT)
+        intent.type = "image/*"
+        startActivityForResult(intent, AddArticleActivity.CONTENT_PROVIDER_REQUEST_CODE)
+    }
 
-private fun showProgress() {
+    private fun showProgress() {
 
-    binding.progressBar.isVisible = true
-}
+        binding.progressBar.isVisible = true
+    }
 
-private fun hideProgress() {
-    binding.progressBar.isVisible = false
-}
+    private fun hideProgress() {
+        binding.progressBar.isVisible = false
+    }
 
-override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-    super.onActivityResult(requestCode, resultCode, data)
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
 
-    when (requestCode) {
-        AddArticleActivity.CONTENT_PROVIDER_REQUEST_CODE -> {
-            //data 안에 사진의 uri 가 넘어온것
-            //우선 null 처리
-            val uri = data?.data
-            if (uri != null) {
-                binding.photoImageView.setImageURI(uri)
-                selectedUri = uri
-            } else {
-                Toast.makeText(this, "사진을 가져오지 못했습니다.", Toast.LENGTH_SHORT).show()
+        when (requestCode) {
+            AddArticleActivity.CONTENT_PROVIDER_REQUEST_CODE -> {
+                //data 안에 사진의 uri 가 넘어온것
+                //우선 null 처리
+                val uri = data?.data
+                if (uri != null) {
+                    binding.photoImageView.setImageURI(uri)
+                    selectedUri = uri
+                } else {
+                    Toast.makeText(this, "사진을 가져오지 못했습니다.", Toast.LENGTH_SHORT).show()
+                }
             }
-        }
-        AddArticleActivity.LOCATION_SEARCH_REQUEST_CODE -> {
-            if (resultCode == RESULT_OK) {
-                searchResult = data?.getParcelableExtra(AddArticleActivity.SEARCH_RESULT_FINAL)!!
-                binding.locationTextView.text = searchResult.fullAddress
+            AddArticleActivity.LOCATION_SEARCH_REQUEST_CODE -> {
+                if (resultCode == RESULT_OK) {
+                    searchResult =
+                        data?.getParcelableExtra(AddArticleActivity.SEARCH_RESULT_FINAL)!!
+                    binding.locationTextView.text = searchResult.fullAddress
+                }
             }
         }
     }
-}
 
-//교육용 팝업
-private fun showPermissionContextPopup() {
-    AlertDialog.Builder(this)
-        .setTitle("권한이 필요합니다.")
-        .setMessage("사진을 가져오기 위해 필요합니다.")
-        .setPositiveButton("동의") { _, _ ->
-            requestPermissions(arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE), 1010)
-        }
-        .create()
-        .show()
-}
+    //교육용 팝업
+    private fun showPermissionContextPopup() {
+        AlertDialog.Builder(this)
+            .setTitle("권한이 필요합니다.")
+            .setMessage("사진을 가져오기 위해 필요합니다.")
+            .setPositiveButton("동의") { _, _ ->
+                requestPermissions(arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE), 1010)
+            }
+            .create()
+            .show()
+    }
 }

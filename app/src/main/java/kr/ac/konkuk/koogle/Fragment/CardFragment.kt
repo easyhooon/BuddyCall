@@ -48,7 +48,6 @@ class CardFragment : Fragment(), CardStackListener {
             {
                 val cardModel = snapshot.getValue(CardModel::class.java)
                 if (cardModel != null) {
-                    Log.d("onChildAdded", "cardModel: $cardModel")
                     cardList.add(cardModel)
                 }
                 cardAdapter.submitList(cardList)

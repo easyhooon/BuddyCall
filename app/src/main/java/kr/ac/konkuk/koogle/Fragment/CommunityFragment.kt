@@ -21,6 +21,7 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import kr.ac.konkuk.koogle.Activity.AddArticleActivity
 import kr.ac.konkuk.koogle.Activity.ArticleActivity
+import kr.ac.konkuk.koogle.Activity.LogInActivity
 import kr.ac.konkuk.koogle.Adapter.CommunityAdapter
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_ID
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_ARTICLES
@@ -43,12 +44,6 @@ class CommunityFragment : Fragment() {
     private val articleRef: DatabaseReference by lazy {
         Firebase.database.reference.child(DB_ARTICLES)
     }
-
-    private val userRef: DatabaseReference by lazy {
-        Firebase.database.reference.child(DB_USERS)
-    }
-
-    private val firebaseUser = auth.currentUser!!
 
     private val listener = object : ChildEventListener {
         override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
@@ -106,7 +101,6 @@ class CommunityFragment : Fragment() {
             }
         })
 
-
         binding!!.articleRecyclerView.layoutManager = LinearLayoutManager(context)
         binding!!.articleRecyclerView.addItemDecoration(
             DividerItemDecoration(
@@ -125,6 +119,7 @@ class CommunityFragment : Fragment() {
                     startActivity(Intent(it, AddArticleActivity::class.java))
                 } else {
                     Toast.makeText(context, "로그인 후 사용해주세요", Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(it, LogInActivity::class.java))
                 }
 
                 //이것도 가능
