@@ -128,7 +128,7 @@ class EditProfileActivity : AppCompatActivity() {
     private fun initUserInfo() {
         //입력 로그인용 유저의 데이터를 불러오기 위한 uid
         val uid = firebaseUser.uid
-        val currentUserRef = Firebase.database.reference.child(DBKeys.DB_USERS).child(uid)
+        val currentUserRef = Firebase.database.reference.child(DB_USERS).child(uid)
 //        val userRef = FirebaseDatabase.getInstance().getReference(DB_USERS).child(uid)와 같다
 
 //        파이어베이스 데이터베이스의 정보 가져오기

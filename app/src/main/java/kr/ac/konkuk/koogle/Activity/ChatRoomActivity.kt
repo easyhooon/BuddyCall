@@ -45,7 +45,7 @@ class ChatRoomActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityChatRoomBinding
 
-    private var userIdList:MutableList<String> = mutableListOf()
+    private var userIdList: MutableList<String> = mutableListOf()
 
     private lateinit var writerName: String
 
@@ -90,11 +90,16 @@ class ChatRoomActivity : AppCompatActivity() {
 
     //현재 로그인한 그룹맴버
     private val currentGroupUserRef: DatabaseReference by lazy {
-        Firebase.database.reference.child(DB_GROUPS).child(groupId).child(DB_USERS).child(firebaseUser.uid)
+        Firebase.database.reference.child(DB_GROUPS).child(groupId).child(DB_USERS)
+            .child(firebaseUser.uid)
     }
 
     private val chatRef: DatabaseReference by lazy {
         currentGroupRef.child(DB_MESSAGES)
+    }
+
+    private val currentChatRef: DatabaseReference by lazy {
+        chatRef.child(chatId)
     }
 
     private val currentUserGroupRef: DatabaseReference by lazy {
@@ -224,7 +229,7 @@ class ChatRoomActivity : AppCompatActivity() {
         group[CURRENT_NUMBER] = currentNumber.toInt() - 1
         currentGroupRef.updateChildren(group)
 
-        val article = mutableMapOf<String,Any>()
+        val article = mutableMapOf<String, Any>()
         article[CURRENT_NUMBER] = currentNumber.toInt() - 1
         currentArticleRef.updateChildren(article)
 
@@ -237,7 +242,7 @@ class ChatRoomActivity : AppCompatActivity() {
         //해당 그룹에 참여했던 유저 목록을 list로 가져와서 걔네로 반복문 돌리면 될듯
 
         //이거 먼저 동기적으로 수행하고
-        for(userId in userIdList){
+        for (userId in userIdList) {
             userRef.child(userId).child(DB_GROUPS).child(groupId).setValue(null)
         }
 
@@ -273,7 +278,6 @@ class ChatRoomActivity : AppCompatActivity() {
         content: String
     ) {
         chatId = chatRef.push().key.toString()
-        val currentChatRef = chatRef.child(chatId)
         val message = mutableMapOf<String, Any>()
 
         message[CHAT_ID] = chatId
@@ -334,19 +338,21 @@ class ChatRoomActivity : AppCompatActivity() {
         //그룹에 속한 유저 id 목록을 가져옴
         currentGroupUsersRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                for(snapshot in dataSnapshot.children){
+                for (snapshot in dataSnapshot.children) {
                     val userModel = snapshot.getValue(UserModel::class.java)
                     if (userModel != null) {
                         userIdList.add(userModel.userId)
                     }
                 }
             }
+
             override fun onCancelled(error: DatabaseError) {
                 Log.d("onCancelled: ", "데이터로드 실패")
             }
 
         })
     }
+
     private fun showProgress() {
         binding.progressBar.isVisible = true
     }
