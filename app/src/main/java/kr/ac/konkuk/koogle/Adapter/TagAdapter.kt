@@ -50,7 +50,6 @@ class TagAdapter(val context: Context, val models: ArrayList<TagModel>) :
         // 소분류 태그 테이블 생성
         fun bind(model: TagModel) {
             mainTagView.text = model.main_tag_name
-            Log.e("jan", "START")
             for (tag in model.sub_tag_list) {
                 // row 가 하나도 없으면 새로 만들기
                 if (subTagView.childCount == 0) {

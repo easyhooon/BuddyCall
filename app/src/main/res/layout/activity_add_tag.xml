@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
+
     <LinearLayout
         android:id="@+id/toolbarLayout"
         android:layout_width="match_parent"
@@ -37,21 +38,16 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:orientation="vertical">
+        android:gravity="center"
+        android:orientation="horizontal">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
+            android:layout_weight="2"
             android:background="@drawable/style_round_layout_light"
             android:orientation="horizontal">
-
-            <ImageView
-                android:id="@+id/searchImageView"
-                android:layout_width="45dp"
-                android:layout_height="45dp"
-                android:src="@drawable/ic_baseline_search_24" />
 
             <EditText
                 android:id="@+id/searchEditText"
@@ -59,18 +55,66 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
 
+            <ImageView
+                android:id="@+id/searchImageView"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:src="@drawable/ic_baseline_search_24" />
+
         </LinearLayout>
 
         <Button
             android:id="@+id/addNewTagBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="태그 추가"></Button>
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="4dp"
+            android:layout_weight="1"
+            android:text="새 태그"></Button>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
 
         <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/addTagRecyclerView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:background="@drawable/style_round_layout_light" />
 
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/cancelBtn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginBottom="8dp"
+            android:layout_weight="1"
+            android:text="취소"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/accountInfoButton" />
+
+        <Button
+            android:id="@+id/commitBtn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginBottom="8dp"
+            android:layout_weight="1"
+            android:text="추가하기"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/profileEditButton"
+            app:layout_constraintStart_toStartOf="parent" />
     </LinearLayout>
 </LinearLayout>

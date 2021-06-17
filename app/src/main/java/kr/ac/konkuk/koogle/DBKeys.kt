@@ -46,17 +46,18 @@ class DBKeys {
         const val RIGHT_CHAT = 2 //내 채팅(내용만 보임)
 
         // 대분류 태그
-        const val DB_MAIN_TAGS = "Tags"
+        const val DB_MAIN_TAGS = "Tag"
         // ID를 이름으로 쓰기
         const val TAG_ID = "tagId"
-        const val USED_NUM = "usedNum"
+        const val USED = "used"
+        const val USED_TAGS = "usedTags" // 이 태그가 태그 리스트로써 쓰인 횟수
+        const val USED_VALUE = "usedValue" // 이 태그가 수치로써 쓰인 횟수
 
         // 소분류 태그
-        const val DB_SUB_TAGS = "SubTags"
+        const val DB_SUB_TAGS = "SubTag"
+        // ID를 이름으로 쓰기
         const val SUB_TAG_ID = "subTagId"
-
-        // 대분류-소분류 관계 테이블
-        const val DB_TAG_REL = "RelTags"
+        const val REL_TAG = "relTag"
 
         // 유저-태그 관계 테이블(프로필)
         const val DB_USER_TAGS = "UserTags"
