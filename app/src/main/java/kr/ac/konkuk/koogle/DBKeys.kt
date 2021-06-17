@@ -26,7 +26,6 @@ class DBKeys {
         const val CURRENT_NUMBER = "currentNumber"
         const val DESIRED_LOCATION = "desiredLocation"
 
-
         //Group
         const val DB_GROUPS = "Groups"
         const val GROUP_ID = "groupId"

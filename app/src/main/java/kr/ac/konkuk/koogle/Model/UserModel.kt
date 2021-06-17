@@ -4,7 +4,8 @@ data class UserModel(
     val userId: String,
     val userEmail: String,
     val userName: String,
-    val userProfileImageUrl: String
+    val userProfileImageUrl: String,
+    val Groups: GroupModel?
 ) {
-    constructor() : this("", "", "", "")
+    constructor() : this("", "", "", "", null)
 }

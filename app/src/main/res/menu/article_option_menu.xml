@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/updateArticle"
-        android:title="수정하기" />
+        android:id="@+id/userBlock"
+        android:title="유저차단" />
     <item
-        android:id="@+id/deleteArticle"
-        android:title="삭제하기" />
+        android:id="@+id/notInterested"
+        android:title="관심없음" />
 </menu>

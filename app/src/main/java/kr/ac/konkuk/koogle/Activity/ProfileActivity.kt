@@ -2,7 +2,6 @@ package kr.ac.konkuk.koogle.Activity
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -17,7 +16,6 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.FirebaseStorage
 import kr.ac.konkuk.koogle.Adapter.RecommendAdapter
 import kr.ac.konkuk.koogle.Adapter.TagAdapter
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
@@ -57,7 +55,7 @@ class ProfileActivity : AppCompatActivity() {
         init()
     }
 
-    fun init() {
+    private fun init() {
         initData()
         initTagRecyclerView()
         initRecommendRecyclerView()
@@ -72,7 +70,7 @@ class ProfileActivity : AppCompatActivity() {
         }
 
         binding.profileEditButton.setOnClickListener {
-            val intent = Intent(this, ProfileEditActivity::class.java)
+            val intent = Intent(this, EditProfileActivity::class.java)
             startActivity(intent)
         }
 

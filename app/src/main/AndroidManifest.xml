@@ -16,7 +16,7 @@
         <activity android:name=".Activity.ArticleActivity" />
         <activity android:name=".Activity.AddNewTagActivity" />
         <activity android:name=".Activity.AccountInfoActivity" />
-        <activity android:name=".Activity.ProfileEditActivity" />
+        <activity android:name=".Activity.EditProfileActivity" />
         <activity android:name=".Activity.AddArticleActivity" />
         <activity android:name=".Activity.SignUpActivity" />
         <activity android:name=".Activity.LogInActivity" />
