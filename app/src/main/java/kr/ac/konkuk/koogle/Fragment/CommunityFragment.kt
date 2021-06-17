@@ -1,15 +1,13 @@
 package kr.ac.konkuk.koogle.Fragment
 
-import android.R
 import android.content.Intent
 import android.os.Bundle
+import android.provider.ContactsContract
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -35,8 +33,6 @@ class CommunityFragment : Fragment() {
 
     private var binding: FragmentCommunityBinding? = null
 
-    private lateinit var userRef: DatabaseReference
-    private lateinit var articleRef: DatabaseReference
     private lateinit var communityAdapter: CommunityAdapter
 
     private val articleList = mutableListOf<ArticleModel>()
@@ -44,6 +40,15 @@ class CommunityFragment : Fragment() {
     private val auth: FirebaseAuth by lazy {
         Firebase.auth
     }
+    private val articleRef: DatabaseReference by lazy {
+        Firebase.database.reference.child(DB_ARTICLES)
+    }
+
+    private val userRef: DatabaseReference by lazy {
+        Firebase.database.reference.child(DB_USERS)
+    }
+
+    private val firebaseUser = auth.currentUser!!
 
     private val listener = object : ChildEventListener {
         override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
@@ -59,7 +64,6 @@ class CommunityFragment : Fragment() {
         override fun onChildRemoved(snapshot: DataSnapshot) {}
         override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
         override fun onCancelled(error: DatabaseError) {}
-
     }
 
     override fun onCreateView(
@@ -71,10 +75,8 @@ class CommunityFragment : Fragment() {
 
         //초기화를 해주지 않으면 이미 값이 들어있어서 계속 해서 아이템이 추가됨
 
-        initDB()
         initRecyclerView()
         initButton()
-        initSpinner()
 
         //데이터를 가져옴
         //addSingleValueListener -> 즉시성, 1회만 호출
@@ -87,66 +89,18 @@ class CommunityFragment : Fragment() {
         return binding!!.root
     }
 
-    private fun initSpinner() {
-        val adapter = ArrayAdapter<String>(requireActivity(), R.layout.simple_spinner_dropdown_item, ArrayList<String>())
-        adapter.add("전체")
-        adapter.add("게임")
-        adapter.add("스터디")
-        adapter.add("공모전")
-        adapter.add("운동")
-        adapter.add("여행")
-
-        binding!!.apply{
-            spinner2.adapter = adapter
-            spinner2.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
-                override fun onItemSelected(
-                    parent: AdapterView<*>?,
-                    view: View?,
-                    position: Int,
-                    id: Long
-                ) {
-                    when(position){
-                        0 -> {
-                            // TODO
-                        }
-                        1 -> {
-                            // TODO
-                        }
-                        2 -> {
-                            // TODO
-                        }
-                        3 -> {
-                            // TODO
-                        }
-                        4 -> {
-                            // TODO
-                        }
-                        5 -> {
-                            // TODO
-                        }
-                    }
-                }
-
-                override fun onNothingSelected(parent: AdapterView<*>?) {
-                    TODO("Not yet implemented")
-                }
-
-            }
-        }
-    }
-
     private fun initRecyclerView() {
         articleList.clear()
         //초기화 코드
         communityAdapter = CommunityAdapter(onItemClicked = { articleModel ->
-            if(auth.currentUser != null) {
+            if (auth.currentUser != null) {
                 val intent = Intent(context, ArticleActivity::class.java)
                 intent.putExtra(ARTICLE_ID, articleModel.articleId)
 
                 //fragment에서 다른 액티비티로 데이터 전달
                 Log.d("CommunityFragment", "articleId: ${articleModel.articleId}")
                 activity?.startActivity(intent)
-            }else {
+            } else {
                 //로그인을 안한 상태
                 Toast.makeText(context, "로그인 후 사용해주세요", Toast.LENGTH_LONG).show()
             }
@@ -167,7 +121,7 @@ class CommunityFragment : Fragment() {
         binding!!.btnAddArticle.setOnClickListener {
 
             context?.let {
-                if(auth.currentUser != null){
+                if (auth.currentUser != null) {
                     startActivity(Intent(it, AddArticleActivity::class.java))
                 } else {
                     Toast.makeText(context, "로그인 후 사용해주세요", Toast.LENGTH_SHORT).show()
@@ -177,11 +131,6 @@ class CommunityFragment : Fragment() {
                 //startActivity(Intent(requireContext(),ArticleAddActivity::class.java))
             }
         }
-    }
-
-    private fun initDB() {
-        articleRef= Firebase.database.reference.child(DB_ARTICLES)
-        userRef = Firebase.database.reference.child(DB_USERS)
     }
 
     override fun onResume() {
@@ -196,5 +145,4 @@ class CommunityFragment : Fragment() {
 
         articleRef.removeEventListener(listener)
     }
-
 }

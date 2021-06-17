@@ -5,6 +5,17 @@
     android:layout_height="match_parent"
     android:background="@color/colorMain">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="모든 글을 열람하셨습니다."
+        android:textSize="20sp"
+        android:textColor="@color/black"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <com.yuyakaido.android.cardstackview.CardStackView
         android:id="@+id/cardStackView"
         android:layout_width="0dp"
