@@ -62,6 +62,7 @@
         </LinearLayout>
 
         <Button
+            android:id="@+id/addNewTagBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="태그 추가"></Button>

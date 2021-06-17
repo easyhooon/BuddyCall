@@ -5,9 +5,11 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
+import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
@@ -48,23 +50,54 @@ class AddNewTagActivity:AppCompatActivity() {
         rootRef = Firebase.database.reference
         tagRef = rootRef.child(DBKeys.DB_MAIN_TAGS)
     }
-
     private fun commitMainTag(mainTag: String): Boolean{
-        // 이미 DB에 있는 태그인지 확인한다
-        tagRef.child(DBKeys.TAG_NAME).equalTo(mainTag).get().addOnSuccessListener {
-            // 있으면 tagNum만 늘어난다.
-            Toast.makeText(this, "OK", Toast.LENGTH_SHORT).show()
-        }.addOnFailureListener {
-            // 없으면 추가하고 false 반환
-            val tagId = tagRef.push().key.toString()
-            val newTag = mutableMapOf<String, Any>()
-            Toast.makeText(this, "NO", Toast.LENGTH_SHORT).show()
+        tagRef.orderByChild(DBKeys.TAG_ID)
+            .equalTo(mainTag).addListenerForSingleValueEvent(object:ValueEventListener{
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if(snapshot.childrenCount>0){
+                        // 있으면 tagNum만 늘어난다.
+                        tagRef.child(mainTag).child(DBKeys.USED_NUM).setValue(
+                            snapshot.child(mainTag).child(DBKeys.USED_NUM).value.toString().toInt() + 1
+                        )
 
-            newTag[DBKeys.TAG_ID] = tagId
-            newTag[DBKeys.TAG_NAME] = mainTag
-            newTag[DBKeys.USED_NUM] = TAG_INIT_NUM
-            tagRef.child(tagId).updateChildren(newTag)
-        }
+                    }else{
+                        // 없으면 추가하고 false 반환
+                        val newTag = mutableMapOf<String, Any>()
+
+                        newTag[DBKeys.TAG_ID] = mainTag
+                        newTag[DBKeys.USED_NUM] = TAG_INIT_NUM
+                        tagRef.child(mainTag).updateChildren(newTag)
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    TODO("Not yet implemented")
+                }
+
+            })
+        /*
+            // 이미 DB에 있는 태그인지 확인한다
+        tagRef.orderByChild(DBKeys.TAG_NAME)
+            .equalTo(mainTag).get().addOnSuccessListener{
+                if(it.childrenCount>0){
+                    // 있으면 tagNum만 늘어난다.
+                    Toast.makeText(this, "OK", Toast.LENGTH_SHORT).show()
+                }else{
+                    // 없으면 추가하고 false 반환
+                    val tagId = tagRef.push().key.toString()
+                    val newTag = mutableMapOf<String, Any>()
+                    Toast.makeText(this, "NO", Toast.LENGTH_SHORT).show()
+
+                    newTag[DBKeys.TAG_ID] = tagId
+                    newTag[DBKeys.TAG_NAME] = mainTag
+                    newTag[DBKeys.USED_NUM] = TAG_INIT_NUM
+                    tagRef.child(tagId).updateChildren(newTag)
+                }
+            }.addOnFailureListener {
+                Toast.makeText(this, "Fail", Toast.LENGTH_SHORT).show()
+            }
+            */
+
         /*
         val query = tagRef.orderByChild(DBKeys.TAG_NAME).equalTo(mainTag)
             .addListenerForSingleValueEvent(object:ValueEventListener{
@@ -93,19 +126,15 @@ class AddNewTagActivity:AppCompatActivity() {
 
     private fun initButton() {
         // 임시
-        binding.searchEditText.addTextChangedListener(object:TextWatcher{
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-
+        binding.addNewTagBtn.setOnClickListener {
+            val text = binding.searchEditText.text.toString()
+            if(text.length<2){
+                Toast.makeText(this, "태그를 2자 이상 입력해주세요", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-
-            }
-
-            override fun afterTextChanged(s: Editable?) {
-                commitMainTag(s.toString())
-            }
-        })
+            commitMainTag(binding.searchEditText.text.toString())
+            binding.searchEditText.text.clear()
+        }
 
         binding.backButton.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)

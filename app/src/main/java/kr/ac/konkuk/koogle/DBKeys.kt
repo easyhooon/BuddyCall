@@ -47,14 +47,13 @@ class DBKeys {
 
         // 대분류 태그
         const val DB_MAIN_TAGS = "Tags"
+        // ID를 이름으로 쓰기
         const val TAG_ID = "tagId"
-        const val TAG_NAME = "tagName"
         const val USED_NUM = "usedNum"
 
         // 소분류 태그
         const val DB_SUB_TAGS = "SubTags"
         const val SUB_TAG_ID = "subTagId"
-        const val SUB_TAG_NAME = "tagName"
 
         // 대분류-소분류 관계 테이블
         const val DB_TAG_REL = "RelTags"
