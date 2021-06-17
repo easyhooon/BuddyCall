@@ -23,24 +23,15 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
 import kr.ac.konkuk.koogle.Activity.ArticleActivity.Companion.ARTICLE_INFO
 import kr.ac.konkuk.koogle.DBKeys
-import kr.ac.konkuk.koogle.DBKeys.Companion.ADMIN_ID
-import kr.ac.konkuk.koogle.DBKeys.Companion.ADMIN_NAME
-import kr.ac.konkuk.koogle.DBKeys.Companion.ADMIN_PROFILE_IMAGE_URL
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_CONTENT
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_CREATED_AT
-import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_ID
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_IMAGE_URL
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_TITLE
-import kr.ac.konkuk.koogle.DBKeys.Companion.CURRENT_NUMBER
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_ARTICLES
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_GROUPS
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
 import kr.ac.konkuk.koogle.DBKeys.Companion.DESIRED_LOCATION
-import kr.ac.konkuk.koogle.DBKeys.Companion.GROUP_ID
 import kr.ac.konkuk.koogle.DBKeys.Companion.RECRUITMENT_NUMBER
-import kr.ac.konkuk.koogle.DBKeys.Companion.WRITER_ID
-import kr.ac.konkuk.koogle.DBKeys.Companion.WRITER_NAME
-import kr.ac.konkuk.koogle.DBKeys.Companion.WRITER_PROFILE_IMAGE_URL
 import kr.ac.konkuk.koogle.Model.ArticleModel
 import kr.ac.konkuk.koogle.Model.Entity.SearchResultEntity
 import kr.ac.konkuk.koogle.Model.UserModel
@@ -125,7 +116,7 @@ class EditArticleActivity : AppCompatActivity() {
                 if (articleModel != null) {
                     binding.titleEditText.setText(articleModel.articleTitle)
                     binding.recruitmentNumberEditText.setText(articleModel.recruitmentNumber.toString())
-                    binding.locationTextView.text = articleModel.desiredLocation?.fullAddress ?: "위치"
+                    binding.locationTextView.text = articleModel.desiredLocation?.fullAddress ?: DEFAULT_LOCATION
                     if (articleModel.articleImageUrl.isNotEmpty()) {
                         Glide.with(binding.photoImageView)
                             .load(articleModel.articleImageUrl)
@@ -361,5 +352,9 @@ class EditArticleActivity : AppCompatActivity() {
             }
             .create()
             .show()
+    }
+
+    companion object {
+        const val DEFAULT_LOCATION = "위치"
     }
 }

@@ -45,7 +45,7 @@ class ChatRoomActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityChatRoomBinding
 
-//    private lateinit var chatRef:DatabaseReference
+    private var userIdList:MutableList<String> = mutableListOf()
 
     private lateinit var writerName: String
 
@@ -67,6 +67,10 @@ class ChatRoomActivity : AppCompatActivity() {
 
     private val firebaseUser = auth.currentUser!!
 
+    private val userRef: DatabaseReference by lazy {
+        Firebase.database.reference.child(DB_USERS)
+    }
+
     private val currentArticleRef: DatabaseReference by lazy {
         Firebase.database.reference.child(DB_ARTICLES).child(groupId)
     }
@@ -75,15 +79,27 @@ class ChatRoomActivity : AppCompatActivity() {
         Firebase.database.reference.child(DB_GROUPS).child(groupId)
     }
 
-    private val currentGroupUserRef: DatabaseReference by lazy {
+    private val currentUserRef: DatabaseReference by lazy {
+        Firebase.database.reference.child(DB_USERS).child(firebaseUser.uid)
+    }
+
+    //전체 그룹 맴버
+    private val currentGroupUsersRef: DatabaseReference by lazy {
         Firebase.database.reference.child(DB_GROUPS).child(groupId).child(DB_USERS)
-            .child(firebaseUser.uid)
+    }
+
+    //현재 로그인한 그룹맴버
+    private val currentGroupUserRef: DatabaseReference by lazy {
+        Firebase.database.reference.child(DB_GROUPS).child(groupId).child(DB_USERS).child(firebaseUser.uid)
     }
 
     private val chatRef: DatabaseReference by lazy {
         currentGroupRef.child(DB_MESSAGES)
     }
 
+    private val currentUserGroupRef: DatabaseReference by lazy {
+        Firebase.database.reference.child(DB_USERS).child(firebaseUser.uid).child(DB_GROUPS)
+    }
 
     private val chatList = mutableListOf<ChatModel>()
 
@@ -207,9 +223,24 @@ class ChatRoomActivity : AppCompatActivity() {
         val group = mutableMapOf<String, Any>()
         group[CURRENT_NUMBER] = currentNumber.toInt() - 1
         currentGroupRef.updateChildren(group)
+
+        val article = mutableMapOf<String,Any>()
+        article[CURRENT_NUMBER] = currentNumber.toInt() - 1
+        currentArticleRef.updateChildren(article)
+
+        //유저의 그룹목록에서 현재 그룹을 삭제
+        currentUserGroupRef.setValue(null)
     }
 
     private fun deleteArticle() {
+        //모든 유저의 group참여 목록에서 이 그룹을 없애야되는데?
+        //해당 그룹에 참여했던 유저 목록을 list로 가져와서 걔네로 반복문 돌리면 될듯
+
+        //이거 먼저 동기적으로 수행하고
+        for(userId in userIdList){
+            userRef.child(userId).child(DB_GROUPS).child(groupId).setValue(null)
+        }
+
         currentArticleRef.setValue(null)
         currentGroupRef.setValue(null)
     }
@@ -275,6 +306,7 @@ class ChatRoomActivity : AppCompatActivity() {
                     currentNumber = groupModel.currentNumber.toString()
                     binding.chatTitleTextView.text = groupModel.articleTitle
                     binding.currentNumberTextView.text = currentNumber
+
                 }
             }
 
@@ -283,8 +315,7 @@ class ChatRoomActivity : AppCompatActivity() {
             }
 
         })
-        val currentUserRef =
-            Firebase.database.reference.child(DB_USERS).child(auth.currentUser?.uid.toString())
+
         currentUserRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val userModel: UserModel? = snapshot.getValue(UserModel::class.java)
@@ -300,8 +331,22 @@ class ChatRoomActivity : AppCompatActivity() {
             }
         })
 
-    }
+        //그룹에 속한 유저 id 목록을 가져옴
+        currentGroupUsersRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                for(snapshot in dataSnapshot.children){
+                    val userModel = snapshot.getValue(UserModel::class.java)
+                    if (userModel != null) {
+                        userIdList.add(userModel.userId)
+                    }
+                }
+            }
+            override fun onCancelled(error: DatabaseError) {
+                Log.d("onCancelled: ", "데이터로드 실패")
+            }
 
+        })
+    }
     private fun showProgress() {
         binding.progressBar.isVisible = true
     }

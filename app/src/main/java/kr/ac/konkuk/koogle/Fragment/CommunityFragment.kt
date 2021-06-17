@@ -27,10 +27,11 @@ import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_ID
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_ARTICLES
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
 import kr.ac.konkuk.koogle.Model.ArticleModel
+import kr.ac.konkuk.koogle.R
 import kr.ac.konkuk.koogle.databinding.FragmentCommunityBinding
 
 
-class CommunityFragment : Fragment() {
+class CommunityFragment : Fragment(R.layout.fragment_community) {
 
     private var binding: FragmentCommunityBinding? = null
 
@@ -41,6 +42,8 @@ class CommunityFragment : Fragment() {
     private val auth: FirebaseAuth by lazy {
         Firebase.auth
     }
+
+    private val firebaseUser = auth.currentUser!!
     private val articleRef: DatabaseReference by lazy {
         Firebase.database.reference.child(DB_ARTICLES)
     }
@@ -61,27 +64,55 @@ class CommunityFragment : Fragment() {
         override fun onCancelled(error: DatabaseError) {}
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        // Inflate the layout for this fragment
-        binding = FragmentCommunityBinding.inflate(layoutInflater, container, false)
+//    override fun onCreateView(
+//        inflater: LayoutInflater, container: ViewGroup?,
+//        savedInstanceState: Bundle?
+//    ): View {
+//        // Inflate the layout for this fragment
+//        binding = FragmentCommunityBinding.inflate(layoutInflater, container, false)
+//
+//        //초기화를 해주지 않으면 이미 값이 들어있어서 계속 해서 아이템이 추가됨
+//
+//        initRecyclerView()
+//        initButton()
+//
+//        //데이터를 가져옴
+//        //addSingleValueListener -> 즉시성, 1회만 호출
+//        //addChildEventListener -> 한번 등록해놓으면 계속 이벤트가 발생할때마다 등록이된다.
+//        //activity 의 경우 activity 가 종료되면 이벤트가 다 날라가고 view 가 다 destroy 됨
+//        //fragment 는 재사용이 되기때문에 onviewcreated 가 호출될때마다 중복으로 데이터를 가져오게됨
+//        //따라서 eventlistener 를 전역으로 정의를 해놓고 viewcreated 될때마다 attach 를 하고 destroy 가 될때마다 remove 를 해주는 방식을 채택
+//        articleRef.addChildEventListener(listener)
+//
+//        return binding!!.root
+//    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding = FragmentCommunityBinding.bind(view)
 
         //초기화를 해주지 않으면 이미 값이 들어있어서 계속 해서 아이템이 추가됨
 
-        initRecyclerView()
-        initButton()
+        if(auth.currentUser != null) {
+            Log.i("Community fragment", "onViewCreated: ${firebaseUser.uid}")
+            initRecyclerView()
+            initButton()
 
-        //데이터를 가져옴
-        //addSingleValueListener -> 즉시성, 1회만 호출
-        //addChildEventListener -> 한번 등록해놓으면 계속 이벤트가 발생할때마다 등록이된다.
-        //activity 의 경우 activity 가 종료되면 이벤트가 다 날라가고 view 가 다 destroy 됨
-        //fragment 는 재사용이 되기때문에 onviewcreated 가 호출될때마다 중복으로 데이터를 가져오게됨
-        //따라서 eventlistener 를 전역으로 정의를 해놓고 viewcreated 될때마다 attach 를 하고 destroy 가 될때마다 remove 를 해주는 방식을 채택
-        articleRef.addChildEventListener(listener)
+            //데이터를 가져옴
+            //addSingleValueListener -> 즉시성, 1회만 호출
+            //addChildEventListener -> 한번 등록해놓으면 계속 이벤트가 발생할때마다 등록이된다.
+            //activity 의 경우 activity 가 종료되면 이벤트가 다 날라가고 view 가 다 destroy 됨
+            //fragment 는 재사용이 되기때문에 onviewcreated 가 호출될때마다 중복으로 데이터를 가져오게됨
+            //따라서 eventlistener 를 전역으로 정의를 해놓고 viewcreated 될때마다 attach 를 하고 destroy 가 될때마다 remove 를 해주는 방식을 채택
+            articleRef.addChildEventListener(listener)
+        }
+        else {
+            val intent = Intent(context, LogInActivity::class.java)
+            activity?.startActivity(intent)
+        }
 
-        return binding!!.root
+
     }
 
     private fun initRecyclerView() {

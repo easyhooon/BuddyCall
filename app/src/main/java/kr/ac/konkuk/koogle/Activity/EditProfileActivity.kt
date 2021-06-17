@@ -34,7 +34,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 
-class ProfileEditActivity : AppCompatActivity() {
+class EditProfileActivity : AppCompatActivity() {
     private var tag_debug_data: ArrayList<TagModel> = ArrayList()
     private var recommend_debug_data: ArrayList<ArrayList<String>> = ArrayList()
     lateinit var binding: ActivityEditProfileBinding

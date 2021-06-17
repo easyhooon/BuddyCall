@@ -61,9 +61,12 @@ class AddArticleActivity : AppCompatActivity() {
     private lateinit var searchResult: SearchResultEntity
 
     private var selectedUri: Uri? = null
+
     private val auth: FirebaseAuth by lazy {
         Firebase.auth
     }
+    private val firebaseUser = auth.currentUser!!
+
     private val storage: FirebaseStorage by lazy {
         Firebase.storage
     }
@@ -75,6 +78,12 @@ class AddArticleActivity : AppCompatActivity() {
     }
     private val userRef: DatabaseReference by lazy {
         Firebase.database.reference.child(DB_USERS)
+    }
+    private val userGroupRef: DatabaseReference by lazy {
+        Firebase.database.reference.child(DB_USERS).child(firebaseUser.uid).child(DB_GROUPS).child(articleId)
+    }
+    private val currentGroupRef: DatabaseReference by lazy {
+        groupRef.child(articleId)
     }
 
     private lateinit var writerName:String
@@ -137,7 +146,23 @@ class AddArticleActivity : AppCompatActivity() {
             val articleTitle = binding.titleEditText.text.toString()
             val articleContent = binding.contentEditText.text.toString()
             val writerId = auth.currentUser?.uid.orEmpty()
-            val recruitmentNumber = binding.recruitmentNumberEditText.text.toString().toInt()
+            val recruitmentNumberText = binding.recruitmentNumberEditText.text.toString()
+            val recruitmentNumber = recruitmentNumberText.toInt()
+
+            if (articleTitle.isEmpty()) {
+                Toast.makeText(this, "글의 제목을 입력해주세요.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if (articleContent.isEmpty()) {
+                Toast.makeText(this, "글의 내용을 입력해주세요.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if (recruitmentNumberText.isEmpty()) {
+                Toast.makeText(this, "모집인원을 입력해주세요.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
             showProgress()
 
@@ -160,13 +185,6 @@ class AddArticleActivity : AppCompatActivity() {
                             recruitmentNumber,
                             uri
                         )
-                        createChatRoom(
-                            writerId,
-                            writerName,
-                            writerProfileImageUrl,
-                            articleTitle,
-                            recruitmentNumber,
-                        )
                     },
                     errorHandler = {
                         //작업을 취소
@@ -187,14 +205,16 @@ class AddArticleActivity : AppCompatActivity() {
                     recruitmentNumber,
                     ""
                 )
-                createChatRoom(
-                    writerId,
-                    writerName,
-                    writerProfileImageUrl,
-                    articleTitle,
-                    recruitmentNumber
-                )
             }
+            createChatRoom(
+                writerId,
+                writerName,
+                writerProfileImageUrl,
+                articleTitle,
+                recruitmentNumber
+            )
+
+            addUserGroup(articleId, articleTitle)
         }
 
         binding.backButton.setOnClickListener {
@@ -209,6 +229,13 @@ class AddArticleActivity : AppCompatActivity() {
         }
     }
 
+    private fun addUserGroup(articleId: String, articleTitle: String) {
+        val userGroup = mutableMapOf<String, Any>()
+        userGroup[GROUP_ID] = articleId
+        userGroup[ARTICLE_TITLE] = articleTitle
+        userGroupRef.updateChildren(userGroup)
+    }
+
     private fun createChatRoom(
         adminId: String,
         adminName: String,
@@ -216,7 +243,6 @@ class AddArticleActivity : AppCompatActivity() {
         articleTitle: String,
         recruitmentNumber: Int)
     {
-        val currentGroupRef = groupRef.child(articleId)
         val group = mutableMapOf<String, Any>()
 
         group[GROUP_ID] = articleId

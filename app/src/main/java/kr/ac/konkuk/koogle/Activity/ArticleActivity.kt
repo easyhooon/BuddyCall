@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
-import android.provider.ContactsContract
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -23,10 +22,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_ID
+import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_TITLE
 import kr.ac.konkuk.koogle.DBKeys.Companion.CURRENT_NUMBER
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_ARTICLES
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_GROUPS
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
+import kr.ac.konkuk.koogle.DBKeys.Companion.GROUP_ID
+import kr.ac.konkuk.koogle.DBKeys.Companion.USER_EMAIL
 import kr.ac.konkuk.koogle.DBKeys.Companion.USER_ID
 import kr.ac.konkuk.koogle.DBKeys.Companion.USER_NAME
 import kr.ac.konkuk.koogle.DBKeys.Companion.USER_PROFILE_IMAGE_URL
@@ -46,6 +48,7 @@ class ArticleActivity : AppCompatActivity() {
 
     private lateinit var writerId:String
     private lateinit var articleId:String
+    private lateinit var articleTitle:String
 
     private lateinit var currentUserId:String
     private lateinit var currentUserName:String
@@ -65,6 +68,10 @@ class ArticleActivity : AppCompatActivity() {
 
     private val currentUserRef: DatabaseReference by lazy {
         Firebase.database.reference.child(DB_USERS).child(firebaseUser.uid)
+    }
+
+    private val currentUserGroupRef: DatabaseReference by lazy {
+        currentUserRef.child(DB_GROUPS).child(articleId)
     }
 
     private val currentArticleRef: DatabaseReference by lazy{
@@ -103,6 +110,10 @@ class ArticleActivity : AppCompatActivity() {
         //글 작성자만 메뉴 옵션을 볼 수 있도록
         if(::writerId.isInitialized){
             if(firebaseUser.uid == writerId){
+                val menuInflater = menuInflater
+                menuInflater.inflate(R.menu.article_admin_option_menu, menu)
+            }
+            else{
                 val menuInflater = menuInflater
                 menuInflater.inflate(R.menu.article_option_menu, menu)
             }
@@ -143,6 +154,12 @@ class ArticleActivity : AppCompatActivity() {
                 }
                 ad.show()
             }
+            R.id.userBlock -> {
+                Toast.makeText(this@ArticleActivity, "해당 유저를 차단하였습니다", Toast.LENGTH_SHORT).show()
+            }
+            R.id.notInterested -> {
+                Toast.makeText(this@ArticleActivity, "해당 태그를 관심없음으로 설정하였습니다", Toast.LENGTH_SHORT).show()
+            }
             else -> {
                 //뒤로가기
                 finish()
@@ -177,8 +194,21 @@ class ArticleActivity : AppCompatActivity() {
                 //채팅방 인원 + 1 명이 모집인원 보다 적을 경우
                 if (currentNumber.toInt() + 1 <= recruitmentNumber.toInt())
                 {
-                    showProgress()
-                    joinGroup(currentUserId, currentUserName, currentUserProfileImage)
+                    val ad = AlertDialog.Builder(this@ArticleActivity)
+                    ad.setMessage("그룹에 참여하시겠습니까?")
+                    ad.setPositiveButton(
+                        "취소"
+                    ) { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    ad.setNegativeButton(
+                        "참여하기"
+                    ) { dialog, _ ->
+                        //글과 그룹 모두 삭제
+                        showProgress()
+                        joinGroup(currentUserId, currentUserName, currentUserProfileImage)
+                    }
+                    ad.show()
                 }
                 else {
                     Toast.makeText(this, "모집인원을 초과하였습니다", Toast.LENGTH_SHORT).show()
@@ -211,6 +241,7 @@ class ArticleActivity : AppCompatActivity() {
                             val format = SimpleDateFormat("MM월 dd일")
                             if (articleModel != null) {
                                 writerId = articleModel.writerId
+                                articleTitle = articleModel.articleTitle
                                 if (articleModel.articleImageUrl.isEmpty()) {
                                     binding.photoImageView.visibility = View.GONE
                                 } else {
@@ -272,8 +303,8 @@ class ArticleActivity : AppCompatActivity() {
                         //그룹에 속한 유저들의 데이터를 가져옴
                         for (snapshot in dataSnapshot.children) { //반복문을 통해 데이터 List를 추출해냄.
                             val userModel = snapshot.getValue(UserModel::class.java)
-
                             if (userModel != null) {
+                                Log.i("ArticleActivity", "userModel: $userModel")
                                 userIdList.add(userModel.userId)
                             }
                         }
@@ -301,7 +332,6 @@ class ArticleActivity : AppCompatActivity() {
             }.await()
             binding.progressBar.visibility = View.GONE
         }
-
     }
 
     private fun joinGroup(userId: String, userName: String, userProfileImage: String) {
@@ -316,15 +346,18 @@ class ArticleActivity : AppCompatActivity() {
 //        currentGroupUserRef.updateChildren(user)
 
         //그룹과 현 게시글에 가입 인원 갱신
-        val currentGroupRef = Firebase.database.reference.child(DB_GROUPS).child(articleId)
         val group = mutableMapOf<String, Any>()
         group[CURRENT_NUMBER] = currentNumber.toInt() + 1
         currentGroupRef.updateChildren(group)
 
-        val currentArticleRef = Firebase.database.reference.child(DB_ARTICLES).child(articleId)
         val article = mutableMapOf<String, Any>()
         article[CURRENT_NUMBER] = currentNumber.toInt() + 1
         currentArticleRef.updateChildren(article)
+
+        val userGroup = mutableMapOf<String,Any>()
+        userGroup[GROUP_ID] = articleId
+        userGroup[ARTICLE_TITLE] = articleTitle
+        currentUserGroupRef.updateChildren(userGroup)
 
         hideProgress()
 
