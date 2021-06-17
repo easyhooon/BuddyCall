@@ -1,5 +1,6 @@
 package kr.ac.konkuk.koogle.Fragment
 
+import android.R
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -7,6 +8,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -71,7 +74,7 @@ class CommunityFragment : Fragment() {
         initDB()
         initRecyclerView()
         initButton()
-
+        initSpinner()
 
         //데이터를 가져옴
         //addSingleValueListener -> 즉시성, 1회만 호출
@@ -82,6 +85,54 @@ class CommunityFragment : Fragment() {
         articleRef.addChildEventListener(listener)
 
         return binding!!.root
+    }
+
+    private fun initSpinner() {
+        val adapter = ArrayAdapter<String>(requireActivity(), R.layout.simple_spinner_dropdown_item, ArrayList<String>())
+        adapter.add("전체")
+        adapter.add("게임")
+        adapter.add("스터디")
+        adapter.add("공모전")
+        adapter.add("운동")
+        adapter.add("여행")
+
+        binding!!.apply{
+            spinner2.adapter = adapter
+            spinner2.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    when(position){
+                        0 -> {
+                            // TODO
+                        }
+                        1 -> {
+                            // TODO
+                        }
+                        2 -> {
+                            // TODO
+                        }
+                        3 -> {
+                            // TODO
+                        }
+                        4 -> {
+                            // TODO
+                        }
+                        5 -> {
+                            // TODO
+                        }
+                    }
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                    TODO("Not yet implemented")
+                }
+
+            }
+        }
     }
 
     private fun initRecyclerView() {
