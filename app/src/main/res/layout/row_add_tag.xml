@@ -9,10 +9,11 @@
         android:id="@+id/mainTagText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="4dp"
+        android:layout_marginHorizontal="4dp"
+        android:layout_marginTop="4dp"
         android:layout_weight="2"
         android:gravity="start"
-        android:padding="8dp"
+        android:paddingHorizontal="8dp"
         android:text="Main_tag"
         android:textColor="@color/black" />
 
@@ -20,7 +21,9 @@
         android:id="@+id/subTagView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginHorizontal="4dp"
         android:layout_weight="2"
-        android:orientation="vertical" />
+        android:orientation="vertical"
+        android:paddingHorizontal="8dp" />
 
 </LinearLayout>

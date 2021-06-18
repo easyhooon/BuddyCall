@@ -3,6 +3,7 @@ package kr.ac.konkuk.koogle.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
@@ -30,11 +32,14 @@ import kr.ac.konkuk.koogle.Model.TagModel
 import kr.ac.konkuk.koogle.Model.UserModel
 import kr.ac.konkuk.koogle.R
 import kr.ac.konkuk.koogle.databinding.ActivityEditProfileBinding
+import java.io.Serializable
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 
 class EditProfileActivity : AppCompatActivity() {
+    private val newTagRequest = 1110
     private var tag_debug_data: ArrayList<TagModel> = ArrayList()
     private var recommend_debug_data: ArrayList<ArrayList<String>> = ArrayList()
     lateinit var binding: ActivityEditProfileBinding
@@ -44,6 +49,8 @@ class EditProfileActivity : AppCompatActivity() {
     lateinit var imageUri: Uri
 
     lateinit var fileRef:StorageReference
+    // new Tag Activity 로부터 전해받은 Data
+    var resultData: HashMap<String, TagModel>? = null
 
     //파이어베이스 인증 객체 초기화
     private val auth: FirebaseAuth by lazy {
@@ -52,6 +59,7 @@ class EditProfileActivity : AppCompatActivity() {
     //DB 객체 초기화
     private val firebaseUser = auth.currentUser!!
     private val storage = FirebaseStorage.getInstance()
+    lateinit var userTagRef:DatabaseReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,6 +74,28 @@ class EditProfileActivity : AppCompatActivity() {
         initTagRecyclerView()
         initUserInfo()
         initButton()
+    }
+    
+    // new Tag Activity 로부터 전달받은 데이타가 잘 DB에 들어가는 지 확인하기 위한 함수
+    private fun test(){
+        userTagRef = Firebase.database.reference
+            .child(DBKeys.DB_USER_TAG).child(firebaseUser.uid)
+        // 임시: 화면에 뿌려주어야 하는데 일단은 DB에 넣도록 구현함
+        var j = tagAdapter.itemCount
+        Log.d("jan", "test "+ resultData!!.size)
+        for((key, value) in resultData!!){
+            val newTag = mutableMapOf<String, Any>()
+            val newSubTag = mutableMapOf<String, Any>()
+            for((i, s) in value.sub_tag_list.withIndex()){
+                newSubTag[s] = i
+            }
+            newTag[DBKeys.TAG_INDEX] = j
+            newTag[DBKeys.SUB_TAGS] = newSubTag
+            newTag[DBKeys.TAG_TYPE] = value.tag_type
+            newTag[DBKeys.TAG_VALUE] = value.value
+            userTagRef.child(key).setValue(newTag)
+            j++
+        }
     }
 
     private fun initButton() {
@@ -85,7 +115,7 @@ class EditProfileActivity : AppCompatActivity() {
 
         binding.addNewTagBtn.setOnClickListener {
             val intent = Intent(this, AddNewTagActivity::class.java)
-            startActivity(intent)
+            startActivityForResult(intent, newTagRequest)
         }
         binding.userProfileChangeBtn.setOnClickListener {
             //에뮬레이터에는 해당 저장소가 존재하지 않아 기능하지 않음, 실기기에 연결해서 수행해야함
@@ -234,6 +264,13 @@ class EditProfileActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+
+        // 새 태그 추가 액티비티에서 전달받은 경우
+        if (requestCode == newTagRequest){
+            resultData = data?.extras?.getSerializable("selectedTags") as HashMap<String, TagModel>
+            test()
+        }
+
 
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             val result = CropImage.getActivityResult(data)

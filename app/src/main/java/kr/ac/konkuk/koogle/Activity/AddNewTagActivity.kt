@@ -2,8 +2,6 @@ package kr.ac.konkuk.koogle.Activity
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -21,6 +19,7 @@ import kr.ac.konkuk.koogle.Model.TagModel
 import kr.ac.konkuk.koogle.Model.TagType
 import kr.ac.konkuk.koogle.databinding.ActivityAddTagBinding
 import java.util.*
+import kotlin.collections.HashMap
 
 
 /*
@@ -33,7 +32,7 @@ class AddNewTagActivity:AppCompatActivity() {
     lateinit var rootRef:DatabaseReference
     lateinit var tagRef:DatabaseReference
     // 처음 5명이 사용하기 전까지는 추천에 뜨지 않게 하기
-    val TAG_INIT_NUM = -5
+    val TAG_INIT_NUM = 5
 
     //Firebase Auth를 initialize 해주는 코드
     private val auth: FirebaseAuth by lazy {
@@ -152,6 +151,17 @@ class AddNewTagActivity:AppCompatActivity() {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
             finish()
+        }
+
+        binding.commitBtn.setOnClickListener {
+            val intentR = Intent()
+            val selectedTags: HashMap<String, TagModel> = adapter.selectedList
+            intentR.putExtra("selectedTags", selectedTags) //사용자에게 입력받은값 넣기
+
+            setResult(RESULT_OK, intentR) //결과를 저장
+
+            finish() //액티비티 종료
+
         }
     }
 }
