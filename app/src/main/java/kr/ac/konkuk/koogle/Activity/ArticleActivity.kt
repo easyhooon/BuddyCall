@@ -181,9 +181,6 @@ class ArticleActivity : AppCompatActivity() {
             R.id.userBlock -> {
                 Toast.makeText(this@ArticleActivity, "해당 유저를 차단하였습니다", Toast.LENGTH_SHORT).show()
             }
-            R.id.notInterested -> {
-                Toast.makeText(this@ArticleActivity, "해당 태그를 관심없음으로 설정하였습니다", Toast.LENGTH_SHORT).show()
-            }
             else -> {
                 //뒤로가기
                 finish()
