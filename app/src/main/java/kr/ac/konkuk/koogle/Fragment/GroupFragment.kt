@@ -14,6 +14,10 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import kr.ac.konkuk.koogle.Activity.ChatRoomActivity
 import kr.ac.konkuk.koogle.Adapter.GroupAdapter
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_GROUPS
@@ -27,6 +31,8 @@ import kr.ac.konkuk.koogle.databinding.FragmentGroupBinding
 class GroupFragment : Fragment(R.layout.fragment_group) {
 
     private var binding: FragmentGroupBinding? = null
+
+    val scope = CoroutineScope(Dispatchers.Main)
 
     private lateinit var groupAdapter: GroupAdapter
 
@@ -65,6 +71,7 @@ class GroupFragment : Fragment(R.layout.fragment_group) {
             }
             //왜 되는거지.. 아무튼 해결
             groupAdapter.submitList(groupList)
+            groupAdapter.notifyDataSetChanged()
         }
 
         override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
@@ -125,22 +132,29 @@ class GroupFragment : Fragment(R.layout.fragment_group) {
     }
 
     private fun initDB() {
-        currentUserGroupRef.addListenerForSingleValueEvent(object: ValueEventListener{
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                for (snapshot in dataSnapshot.children){
-                    val groupModel = snapshot.getValue(GroupModel::class.java)
-                    Log.i("GroupFragment", "groupModel: $groupModel")
-                    if (groupModel != null) {
-                        userGroupList.add(groupModel.groupId)
+        scope.launch {
+            binding?.progressBar?.visibility = View.VISIBLE
+            CoroutineScope(Dispatchers.IO).async {
+                currentUserGroupRef.addListenerForSingleValueEvent(object: ValueEventListener{
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        for (snapshot in dataSnapshot.children){
+                            val groupModel = snapshot.getValue(GroupModel::class.java)
+                            Log.i("GroupFragment", "groupModel: $groupModel")
+                            if (groupModel != null) {
+                                userGroupList.add(groupModel.groupId)
+                            }
+                        }
                     }
-                }
-            }
 
-            override fun onCancelled(error: DatabaseError) {
+                    override fun onCancelled(error: DatabaseError) {
 
-            }
+                    }
 
-        })
+                })
+            }.await()
+            binding?.progressBar?.visibility = View.GONE
+        }
+
     }
 
     private fun initRecyclerView() {
