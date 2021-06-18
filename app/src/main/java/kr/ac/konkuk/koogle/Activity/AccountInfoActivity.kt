@@ -12,6 +12,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
@@ -32,8 +33,12 @@ class AccountInfoActivity : AppCompatActivity() {
         Firebase.auth
     }
 
+    private val userRef: DatabaseReference by lazy {
+        Firebase.database.reference.child(DB_USERS).child(firebaseUser.uid)
+    }
+
     //DB 객체 초기화
-    private val firebaseUser = auth.currentUser
+    private val firebaseUser = auth.currentUser!!
     private val storage = FirebaseStorage.getInstance()
     private val storageRef = storage.reference
 
@@ -42,7 +47,7 @@ class AccountInfoActivity : AppCompatActivity() {
         binding = ActivityAccountInfoBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        if (firebaseUser != null) {
+        if (auth.currentUser != null) {
             //초기화
             initButton()
             initUserInfo()
@@ -57,13 +62,12 @@ class AccountInfoActivity : AppCompatActivity() {
 
     private fun initUserInfo() {
         //입력 로그인용 유저의 데이터를 불러오기 위한 uid
-        val uid = firebaseUser?.uid
-        //        val userRef = FirebaseDatabase.getInstance().getReference(USER).child(uid)와 같다
-        Log.d("get uid", "userInfo: $uid")
+       firebaseUser.uid
+
 
 //        파이어베이스 데이터베이스의 정보 가져오기
-        uid?.let { Firebase.database.reference.child(DB_USERS).child(it) }
-            ?.addValueEventListener(object : ValueEventListener {
+
+            userRef.addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()) {
                         val userModel: UserModel? = snapshot.getValue(UserModel::class.java)
@@ -104,14 +108,14 @@ class AccountInfoActivity : AppCompatActivity() {
             val ad = AlertDialog.Builder(this@AccountInfoActivity)
             ad.setMessage("정말 회원 탈퇴를 하시겠습니까?")
             ad.setPositiveButton(
-                "아니오"
+                "취소"
             ) { dialog, _ ->
                 Toast.makeText(this@AccountInfoActivity, "회원 탈퇴가 취소되었습니다", Toast.LENGTH_SHORT)
                     .show()
                 dialog.dismiss()
             }
             ad.setNegativeButton(
-                "네"
+                "탈퇴"
             ) { dialog, _ ->
                 deleteAccount()
                 Toast.makeText(this@AccountInfoActivity, "회원 탈퇴가 완료되었습니다", Toast.LENGTH_SHORT).show()
@@ -131,9 +135,9 @@ class AccountInfoActivity : AppCompatActivity() {
     }
 
     //todo 수정 필요
+    //User 탈퇴하면 그 유저가 쓴거 다 날려야되네?
     private fun deleteAccount() {
-        val uid = firebaseUser?.uid
-        val deleteRef: StorageReference = storageRef.child("profile images/$uid.jpg")
+        val deleteRef: StorageReference = storageRef.child("profile images/${firebaseUser.uid}.jpg")
         Log.d(ContentValues.TAG, "onDataChange: desertRef: $deleteRef")
         deleteRef.delete().addOnSuccessListener {
             Toast.makeText(
@@ -144,11 +148,9 @@ class AccountInfoActivity : AppCompatActivity() {
         }.addOnFailureListener {
             Toast.makeText(this, "계정을 삭제하는데 실패하였습니디", Toast.LENGTH_SHORT).show();
         }
-        firebaseUser?.delete()?.addOnCompleteListener { task ->
+        firebaseUser.delete().addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                uid?.let { Firebase.database.reference.child(DB_USERS).child(it) }
-                    ?.setValue(null)
-
+                Firebase.database.reference.child(DB_USERS).child(firebaseUser.uid).setValue(null)
             } else {
                 val message = task.exception.toString()
                 Toast.makeText(this@AccountInfoActivity, message, Toast.LENGTH_SHORT).show()

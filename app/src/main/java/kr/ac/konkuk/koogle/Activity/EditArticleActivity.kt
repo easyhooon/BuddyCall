@@ -49,6 +49,8 @@ class EditArticleActivity : AppCompatActivity() {
 
     private lateinit var articleId: String
 
+    private lateinit var writerName: String
+
     private lateinit var currentNumber: String
 
     private val auth: FirebaseAuth by lazy {
@@ -56,6 +58,14 @@ class EditArticleActivity : AppCompatActivity() {
     }
 
     private val firebaseUser = auth.currentUser!!
+
+    private val userRef: DatabaseReference by lazy {
+        Firebase.database.reference.child(DB_USERS)
+    }
+
+    private val currentUserRef: DatabaseReference by lazy {
+        userRef.child(firebaseUser.uid)
+    }
 
     private val storage: FirebaseStorage by lazy {
         Firebase.storage
@@ -69,11 +79,6 @@ class EditArticleActivity : AppCompatActivity() {
     private val groupRef: DatabaseReference by lazy {
         Firebase.database.reference.child(DB_GROUPS)
     }
-    private val userRef: DatabaseReference by lazy {
-        Firebase.database.reference.child(DB_USERS)
-    }
-
-    private lateinit var writerName: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -92,7 +97,6 @@ class EditArticleActivity : AppCompatActivity() {
                 Log.i("EditArticleActivity", "initDB: $articleId")
             }
         }
-        val currentUserRef = userRef.child(firebaseUser.uid)
         currentUserRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val userModel: UserModel? = snapshot.getValue(UserModel::class.java)
@@ -160,7 +164,6 @@ class EditArticleActivity : AppCompatActivity() {
         binding.submitButton.setOnClickListener {
             val articleTitle = binding.titleEditText.text.toString()
             val articleContent = binding.contentEditText.text.toString()
-            val writerId = firebaseUser.uid
             val recruitmentNumber = binding.recruitmentNumberEditText.text.toString().toInt()
 
             if (currentNumber.toInt() > recruitmentNumber) {
@@ -270,7 +273,6 @@ class EditArticleActivity : AppCompatActivity() {
         recruitmentNumber: Int,
         articleImageUrl: String
     ) {
-        val currentArticleRef = articleRef.child(articleId)
         val article = mutableMapOf<String, Any>()
 
         article[ARTICLE_TITLE] = articleTitle

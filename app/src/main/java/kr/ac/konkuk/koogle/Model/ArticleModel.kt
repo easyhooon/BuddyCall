@@ -13,11 +13,11 @@ data class ArticleModel(
     val recruitmentNumber: Int,
     val currentNumber: Int,
     val articleContent: String,
-    val articleImageUrl: ArrayList<String>,
+    val articleImageUrl: String,
     val desiredLocation: SearchResultEntity?,
 ) {
 
     //firebase realtime DB에서 그대로 MODEL 클래스를 사용하려면 빈 생성자가 필수로 있어야야 함
     constructor(): this("", "","","", "",
-        0, 0, 0,"", arrayListOf(), null)
+        0, 0, 0,"", "", null)
 }

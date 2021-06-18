@@ -87,8 +87,12 @@ class ArticleActivity : AppCompatActivity() {
         Firebase.database.reference.child(DB_GROUPS).child(articleId)
     }
 
-    private val currentGroupUserRef: DatabaseReference by lazy {
+    private val currentGroupUsersRef: DatabaseReference by lazy {
         Firebase.database.reference.child(DB_GROUPS).child(articleId).child(DB_USERS)
+    }
+
+    private val currentGroupUserRef: DatabaseReference by lazy {
+        Firebase.database.reference.child(DB_GROUPS).child(articleId).child(DB_USERS).child(currentUserId)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -321,7 +325,7 @@ class ArticleActivity : AppCompatActivity() {
                     }
                 })
 
-                currentGroupUserRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                currentGroupUsersRef.addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(dataSnapshot: DataSnapshot) {
                         userIdList.clear()
 
@@ -361,7 +365,6 @@ class ArticleActivity : AppCompatActivity() {
 
     private fun joinGroup(userId: String, userName: String, userProfileImage: String) {
 
-        val currentGroupUserRef = Firebase.database.reference.child(DB_GROUPS).child(articleId).child(DB_USERS).child(currentUserId)
         val user = mutableMapOf<String, Any>()
         user[USER_ID] = userId
         user[USER_NAME] = userName

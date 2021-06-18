@@ -9,7 +9,7 @@ import kr.ac.konkuk.koogle.databinding.ItemSearchResultBinding
 class SearchRecyclerAdapter : RecyclerView.Adapter<SearchRecyclerAdapter.SearchResultItemViewHolder>() {
 
     private var searchResultList: List<SearchResultEntity> = listOf()
-    lateinit var searchResultClickListener: (SearchResultEntity) -> Unit
+    private lateinit var searchResultClickListener: (SearchResultEntity) -> Unit
 
     inner class SearchResultItemViewHolder(
         private val binding: ItemSearchResultBinding,
