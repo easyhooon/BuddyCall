@@ -63,11 +63,8 @@ class AccountInfoActivity : AppCompatActivity() {
     private fun initUserInfo() {
         //입력 로그인용 유저의 데이터를 불러오기 위한 uid
        firebaseUser.uid
-
-
 //        파이어베이스 데이터베이스의 정보 가져오기
-
-            userRef.addValueEventListener(object : ValueEventListener {
+            userRef.addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()) {
                         val userModel: UserModel? = snapshot.getValue(UserModel::class.java)

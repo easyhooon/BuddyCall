@@ -111,7 +111,6 @@ class AddArticleActivity : AppCompatActivity() {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val userModel: UserModel? = snapshot.getValue(UserModel::class.java)
                 if (userModel != null) {
-                    Log.d("onDataChange", "userName: ${userModel.userName}")
                     writerName = userModel.userName
                     writerProfileImageUrl = userModel.userProfileImageUrl
                 }
