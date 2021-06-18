@@ -52,17 +52,13 @@ class DBKeys {
         const val USED = "used"
         const val USED_TAGS = "usedTags" // 이 태그가 태그 리스트로써 쓰인 횟수
         const val USED_VALUE = "usedValue" // 이 태그가 수치로써 쓰인 횟수
+        const val SUB_TAGS = "subTag"
 
-        // 소분류 태그
-        const val DB_SUB_TAGS = "SubTag"
-        // ID를 이름으로 쓰기
-        const val SUB_TAG_ID = "subTagId"
-        const val REL_TAG = "relTag"
+        // 유저-태그정보
+        const val DB_USER_TAG = "UserTags"
+        const val TAG_INDEX = "index"
+        const val TAG_TYPE = "tagType"
+        const val TAG_VALUE = "tagValue"
 
-        // 유저-태그 관계 테이블(프로필)
-        const val DB_USER_TAGS = "UserTags"
-
-        // 유저태그-소분류 태그 연결 테이블(프로필)
-        const val DB_USER_TAGS_REL = "UserRelTags"
     }
 }
