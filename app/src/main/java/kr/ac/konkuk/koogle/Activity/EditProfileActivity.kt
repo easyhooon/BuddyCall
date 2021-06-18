@@ -128,7 +128,7 @@ class EditProfileActivity : AppCompatActivity() {
     private fun initUserInfo() {
         //입력 로그인용 유저의 데이터를 불러오기 위한 uid
         val uid = firebaseUser.uid
-        val currentUserRef = Firebase.database.reference.child(DBKeys.DB_USERS).child(uid)
+        val currentUserRef = Firebase.database.reference.child(DB_USERS).child(uid)
 //        val userRef = FirebaseDatabase.getInstance().getReference(DB_USERS).child(uid)와 같다
 
 //        파이어베이스 데이터베이스의 정보 가져오기
@@ -196,39 +196,39 @@ class EditProfileActivity : AppCompatActivity() {
 
     private fun initData() {
         // 임시 데이터
-        tag_debug_data.add(TagModel("언어", arrayListOf("한국어", "영어")))
-        tag_debug_data.add(TagModel("성격", arrayListOf("활동적인", "솔직한")))
+        tag_debug_data.add(TagModel("언어", arrayListOf("한국어", "영어"), -1, 0))
+        tag_debug_data.add(TagModel("성격", arrayListOf("활동적인", "솔직한"), -1, 0))
         tag_debug_data.add(
             TagModel(
                 "취미", arrayListOf(
                     "영화감상", "게임", "서핑",
                     "여행", "독서", "술", "요리", "그림그리기"
-                )
+                ), -1, 0
             )
         )
-        tag_debug_data.add(TagModel("전공", arrayListOf("컴퓨터", "컴퓨터공학")))
-        tag_debug_data.add(TagModel("언어", arrayListOf("한국어", "영어")))
-        tag_debug_data.add(TagModel("성격", arrayListOf("활동적인", "솔직한")))
+        tag_debug_data.add(TagModel("전공", arrayListOf("컴퓨터", "컴퓨터공학"), -1, 0))
+        tag_debug_data.add(TagModel("언어", arrayListOf("한국어", "영어"), -1, 0))
+        tag_debug_data.add(TagModel("성격", arrayListOf("활동적인", "솔직한"), -1, 0))
         tag_debug_data.add(
             TagModel(
                 "해외여행", arrayListOf(
                     "러시아", "태국", "중국",
                     "싱가폴", "미국", "캐나다", "브라질", "그린란드", "영국", "대만"
-                )
+                ), -1 ,0
             )
         )
-        tag_debug_data.add(TagModel("전공", arrayListOf("컴퓨터", "컴퓨터공학")))
-        tag_debug_data.add(TagModel("언어", arrayListOf("한국어", "영어")))
-        tag_debug_data.add(TagModel("성격", arrayListOf("활동적인", "솔직한")))
+        tag_debug_data.add(TagModel("전공", arrayListOf("컴퓨터", "컴퓨터공학"), -1 ,0))
+        tag_debug_data.add(TagModel("언어", arrayListOf("한국어", "영어"), -1 ,0))
+        tag_debug_data.add(TagModel("성격", arrayListOf("활동적인", "솔직한"), -1 ,0))
         tag_debug_data.add(
             TagModel(
                 "취미", arrayListOf(
                     "영화감상", "게임", "서핑",
                     "여행", "독서", "술", "요리", "그림그리기"
-                )
+                ), -1 ,0
             )
         )
-        tag_debug_data.add(TagModel("전공", arrayListOf("컴퓨터", "컴퓨터공학")))
+        tag_debug_data.add(TagModel("전공", arrayListOf("컴퓨터", "컴퓨터공학"), -1 ,0))
 
     }
 

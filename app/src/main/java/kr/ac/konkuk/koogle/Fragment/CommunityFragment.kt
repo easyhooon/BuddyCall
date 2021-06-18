@@ -56,6 +56,7 @@ class CommunityFragment : Fragment(R.layout.fragment_community) {
 
             articleList.add(articleModel)
             communityAdapter.submitList(articleList)
+            communityAdapter.notifyDataSetChanged()
         }
 
         override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
@@ -111,8 +112,6 @@ class CommunityFragment : Fragment(R.layout.fragment_community) {
             val intent = Intent(context, LogInActivity::class.java)
             activity?.startActivity(intent)
         }
-
-
     }
 
     private fun initRecyclerView() {

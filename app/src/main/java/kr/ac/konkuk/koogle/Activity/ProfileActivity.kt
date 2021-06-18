@@ -163,39 +163,39 @@ class ProfileActivity : AppCompatActivity() {
 
     private fun initData() {
         // 임시 데이터
-        tag_debug_data.add(TagModel("언어", arrayListOf("C", "한국어", "C++", "Python", "영어", "Java", "독일어")))
-        tag_debug_data.add(TagModel("성격", arrayListOf("활동적인", "솔직한")))
+        tag_debug_data.add(TagModel("언어", arrayListOf("C", "한국어", "C++", "Python", "영어", "Java", "독일어"), -1 ,0))
+        tag_debug_data.add(TagModel("성격", arrayListOf("활동적인", "솔직한"), -1 ,0))
         tag_debug_data.add(
             TagModel(
                 "취미", arrayListOf(
                     "영화감상", "게임", "서핑",
                     "여행", "독서", "술", "요리", "그림그리기"
-                )
+                ), -1 ,0
             )
         )
-        tag_debug_data.add(TagModel("전공", arrayListOf("컴퓨터", "컴퓨터공학")))
-        tag_debug_data.add(TagModel("언어", arrayListOf("한국어", "영어")))
-        tag_debug_data.add(TagModel("성격", arrayListOf("활동적인", "솔직한")))
+        tag_debug_data.add(TagModel("전공", arrayListOf("컴퓨터", "컴퓨터공학"), -1 ,0))
+        tag_debug_data.add(TagModel("언어", arrayListOf("한국어", "영어"), -1 ,0))
+        tag_debug_data.add(TagModel("성격", arrayListOf("활동적인", "솔직한"), -1 ,0))
         tag_debug_data.add(
             TagModel(
                 "해외여행", arrayListOf(
                     "러시아", "태국", "중국",
                     "싱가폴", "미국", "캐나다", "브라질", "그린란드", "영국", "대만"
-                )
+                ), -1 ,0
             )
         )
-        tag_debug_data.add(TagModel("전공", arrayListOf("컴퓨터", "컴퓨터공학")))
-        tag_debug_data.add(TagModel("언어", arrayListOf("한국어", "영어")))
-        tag_debug_data.add(TagModel("성격", arrayListOf("활동적인", "솔직한")))
+        tag_debug_data.add(TagModel("전공", arrayListOf("컴퓨터", "컴퓨터공학"), -1 ,0))
+        tag_debug_data.add(TagModel("언어", arrayListOf("한국어", "영어"), -1 ,0))
+        tag_debug_data.add(TagModel("성격", arrayListOf("활동적인", "솔직한"), -1 ,0))
         tag_debug_data.add(
             TagModel(
                 "취미", arrayListOf(
                     "영화감상", "게임", "서핑",
                     "여행", "독서", "술", "요리", "그림그리기"
-                )
+                ), -1 ,0
             )
         )
-        tag_debug_data.add(TagModel("전공", arrayListOf("컴퓨터", "컴퓨터공학")))
+        tag_debug_data.add(TagModel("전공", arrayListOf("컴퓨터", "컴퓨터공학"), -1 ,0))
 
         recommend_debug_data.add(
             arrayListOf(

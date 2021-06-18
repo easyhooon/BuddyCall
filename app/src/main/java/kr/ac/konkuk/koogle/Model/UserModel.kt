@@ -1,11 +1,11 @@
 package kr.ac.konkuk.koogle.Model
 
 data class UserModel(
-    val userId: String,
-    val userEmail: String,
-    val userName: String,
-    val userProfileImageUrl: String,
-    val Groups: GroupModel?
+    val userId: String, //유저 고유 id
+    val userEmail: String, //유저 이메일
+    val userName: String, //유저 이름
+    val userProfileImageUrl: String, // 유저 프로필 이미지 url
+    val Groups: GroupModel? //유저가 속한 그룹들 모델
 ) {
     constructor() : this("", "", "", "", null)
 }

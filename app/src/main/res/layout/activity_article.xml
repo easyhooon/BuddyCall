@@ -153,13 +153,6 @@
                     android:text="지도로 보기"/>
             </LinearLayout>
 
-            <ImageView
-                android:id="@+id/photoImageView"
-                android:layout_marginTop="32dp"
-                android:layout_width="280dp"
-                android:layout_height="280dp"
-                android:layout_gravity="center"/>
-
             <TextView
                 android:layout_marginTop="16dp"
                 android:id="@+id/contentTextView"
@@ -170,7 +163,14 @@
                 android:textSize="16sp"
                 android:lines="12"
                 android:gravity="top"
-                android:hint="@string/content"/>
+                android:hint="@string/content" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/photoImageRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:layout_gravity="center"
+                android:orientation="horizontal" />
 
         </LinearLayout>
 

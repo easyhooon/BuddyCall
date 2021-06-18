@@ -1,7 +1,9 @@
 package kr.ac.konkuk.koogle.Activity
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.facebook.CallbackManager
@@ -87,7 +89,6 @@ class LogInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLis
                         Toast.makeText(this, LOGIN_FAIL, Toast.LENGTH_SHORT).show()
                     }
                 }
-
         }
     }
 

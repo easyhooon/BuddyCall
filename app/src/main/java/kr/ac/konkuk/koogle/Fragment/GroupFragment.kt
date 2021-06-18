@@ -14,6 +14,8 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import kotlinx.android.synthetic.main.activity_log_in.*
+import kotlinx.coroutines.*
 import kr.ac.konkuk.koogle.Activity.ChatRoomActivity
 import kr.ac.konkuk.koogle.Adapter.GroupAdapter
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_GROUPS
@@ -27,6 +29,8 @@ import kr.ac.konkuk.koogle.databinding.FragmentGroupBinding
 class GroupFragment : Fragment(R.layout.fragment_group) {
 
     private var binding: FragmentGroupBinding? = null
+
+    val scope = CoroutineScope(Dispatchers.Main)
 
     private lateinit var groupAdapter: GroupAdapter
 
@@ -59,12 +63,25 @@ class GroupFragment : Fragment(R.layout.fragment_group) {
             //유저내부에 현재 속해있는 그룹의 아이디를 저장해서 거기에 포함되있는 그룹만 가져오도록
 
             //유저가 속한 그룹 리스트에 포함되는 그룹만 추가
-            if (userGroupList.contains(groupModel.groupId)){
-                Log.i("GroupFragment", "")
-                groupList.add(groupModel)
+            Log.i("GroupFragment", "onChildAdded Before : ${groupModel.groupId}")
+
+            for (groupId in userGroupList) {
+                Log.i("GroupFragment", "userGroupList :  $groupId")
             }
+
+            for (groupId in userGroupList) {
+                if (groupId == groupModel.groupId) {
+                    Log.i("GroupFragment", "유저가 속한 그룹의 아이디 :  ${groupModel.groupId}")
+                    groupList.add(groupModel)
+                }
+            }
+//            if (userGroupList.contains(groupModel.groupId)){
+//                Log.i("GroupFragment", "onChildAdded: ${groupModel.groupId}")
+//                groupList.add(groupModel)
+//            }
             //왜 되는거지.. 아무튼 해결
             groupAdapter.submitList(groupList)
+            groupAdapter.notifyDataSetChanged()
         }
 
         override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
@@ -113,7 +130,7 @@ class GroupFragment : Fragment(R.layout.fragment_group) {
         binding = FragmentGroupBinding.bind(view)
 
         initDB()
-        initRecyclerView()
+//        initRecyclerView()
 
         //데이터를 가져옴
         //addSingleValueListener -> 즉시성, 1회만 호출
@@ -121,19 +138,50 @@ class GroupFragment : Fragment(R.layout.fragment_group) {
         //activity 의 경우 activity 가 종료되면 이벤트가 다 날라가고 view 가 다 destroy 됨
         //fragment 는 재사용이 되기때문에 onviewcreated 가 호출될때마다 중복으로 데이터를 가져오게됨
         //따라서 eventlistener 를 전역으로 정의를 해놓고 viewcreated 될때마다 attach 를 하고 destroy 가 될때마다 remove 를 해주는 방식을 채택
-        groupRef.addChildEventListener(listener)
+//        groupRef.addChildEventListener(listener)
     }
 
     private fun initDB() {
-        currentUserGroupRef.addListenerForSingleValueEvent(object: ValueEventListener{
+//        scope.launch {
+//            binding?.progressBar?.visibility = View.VISIBLE
+//            CoroutineScope(Dispatchers.IO).async {
+//                currentUserGroupRef.addListenerForSingleValueEvent(object: ValueEventListener{
+//                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+//                        for (snapshot in dataSnapshot.children){
+//                            val groupModel = snapshot.getValue(GroupModel::class.java)
+//                            Log.i("GroupFragment", "groupModel: $groupModel")
+//                            if (groupModel != null) {
+//                                userGroupList.add(groupModel.groupId)
+//                            }
+//                        }
+//                        //동기적 실행을 위해 위치 옮김
+//                        initRecyclerView()
+//                        groupRef.addChildEventListener(listener)
+//
+//                    }
+//
+//                    override fun onCancelled(error: DatabaseError) {
+//
+//                    }
+//
+//                })
+//            }.await()
+//            binding?.progressBar?.visibility = View.GONE
+//        }
+
+        currentUserGroupRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                for (snapshot in dataSnapshot.children){
+                for (snapshot in dataSnapshot.children) {
                     val groupModel = snapshot.getValue(GroupModel::class.java)
                     Log.i("GroupFragment", "groupModel: $groupModel")
                     if (groupModel != null) {
                         userGroupList.add(groupModel.groupId)
                     }
                 }
+                //동기적 실행을 위해 위치 옮김
+                initRecyclerView()
+                groupRef.addChildEventListener(listener)
+
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -162,12 +210,12 @@ class GroupFragment : Fragment(R.layout.fragment_group) {
         binding!!.groupRecyclerView.adapter = groupAdapter
     }
 
-    override fun onResume() {
-        super.onResume()
-
-        //view가 다시 보일때마다 뷰를 다시 그림
-        groupAdapter.notifyDataSetChanged()
-    }
+//    override fun onResume() {
+//        super.onResume()
+//
+//        //view가 다시 보일때마다 뷰를 다시 그림
+//        groupAdapter.notifyDataSetChanged()
+//    }
 
     override fun onDestroyView() {
         super.onDestroyView()

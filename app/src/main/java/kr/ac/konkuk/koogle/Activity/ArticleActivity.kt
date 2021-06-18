@@ -3,6 +3,7 @@ package kr.ac.konkuk.koogle.Activity
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -11,6 +12,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -21,6 +23,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kr.ac.konkuk.koogle.Adapter.ArticleImageAdapter
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_ID
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_TITLE
 import kr.ac.konkuk.koogle.DBKeys.Companion.CURRENT_NUMBER
@@ -59,6 +62,8 @@ class ArticleActivity : AppCompatActivity() {
 
     private var userIdList:MutableList<String> = mutableListOf()
 
+    private lateinit var imageAdapter: ArticleImageAdapter
+
     private lateinit var mapInfo:SearchResultEntity
 
     private val auth: FirebaseAuth by lazy {
@@ -82,8 +87,12 @@ class ArticleActivity : AppCompatActivity() {
         Firebase.database.reference.child(DB_GROUPS).child(articleId)
     }
 
-    private val currentGroupUserRef: DatabaseReference by lazy {
+    private val currentGroupUsersRef: DatabaseReference by lazy {
         Firebase.database.reference.child(DB_GROUPS).child(articleId).child(DB_USERS)
+    }
+
+    private val currentGroupUserRef: DatabaseReference by lazy {
+        Firebase.database.reference.child(DB_GROUPS).child(articleId).child(DB_USERS).child(currentUserId)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -93,7 +102,22 @@ class ArticleActivity : AppCompatActivity() {
 
         initDB()
         initViews()
+        initImageRecyclerView()
         initButton()
+    }
+
+    private fun initImageRecyclerView() {
+        binding.photoImageRecyclerView.layoutManager =
+            LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        imageAdapter = ArticleImageAdapter()
+        imageAdapter.itemClickListener = object : ArticleImageAdapter.OnItemClickListener {
+            override fun onItemClick(holder: ArticleImageAdapter.ViewHolder, uri: Uri) {
+//                val intent = Intent(this@ArticleActivity, ImageViewActivity::class.java)
+//                intent.putExtra("uri", uri)
+//                startActivity(intent)
+            }
+        }
+        binding.photoImageRecyclerView.adapter = imageAdapter
     }
 
     private fun initViews() {
@@ -243,11 +267,16 @@ class ArticleActivity : AppCompatActivity() {
                                 writerId = articleModel.writerId
                                 articleTitle = articleModel.articleTitle
                                 if (articleModel.articleImageUrl.isEmpty()) {
-                                    binding.photoImageView.visibility = View.GONE
+                                    binding.photoImageRecyclerView.visibility = View.GONE
                                 } else {
-                                    Glide.with(binding.photoImageView)
-                                        .load(articleModel.articleImageUrl)
-                                        .into(binding.photoImageView)
+                                    initImageRecyclerView()
+                                    for (uri in articleModel.articleImageUrl) {
+                                        Log.i("uri", Uri.parse(uri).toString())
+                                        imageAdapter.addItem(Uri.parse(uri))
+                                    }
+//                                    Glide.with(binding.photoImageView)
+//                                        .load(articleModel.articleImageUrl)
+//                                        .into(binding.photoImageView)
                                 }
                             }
 
@@ -296,7 +325,7 @@ class ArticleActivity : AppCompatActivity() {
                     }
                 })
 
-                currentGroupUserRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                currentGroupUsersRef.addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(dataSnapshot: DataSnapshot) {
                         userIdList.clear()
 
@@ -336,7 +365,6 @@ class ArticleActivity : AppCompatActivity() {
 
     private fun joinGroup(userId: String, userName: String, userProfileImage: String) {
 
-        val currentGroupUserRef = Firebase.database.reference.child(DB_GROUPS).child(articleId).child(DB_USERS).child(currentUserId)
         val user = mutableMapOf<String, Any>()
         user[USER_ID] = userId
         user[USER_NAME] = userName
