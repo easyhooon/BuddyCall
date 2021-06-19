@@ -151,9 +151,27 @@ class AddCommentActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            showProgress()
+            val ad = AlertDialog.Builder(this)
+            ad.setMessage("평가를 등록하시겠습니까? \n(무분별한 비난의 경우 관리자의 의해 삭제 조치될 수 있습니다.) ")
+            ad.setPositiveButton(
+                "취소"
+            ) { dialog, _ ->
+                Toast.makeText(this, "등록이 취소되었습니다", Toast.LENGTH_SHORT)
+                    .show()
+                dialog.dismiss()
+            }
+            ad.setNegativeButton(
+                "등록"
+            ) { dialog, _ ->
+                Toast.makeText(this, "평가가 등록되었습니다", Toast.LENGTH_SHORT).show()
+                showProgress()
+                addComment()
 
-            addComment()
+                dialog.dismiss()
+            }
+            ad.show()
+
+
         }
 
         binding.backButton.setOnClickListener {
@@ -173,9 +191,6 @@ class AddCommentActivity : AppCompatActivity() {
         comment[COMMENT_CONTENT] = commentContent
 
         currentCommentRef.setValue(comment)
-
-        Toast.makeText(this, "평가가 등록되었습니다. \n무분별한 비난의 경우 관리자의 의해 삭제 조치될 수 있습니다", Toast.LENGTH_SHORT)
-            .show()
 
         hideProgress()
         finish()
