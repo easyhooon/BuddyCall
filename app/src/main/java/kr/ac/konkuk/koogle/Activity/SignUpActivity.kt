@@ -17,7 +17,9 @@ import kr.ac.konkuk.koogle.databinding.ActivitySignUpBinding
 
 class SignUpActivity : AppCompatActivity() {
 
-    private lateinit var auth: FirebaseAuth
+    private val auth:FirebaseAuth by lazy {
+        Firebase.auth
+    }
 
     lateinit var binding: ActivitySignUpBinding
 
@@ -25,8 +27,6 @@ class SignUpActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivitySignUpBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        auth = Firebase.auth
 
         initSignUpButton()
     }

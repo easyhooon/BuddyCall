@@ -3,7 +3,6 @@ package kr.ac.konkuk.koogle.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -34,19 +33,12 @@ import kr.ac.konkuk.koogle.databinding.ActivityProfileBinding
 class ProfileActivity : ProfileCommonActivity() {
     // private var tag_debug_data: ArrayList<TagModel> = ArrayList()
     lateinit var binding: ActivityProfileBinding
-    lateinit var tagRecyclerView: RecyclerView
-    lateinit var recommendRecyclerView: RecyclerView
-    lateinit var tagAdapter: TagAdapter
     lateinit var commentAdapter: CommentAdapter
-
 
     //파이어베이스 인증 객체 초기화
     private val auth: FirebaseAuth by lazy {
         Firebase.auth
     }
-
-    //DB 객체 초기화
-    private val firebaseUser = auth.currentUser!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -112,20 +104,18 @@ class ProfileActivity : ProfileCommonActivity() {
     }
 
     private fun initRecommendRecyclerView() {
-        recommendRecyclerView = findViewById(R.id.recommendRecyclerView)
-        recommendRecyclerView.layoutManager = LinearLayoutManager(this)
+        binding.commentRecyclerView.layoutManager = LinearLayoutManager(this)
         // 구분선 넣기
-        recommendRecyclerView.addItemDecoration(DividerItemDecoration(tagRecyclerView.context, 1))
+        binding.commentRecyclerView.addItemDecoration(DividerItemDecoration(this, 1))
         commentAdapter = CommentAdapter()
         // 아이템 클릭 리스터 설정(미구현)
-        recommendRecyclerView.adapter = commentAdapter
+        binding.commentRecyclerView.adapter = commentAdapter
     }
 
     override fun initTagRecyclerView(data: ArrayList<TagModel>) {
-        tagRecyclerView = findViewById<RecyclerView>(R.id.tagRecyclerView)
-        tagRecyclerView.layoutManager = LinearLayoutManager(this)
+        binding.tagRecyclerView.layoutManager = LinearLayoutManager(this)
         // 구분선 넣기
-        tagRecyclerView.addItemDecoration(DividerItemDecoration(tagRecyclerView.context, 1))
+        binding.tagRecyclerView.addItemDecoration(DividerItemDecoration(this, 1))
 
         tagAdapter = TagAdapter(this, data)
         tagAdapter.itemClickListener = object : TagAdapter.OnItemClickListener {
@@ -138,7 +128,7 @@ class ProfileActivity : ProfileCommonActivity() {
                 // 미구현
             }
         }
-        tagRecyclerView.adapter = tagAdapter
+        binding.tagRecyclerView.adapter = tagAdapter
         val simpleCallBack = object : ItemTouchHelper.SimpleCallback(
             ItemTouchHelper.DOWN or ItemTouchHelper.UP,
             ItemTouchHelper.RIGHT
@@ -157,8 +147,10 @@ class ProfileActivity : ProfileCommonActivity() {
             }
         }
         val itemTouchHelper = ItemTouchHelper(simpleCallBack)
-        itemTouchHelper.attachToRecyclerView(tagRecyclerView)
+        itemTouchHelper.attachToRecyclerView(binding.tagRecyclerView)
     }
 
-    private fun initData() {}
+    private fun initData() {
+
+    }
 }
