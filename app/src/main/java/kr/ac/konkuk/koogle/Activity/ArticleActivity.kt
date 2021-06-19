@@ -3,17 +3,23 @@ package kr.ac.konkuk.koogle.Activity
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.target.SimpleTarget
+import com.bumptech.glide.request.target.ViewTarget
+import com.bumptech.glide.request.transition.Transition
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.*
@@ -274,6 +280,7 @@ class ArticleActivity : AppCompatActivity() {
                         if (snapshot.exists()) {
                             val articleModel: ArticleModel? = snapshot.getValue(ArticleModel::class.java)
                             val format = SimpleDateFormat("MM월 dd일")
+
                             if (articleModel != null) {
                                 writerId = articleModel.writerId
                                 articleTitle = articleModel.articleTitle
@@ -287,9 +294,7 @@ class ArticleActivity : AppCompatActivity() {
                                         imageAdapter.addItem(Uri.parse(uri))
                                     }
                                 }
-                            }
 
-                            if (articleModel != null) {
                                 if (articleModel.writerProfileImageUrl.isEmpty()) {
                                     binding.profileImageView.setImageResource(R.drawable.profile_image)
                                 } else {
@@ -297,34 +302,29 @@ class ArticleActivity : AppCompatActivity() {
                                         .load(articleModel.writerProfileImageUrl)
                                         .into(binding.profileImageView)
                                 }
-                            }
-                            if (articleModel != null) {
+
                                 //작성 글에 장소를 기입했을 경우
                                 if (articleModel.desiredLocation != null){
                                     mapInfo = articleModel.desiredLocation
                                     binding.locationTextView.text = articleModel.desiredLocation.fullAddress
-                                    binding.writerNameTextView.text =articleModel.writerName
-                                    binding.titleTextView.text = articleModel.articleTitle
-                                    binding.recruitmentNumberTextView.text = articleModel.recruitmentNumber.toString()+"명"
-                                    val date = Date(articleModel.articleCreatedAt)
-                                    binding.dateTextView.text = format.format(date).toString()
-                                    binding.contentTextView.text = articleModel.articleContent
-                                    recruitmentNumber = articleModel.recruitmentNumber.toString()
-                                    currentNumber = articleModel.currentNumber.toString()
                                 }
                                 else {
                                     //장소를 기입하지 않았을 경우
                                     //위치 관련 레이아웃이 아예 보이지 않게
                                     binding.locationInfoLayout.visibility =  View.GONE
-                                    binding.writerNameTextView.text = articleModel.writerName
-                                    binding.titleTextView.text = articleModel.articleTitle
-                                    binding.recruitmentNumberTextView.text = articleModel.recruitmentNumber.toString()+"명"
-                                    val date = Date(articleModel.articleCreatedAt)
-                                    binding.dateTextView.text = format.format(date).toString()
-                                    binding.contentTextView.text = articleModel.articleContent
-                                    recruitmentNumber = articleModel.recruitmentNumber.toString()
-                                    currentNumber = articleModel.currentNumber.toString()
                                 }
+                                binding.writerNameTextView.text = articleModel.writerName
+                                binding.titleTextView.text = articleModel.articleTitle
+                                binding.recruitmentNumberTextView.text = articleModel.recruitmentNumber.toString()+"명"
+                                val date = Date(articleModel.articleCreatedAt)
+                                binding.dateTextView.text = format.format(date).toString()
+                                binding.contentTextView.text = articleModel.articleContent
+                                recruitmentNumber = articleModel.recruitmentNumber.toString()
+                                currentNumber = articleModel.currentNumber.toString()
+                                Glide.with(binding.articleThumbnailBackground)
+                                    .load(articleModel.articleThumbnailImageUrl)
+                                    .into(binding.articleThumbnailBackground)
+                                binding.articleThumbnailBackground.alpha = 0.5f
                             }
                         }
                     }
