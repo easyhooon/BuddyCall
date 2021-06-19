@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
@@ -22,6 +21,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.theartofdev.edmodo.cropper.CropImage
+import kr.ac.konkuk.koogle.Adapter.AddTagAdapter
 import kr.ac.konkuk.koogle.Adapter.TagAdapter
 import kr.ac.konkuk.koogle.DBKeys
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
@@ -32,57 +32,30 @@ import kr.ac.konkuk.koogle.Model.TagModel
 import kr.ac.konkuk.koogle.Model.UserModel
 import kr.ac.konkuk.koogle.R
 import kr.ac.konkuk.koogle.databinding.ActivityEditProfileBinding
-import java.io.Serializable
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
-
-class EditProfileActivity : AppCompatActivity() {
+class EditProfileActivity : ProfileCommonActivity() {
     private val newTagRequest = 1110
-    private var tag_debug_data: ArrayList<TagModel> = ArrayList()
-    private var recommend_debug_data: ArrayList<ArrayList<String>> = ArrayList()
     lateinit var binding: ActivityEditProfileBinding
-//    lateinit var tagRecyclerView: RecyclerView
-    lateinit var tagAdapter: TagAdapter
-
-    lateinit var imageUri: Uri
-
-    lateinit var fileRef:StorageReference
-    // new Tag Activity 로부터 전해받은 Data
-    var resultData: HashMap<String, TagModel>? = null
-
-    //파이어베이스 인증 객체 초기화
-    private val auth: FirebaseAuth by lazy {
-        Firebase.auth
-    }
-    //DB 객체 초기화
-    private val firebaseUser = auth.currentUser!!
-    private val storage = FirebaseStorage.getInstance()
-    lateinit var userTagRef:DatabaseReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityEditProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        if(auth.currentUser == null){
-            val intent = Intent(this, LogInActivity::class.java)
-            startActivity(intent)
-        }
-        initData()
-        initTagRecyclerView()
         initUserInfo()
         initButton()
     }
     
     // new Tag Activity 로부터 전달받은 데이타가 잘 DB에 들어가는 지 확인하기 위한 함수
-    private fun test(){
+    // resultData: new Tag Activity 로부터 전해받은 Data
+    private fun test(resultData: HashMap<String, TagModel>? = null){
         userTagRef = Firebase.database.reference
             .child(DBKeys.DB_USER_TAG).child(firebaseUser.uid)
         // 임시: 화면에 뿌려주어야 하는데 일단은 DB에 넣도록 구현함
         var j = tagAdapter.itemCount
-        Log.d("jan", "test "+ resultData!!.size)
         for((key, value) in resultData!!){
             val newTag = mutableMapOf<String, Any>()
             val newSubTag = mutableMapOf<String, Any>()
@@ -96,6 +69,7 @@ class EditProfileActivity : AppCompatActivity() {
             userTagRef.child(key).setValue(newTag)
             j++
         }
+        // 수정 방향: adapter 에 그대로 전달하기
     }
 
     private fun initButton() {
@@ -154,76 +128,7 @@ class EditProfileActivity : AppCompatActivity() {
         }
     }
 
-
-    private fun initUserInfo() {
-        //입력 로그인용 유저의 데이터를 불러오기 위한 uid
-        val uid = firebaseUser.uid
-        val currentUserRef = Firebase.database.reference.child(DB_USERS).child(uid)
-//        val userRef = FirebaseDatabase.getInstance().getReference(DB_USERS).child(uid)와 같다
-
-//        파이어베이스 데이터베이스의 정보 가져오기
-        currentUserRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.exists()) {
-                    val userModel: UserModel? = snapshot.getValue(UserModel::class.java)
-                    if (userModel != null) {
-                        if (userModel.userProfileImageUrl.isEmpty()) {
-                            binding.userProfileImage.setImageResource(R.drawable.profile_image)
-                        } else {
-                            Glide.with(binding.userProfileImage)
-                                .load(userModel.userProfileImageUrl)
-                                .into(binding.userProfileImage)
-                        }
-                    }
-                    if (userModel != null) {
-                        binding.userNameText.text = userModel.userName
-                        (binding.userNameEdit as TextView).text = userModel.userName
-                    }
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {}
-        })
-    }
-
-    private fun initTagRecyclerView() {
-        binding.tagRecyclerView.layoutManager = LinearLayoutManager(this)
-        // 구분선 넣기
-        binding.tagRecyclerView.addItemDecoration(DividerItemDecoration(this, 1))
-
-        tagAdapter = TagAdapter(this, tag_debug_data)
-        tagAdapter.itemClickListener = object : TagAdapter.OnItemClickListener {
-            override fun onItemClick(
-                holder: TagAdapter.ViewHolder,
-                view: View,
-                data: TagModel,
-                position: Int
-            ) {
-                // 미구현
-            }
-        }
-        binding.tagRecyclerView.adapter = tagAdapter
-        val simpleCallBack = object : ItemTouchHelper.SimpleCallback(
-            ItemTouchHelper.DOWN or ItemTouchHelper.UP,
-            ItemTouchHelper.RIGHT
-        ) {
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
-            ): Boolean {
-                tagAdapter.moveItem(viewHolder.adapterPosition, target.adapterPosition)
-                return true
-            }
-
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                tagAdapter.removeItem(viewHolder.adapterPosition)
-            }
-        }
-        val itemTouchHelper = ItemTouchHelper(simpleCallBack)
-        itemTouchHelper.attachToRecyclerView(binding.tagRecyclerView)
-    }
-
+/*
     private fun initData() {
         // 임시 데이터
         tag_debug_data.add(TagModel("언어", arrayListOf("한국어", "영어"), -1, 0))
@@ -261,14 +166,13 @@ class EditProfileActivity : AppCompatActivity() {
         tag_debug_data.add(TagModel("전공", arrayListOf("컴퓨터", "컴퓨터공학"), -1 ,0))
 
     }
-
+*/
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
         // 새 태그 추가 액티비티에서 전달받은 경우
         if (requestCode == newTagRequest){
-            resultData = data?.extras?.getSerializable("selectedTags") as HashMap<String, TagModel>
-            test()
+            test(data?.extras?.getSerializable("selectedTags") as HashMap<String, TagModel>)
         }
 
 
@@ -321,5 +225,74 @@ class EditProfileActivity : AppCompatActivity() {
                 Toast.makeText(this, "프로필 사진 변경을 실패하였습니다.", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    override fun initTagRecyclerView(data: ArrayList<TagModel>) {
+        binding.tagRecyclerView.layoutManager = LinearLayoutManager(this)
+        // 구분선 넣기
+        binding.tagRecyclerView.addItemDecoration(DividerItemDecoration(this, 1))
+
+        tagAdapter = TagAdapter(this, data)
+        tagAdapter.itemClickListener = object : TagAdapter.OnItemClickListener {
+            override fun onItemClick(
+                holder: TagAdapter.ViewHolder,
+                view: View,
+                data: TagModel,
+                position: Int
+            ) {
+                // 미구현
+            }
+        }
+        binding.tagRecyclerView.adapter = tagAdapter
+        val simpleCallBack = object : ItemTouchHelper.SimpleCallback(
+            ItemTouchHelper.DOWN or ItemTouchHelper.UP,
+            ItemTouchHelper.RIGHT
+        ) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                tagAdapter.moveItem(viewHolder.adapterPosition, target.adapterPosition)
+                return true
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                tagAdapter.removeItem(viewHolder.adapterPosition)
+            }
+        }
+        val itemTouchHelper = ItemTouchHelper(simpleCallBack)
+        itemTouchHelper.attachToRecyclerView(binding.tagRecyclerView)
+    }
+
+    private fun initUserInfo() {
+        //입력 로그인용 유저의 데이터를 불러오기 위한 uid
+        val uid = firebaseUser.uid
+        val currentUserRef = Firebase.database.reference.child(DBKeys.DB_USERS).child(uid)
+//        val userRef = FirebaseDatabase.getInstance().getReference(DB_USERS).child(uid)와 같다
+
+//        파이어베이스 데이터베이스의 정보 가져오기
+        currentUserRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    val userModel: UserModel? = snapshot.getValue(UserModel::class.java)
+                    if (userModel != null) {
+                        if (userModel.userProfileImageUrl.isEmpty()) {
+                            binding.userProfileImage.setImageResource(R.drawable.profile_image)
+                        } else {
+                            Glide.with(binding.userProfileImage)
+                                .load(userModel.userProfileImageUrl)
+                                .into(binding.userProfileImage)
+                        }
+                    }
+                    if (userModel != null) {
+                        binding.userNameText.text = userModel.userName
+                        (binding.userNameEdit as TextView).text = userModel.userName
+                    }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {}
+        })
     }
 }
