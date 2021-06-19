@@ -146,14 +146,18 @@
             android:text="추천해요"
             android:textSize="18sp" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/commentRecyclerView"
+            <ScrollView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginHorizontal="12dp"
-                android:nestedScrollingEnabled="false">
+                android:layout_height="match_parent">
 
-            </androidx.recyclerview.widget.RecyclerView>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/commentRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginHorizontal="12dp"
+                    android:nestedScrollingEnabled="false">
+                </androidx.recyclerview.widget.RecyclerView>
+            </ScrollView>
 
         </LinearLayout>
 

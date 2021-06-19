@@ -67,7 +67,6 @@ class GroupFragment : Fragment(R.layout.fragment_group) {
             for (groupId in userGroupList) {
                 Log.i("GroupFragment", "userGroupList :  $groupId")
             }
-
             for (groupId in userGroupList) {
                 if (groupId == groupModel.groupId) {
                     Log.i("GroupFragment", "유저가 속한 그룹의 아이디 :  ${groupModel.groupId}")
@@ -179,14 +178,17 @@ class GroupFragment : Fragment(R.layout.fragment_group) {
                 }
                 //동기적 실행을 위해 위치 옮김
                 initRecyclerView()
-                groupRef.addChildEventListener(listener)
 
+//                scope.launch {
+//                    delay(1000)
+//                    groupRef.addChildEventListener(listener)
+//                }
+                groupRef.addChildEventListener(listener)
             }
 
             override fun onCancelled(error: DatabaseError) {
 
             }
-
         })
     }
 
