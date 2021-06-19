@@ -25,9 +25,6 @@ import com.google.firebase.storage.StorageReference
 import kr.ac.konkuk.koogle.Adapter.TagAdapter
 import kr.ac.konkuk.koogle.DBKeys
 import kr.ac.konkuk.koogle.Model.TagModel
-import kr.ac.konkuk.koogle.Model.UserModel
-import kr.ac.konkuk.koogle.R
-import kr.ac.konkuk.koogle.databinding.ActivityEditProfileBinding
 
 /*
     2021-06-19 주예진 작성

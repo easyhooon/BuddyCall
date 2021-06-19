@@ -9,6 +9,7 @@ import android.widget.*
 import androidx.core.view.children
 import androidx.core.view.setMargins
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.android.synthetic.main.option_dialog.view.*
 import kr.ac.konkuk.koogle.R
 import kr.ac.konkuk.koogle.Model.TagModel
 
@@ -23,6 +24,41 @@ class TagAdapter(val context: Context, val data: ArrayList<TagModel>) :
         fun onItemClick(holder: ViewHolder, view: View, data: TagModel, position: Int)
     }
     var itemClickListener: OnItemClickListener? = null
+
+    // ProfileActivity 가 아닌 EditProfileActivity 에서만 사용해야 함
+    // AddNewTagActivity 에서 새롭게 받아온 것들 넣기
+    fun updateData(new_data: ArrayList<TagModel>){
+        for(tag in new_data){
+            var index = -1
+            for((i, d) in data.withIndex()){
+                // 이미 동일한 태그가 있을 때
+                if(tag.main_tag_name == d.main_tag_name){
+                    index = i
+
+                    Log.d("jan", "${tag.main_tag_name} $index")
+                    break
+                }
+            }
+            // 중복 태그는 subTag 만 추가하기
+            if(index>-1){
+                Log.d("jan", index.toString())
+                for(s in tag.sub_tag_list){
+                    // 서브태그도 중복 확인 후 추가하기
+                    if(!data[index].sub_tag_list.contains(s))
+                        data[index].sub_tag_list.add(s)
+                }
+
+            }
+            // 새로운 태그 추가하기
+            else{
+                Log.d("jan", "new")
+                data.add(TagModel(
+                    tag.main_tag_name, tag.sub_tag_list, tag.value, tag.tag_type
+                ))
+            }
+        }
+        notifyDataSetChanged()
+    }
 
     fun moveItem(oldPos: Int, newPos: Int) {
         val item = data[oldPos]
@@ -48,6 +84,8 @@ class TagAdapter(val context: Context, val data: ArrayList<TagModel>) :
 
         // 소분류 태그 테이블 생성
         fun bind(model: TagModel) {
+            // 바인드 할 때 마다 다시 생성
+            subTagView.removeAllViews()
             mainTagView.text = model.main_tag_name
             for (tag in model.sub_tag_list) {
                 // row 가 하나도 없으면 새로 만들기
