@@ -2,6 +2,8 @@ package kr.ac.konkuk.koogle.Activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -50,7 +52,7 @@ class AddNewTagActivity:AppCompatActivity() {
 
     private fun init() {
         initDB()
-        initButton()
+        initView()
         initRecyclerView()
     }
     private fun initDB(){
@@ -58,37 +60,45 @@ class AddNewTagActivity:AppCompatActivity() {
         tagRef = rootRef.child(DBKeys.DB_MAIN_TAGS)
     }
 
+    // 쿼리 결과를 리사이클러뷰로 전달
+    // null 을 전달함으로써 모든 내용을 표시하는 기본 쿼리를 이용한다.
+    private fun setDataRecyclerView(snapshot: DataSnapshot?){
+        if(snapshot==null){
+            // DB 에서 한 번만 Tag table 을 받아와서 Adapter 에 전달
+            tagRef.orderByChild(DBKeys.USED).addListenerForSingleValueEvent(object:ValueEventListener{
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    setDataRecyclerView(snapshot)
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    TODO("Not yet implemented")
+                }
+
+            })
+            return
+        }
+        // 리스트 만들기
+        val list: MutableList<TagModel> = ArrayList<TagModel>()
+        for (s in snapshot!!.children) {
+            // 태그로 더 많이 쓰였으면 태그형으로 보여주고, 수치로 더 많이 쓰였으면 수치로 보여준다.
+            val usedTags = s.child(DBKeys.USED_TAGS).value.toString().toInt()
+            val usedValue = s.child(DBKeys.USED_VALUE).value.toString().toInt()
+            val tagType: Int = if(usedTags >= usedValue)TagType.TAG else TagType.VALUE
+
+            // Tag 의 key 값으로 name 이 들어감
+            val tagModel = TagModel(s.key!!, tagType)
+            list.add(tagModel)
+        }
+        adapter = AddTagAdapter(this, list)
+        recyclerView.adapter = adapter
+    }
+
     private fun initRecyclerView(){
         val context = this
         recyclerView = binding.addTagRecyclerView
         recyclerView.layoutManager = LinearLayoutManager(this,
         LinearLayoutManager.VERTICAL, false)
-
-        // DB 에서 한 번만 Tag table 을 받아와서 Adapter 에 전달
-        tagRef.orderByChild(DBKeys.USED).addListenerForSingleValueEvent(object:ValueEventListener{
-            override fun onDataChange(snapshot: DataSnapshot) {
-                // 리스트 만들기
-                val list: MutableList<TagModel> = ArrayList<TagModel>()
-                for (s in snapshot.children) {
-                    // 태그로 더 많이 쓰였으면 태그형으로 보여주고, 수치로 더 많이 쓰였으면 수치로 보여준다.
-                    val usedTags = s.child(DBKeys.USED_TAGS).value.toString().toInt()
-                    val usedValue = s.child(DBKeys.USED_VALUE).value.toString().toInt()
-                    val tagType: Int = if(usedTags >= usedValue)TagType.TAG else TagType.VALUE
-
-                    // Tag 의 key 값으로 name 이 들어감
-                    val tagModel = TagModel(s.key!!, tagType)
-                    list.add(tagModel)
-                }
-                adapter = AddTagAdapter(context, list)
-                recyclerView.adapter = adapter
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
-            }
-
-        })
-
+        setDataRecyclerView(null)
     }
 
 /*
@@ -135,7 +145,7 @@ class AddNewTagActivity:AppCompatActivity() {
         val tag = mutableMapOf<String, Any>()
     }
 
-    private fun initButton() {
+    private fun initView() {
         // 임시
         /*
         binding.addNewTagBtn.setOnClickListener {
@@ -148,22 +158,46 @@ class AddNewTagActivity:AppCompatActivity() {
             binding.searchEditText.text.clear()
         }
         */
-        binding.backButton.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-            finish()
-        }
-
-        binding.commitBtn.setOnClickListener {
-            val intentR = Intent()
-            val selectedTags: HashMap<String, TagModel> = adapter.selectedList
-            if (selectedTags.isNotEmpty()){
-                intentR.putExtra("selectedTags", selectedTags) //사용자에게 입력받은값 넣기
-                setResult(RESULT_OK, intentR) //결과를 저장
+        binding.apply {
+            backButton.setOnClickListener {
+                val intent = Intent(this@AddNewTagActivity, MainActivity::class.java)
+                startActivity(intent)
+                finish()
             }
+            commitBtn.setOnClickListener {
+                val intentR = Intent()
+                val selectedTags: HashMap<String, TagModel> = adapter.selectedList
+                if (selectedTags.isNotEmpty()){
+                    intentR.putExtra("selectedTags", selectedTags) //사용자에게 입력받은값 넣기
+                    setResult(RESULT_OK, intentR) //결과를 저장
+                }
 
-            finish() //액티비티 종료
+                finish() //액티비티 종료
+            }
+            // 입력에 따라 실시간으로 태그들이 검색됨
+            searchEditText.addTextChangedListener(object :TextWatcher{
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+                override fun afterTextChanged(s: Editable?) {
+                    if(searchEditText.length() == 0){
+                        setDataRecyclerView(null)
+                        return
+                    }
+                    // 쿼리를 리사이클러뷰로 전달
+                    // DB 에서 한 번만 Tag table 을 받아와서 Adapter 에 전달
+                    tagRef.orderByKey().startAt(searchEditText.text.toString()).addListenerForSingleValueEvent(object:ValueEventListener{
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            setDataRecyclerView(snapshot)
+                        }
 
+                        override fun onCancelled(error: DatabaseError) {
+                            TODO("Not yet implemented")
+                        }
+
+                    })
+                }
+
+            })
         }
     }
 }

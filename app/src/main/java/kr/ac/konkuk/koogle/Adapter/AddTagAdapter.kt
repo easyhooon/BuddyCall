@@ -35,7 +35,7 @@ import kr.ac.konkuk.koogle.R
 
     selected
  */
-class AddTagAdapter(open val context: Context, open val data: MutableList<TagModel>)
+class AddTagAdapter(open val context: Context, open var data: MutableList<TagModel>)
     : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
     var selectedList: HashMap<String, TagModel> = hashMapOf()
 
@@ -51,6 +51,12 @@ class AddTagAdapter(open val context: Context, open val data: MutableList<TagMod
         val subTagView: LinearLayout = itemView.findViewById(R.id.subTagView)
         val TagRef: DatabaseReference = Firebase.database.reference.child(DBKeys.DB_MAIN_TAGS)
         var subTagList: ArrayList<subTagModel> = arrayListOf()
+
+        // 유저가 검색창에 입력함에 따라 데이터가 변경됨
+        fun setData(newData: MutableList<TagModel>){
+            data = newData
+            notifyDataSetChanged()
+        }
 
         // SubTag 한 칸을 생성한다.
         fun makeSubTagView(tagName: String): TextView{
