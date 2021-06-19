@@ -68,12 +68,12 @@ class AddNewTagActivity:AppCompatActivity() {
         tagRef.orderByChild(DBKeys.USED).addListenerForSingleValueEvent(object:ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
                 // 리스트 만들기
-                val list: MutableList<TagModel?> = ArrayList<TagModel?>()
+                val list: MutableList<TagModel> = ArrayList<TagModel>()
                 for (s in snapshot.children) {
                     // 태그로 더 많이 쓰였으면 태그형으로 보여주고, 수치로 더 많이 쓰였으면 수치로 보여준다.
-                    val used_tags = s.child(DBKeys.USED_TAGS).value.toString().toInt()
-                    val used_value = s.child(DBKeys.USED_VALUE).value.toString().toInt()
-                    val tagType: Int = if(used_tags >= used_value)TagType.TAG else TagType.VALUE
+                    val usedTags = s.child(DBKeys.USED_TAGS).value.toString().toInt()
+                    val usedValue = s.child(DBKeys.USED_VALUE).value.toString().toInt()
+                    val tagType: Int = if(usedTags >= usedValue)TagType.TAG else TagType.VALUE
 
                     // Tag 의 key 값으로 name 이 들어감
                     val tagModel = TagModel(s.key!!, tagType)
