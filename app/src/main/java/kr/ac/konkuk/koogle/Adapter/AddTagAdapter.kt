@@ -1,8 +1,6 @@
 package kr.ac.konkuk.koogle.Adapter
 
 import android.content.Context
-import android.nfc.Tag
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,7 +9,6 @@ import android.widget.TextView
 import androidx.core.view.children
 import androidx.core.view.setMargins
 import androidx.recyclerview.widget.RecyclerView
-import bolts.Bolts
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -22,8 +19,6 @@ import kr.ac.konkuk.koogle.DBKeys
 import kr.ac.konkuk.koogle.Model.TagModel
 import kr.ac.konkuk.koogle.Model.TagType
 import kr.ac.konkuk.koogle.R
-import org.w3c.dom.Text
-
 
 /*
     2021-06-18 주예진 작성
@@ -61,7 +56,7 @@ class AddTagAdapter(val context: Context, val data: MutableList<TagModel?>)
 
     // name: sub tag
     // selected: 해당 sub tag를 유저가 선택하였는지 여부
-    data class subTagModle(var name:String, var selected:Boolean, var view:TextView)
+    data class subTagModel(var name:String, var selected:Boolean, var view:TextView)
 
     // Tag 밑에 여러 Tag 가 있는 형태의 row
     // Sub Tag 관련 함수는 TagAdapter.kt 의 ViewHolder class 와 중복되는 부분 나중에 통합 방법 생각해보기
@@ -70,7 +65,7 @@ class AddTagAdapter(val context: Context, val data: MutableList<TagModel?>)
         var mainTag: String = ""
         val subTagView: LinearLayout = itemView.findViewById(R.id.subTagView)
         val TagRef: DatabaseReference = Firebase.database.reference.child(DBKeys.DB_MAIN_TAGS)
-        var subTagList: ArrayList<subTagModle> = arrayListOf()
+        var subTagList: ArrayList<subTagModel> = arrayListOf()
 
         // SubTag 한 칸을 생성한다.
         private fun makeSubTagView(tagName: String): TextView{
@@ -172,7 +167,7 @@ class AddTagAdapter(val context: Context, val data: MutableList<TagModel?>)
                 .addListenerForSingleValueEvent(object:ValueEventListener{
                     override fun onDataChange(snapshot: DataSnapshot) {
                         for(s in snapshot.children){
-                            subTagList.add(subTagModle(
+                            subTagList.add(subTagModel(
                                 s.key.toString(), false, TextView(context))
                             )
                         }

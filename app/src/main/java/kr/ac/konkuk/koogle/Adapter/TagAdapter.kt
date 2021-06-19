@@ -17,23 +17,22 @@ import kr.ac.konkuk.koogle.Model.TagModel
     프로필에서 표시되는 태그 Recycler View 의 row adapter
     대분류 태그(제목)와 소분류 태그를 표시
  */
-class TagAdapter(val context: Context, val models: ArrayList<TagModel>) :
+class TagAdapter(val context: Context, val data: ArrayList<TagModel>) :
     RecyclerView.Adapter<TagAdapter.ViewHolder>() {
     interface OnItemClickListener {
         fun onItemClick(holder: ViewHolder, view: View, data: TagModel, position: Int)
     }
-
     var itemClickListener: OnItemClickListener? = null
 
     fun moveItem(oldPos: Int, newPos: Int) {
-        val item = models[oldPos]
-        models.removeAt(oldPos)
-        models.add(newPos, item)
+        val item = data[oldPos]
+        data.removeAt(oldPos)
+        data.add(newPos, item)
         notifyItemMoved(oldPos, newPos)
     }
 
     fun removeItem(pos: Int) {
-        models.removeAt(pos)
+        data.removeAt(pos)
         notifyItemRemoved(pos)
     }
 
@@ -43,7 +42,7 @@ class TagAdapter(val context: Context, val models: ArrayList<TagModel>) :
 
         init {
             itemView.setOnClickListener {
-                itemClickListener?.onItemClick(this, it, models[adapterPosition], adapterPosition)
+                itemClickListener?.onItemClick(this, it, data[adapterPosition], adapterPosition)
             }
         }
 
@@ -115,10 +114,10 @@ class TagAdapter(val context: Context, val models: ArrayList<TagModel>) :
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(models[position])
+        holder.bind(data[position])
     }
 
     override fun getItemCount(): Int {
-        return models.size
+        return data.size
     }
 }
