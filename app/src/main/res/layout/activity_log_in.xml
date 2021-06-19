@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical" >
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -87,7 +87,8 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="@string/sign_up" />
+                android:text="@string/sign_up"
+                android:textStyle="bold" />
 
             <Button
                 android:id="@+id/loginButton"
@@ -96,7 +97,8 @@
                 android:layout_weight="1"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="14dp"
-                android:text="@string/log_in" />
+                android:text="@string/log_in"
+                android:textStyle="bold" />
 
         </LinearLayout>
 

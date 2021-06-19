@@ -1,117 +1,105 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:fillViewport="true" >
 
-    <LinearLayout
-        android:id="@+id/toolbarLayout"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:gravity="center_vertical">
+        android:layout_height="match_parent">
 
-        <ImageView
-            android:id="@+id/backButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_baseline_arrow_back_24"
-            android:layout_marginStart="15dp"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start|center"
-            android:layout_marginStart="16dp"
-            android:text="글 쓰기"
-            android:textColor="@color/black"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-        <Button
-            android:id="@+id/submitButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end|center"
-            android:layout_marginEnd="15dp"
-            android:text="완료" />
-
-    </LinearLayout>
-
-    <View
-        android:id="@+id/toolbarUnderLineView"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/gray_cc" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-
-        <EditText
-            android:id="@+id/titleEditText"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:layout_marginHorizontal="16dp"
-            android:paddingTop="16dp"
-            android:paddingBottom="10dp"
-            android:background="@android:color/transparent"
-            android:hint="@string/input_title"
-            tools:ignore="RtlSymmetry" />
+            android:layout_height="match_parent"
+            android:orientation="vertical" >
 
-        <View
-            android:id="@+id/TitleEditTextUnderLineView"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginHorizontal="14dp"
-            android:background="@color/gray_cc" />
+            <LinearLayout
+                android:id="@+id/toolbarLayout"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:gravity="center_vertical">
 
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="9">
+                <ImageView
+                    android:id="@+id/backButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_baseline_arrow_back_24"
+                    android:layout_marginStart="15dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start|center"
+                    android:layout_marginStart="16dp"
+                    android:text="글 쓰기"
+                    android:textColor="@color/black"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <Button
+                    android:id="@+id/submitButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end|center"
+                    android:layout_marginEnd="15dp"
+                    android:text="완료" />
+
+            </LinearLayout>
+
+            <View
+                android:id="@+id/toolbarUnderLineView"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/gray_cc" />
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:orientation="vertical">
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/recruitmentNumberLayout"
+                <EditText
+                    android:id="@+id/titleEditText"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="1.2"
                     android:layout_marginHorizontal="16dp"
-                    android:layout_marginBottom="10dp">
+                    android:padding="16dp"
+                    android:background="@android:color/transparent"
+                    android:hint="@string/input_title"
+                    tools:ignore="RtlSymmetry" />
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/recruitmentNumberEditText"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:hint="모집인원"
-                        android:inputType="number" />
+                <View
+                    android:id="@+id/TitleEditTextUnderLineView"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginHorizontal="14dp"
+                    android:background="@color/gray_cc" />
 
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <EditText
-                    android:id="@+id/contentEditText"
+                <androidx.core.widget.NestedScrollView
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="6"
-                    android:paddingVertical="20dp"
-                    android:layout_marginHorizontal="16dp"
-                    android:background="@android:color/transparent"
-                    android:hint="@string/input_content"
-                    android:lines="12"
-                    android:gravity="top"
-                    android:inputType="textMultiLine" />
+                    android:layout_marginHorizontal="16dp" >
+
+                    <EditText
+                        android:id="@+id/contentEditText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp"
+                        android:background="@android:color/transparent"
+                        android:hint="@string/input_content"
+                        android:lines="12"
+                        android:gravity="top"
+                        android:inputType="textMultiLine" />
+
+                </androidx.core.widget.NestedScrollView>
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/imageRecyclerView"
@@ -122,79 +110,96 @@
                     android:orientation="horizontal"
                     android:visibility="gone"/>
 
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/recruitmentNumberLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1.1"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginVertical="10dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/recruitmentNumberEditText"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:hint="모집인원"
+                        android:inputType="number" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <LinearLayout
+                    android:id="@+id/locationInfoLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:paddingStart="10dp"
+                    android:orientation="horizontal"
+                    android:background="@drawable/borderline_top_bottom" >
+
+                    <ImageView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_gravity="center"
+                        android:padding="5dp"
+                        android:src="@drawable/ic_baseline_location_24"
+                        tools:ignore="NestedWeights" />
+
+                    <TextView
+                        android:id="@+id/locationTextView"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="7"
+                        android:layout_marginStart="6dp"
+                        android:padding="16dp"
+                        android:layout_gravity="center"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    android:paddingStart="10dp"
+                    tools:ignore="RtlSymmetry">
+
+                    <ImageView
+                        android:id="@+id/imageAddButton"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:padding="5dp"
+                        android:src="@drawable/ic_baseline_photo_camera_24"
+                        tools:ignore="NestedWeights" />
+
+                    <ImageView
+                        android:id="@+id/locationAddButton"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:padding="5dp"
+                        android:src="@drawable/ic_baseline_add_location_24" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="6" />
+
+                </LinearLayout>
+
             </LinearLayout>
 
-        </ScrollView>
-
-        <LinearLayout
-            android:id="@+id/locationInfoLayout"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:paddingStart="10dp"
-            android:orientation="horizontal"
-            android:background="@drawable/borderline_top_bottom" >
-
-            <ImageView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:layout_gravity="center"
-                android:padding="5dp"
-                android:src="@drawable/ic_baseline_location_24"
-                tools:ignore="NestedWeights" />
-
-            <TextView
-                android:id="@+id/locationTextView"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="7"
-                android:layout_marginStart="6dp"
-                android:padding="16dp"
-                android:layout_gravity="center"/>
-
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="horizontal"
-            android:paddingStart="10dp"
-            tools:ignore="RtlSymmetry">
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            tools:visibility="visible" />
 
-            <ImageView
-                android:id="@+id/imageAddButton"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:padding="5dp"
-                android:src="@drawable/ic_baseline_photo_camera_24"
-                tools:ignore="NestedWeights" />
+    </FrameLayout>
 
-            <ImageView
-                android:id="@+id/locationAddButton"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:padding="5dp"
-                android:src="@drawable/ic_baseline_add_location_24" />
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="6" />
-
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:visibility="gone"
-        tools:visibility="visible" />
-
-</LinearLayout>
+</androidx.core.widget.NestedScrollView>
