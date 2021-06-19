@@ -76,8 +76,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when(item.itemId)
         {
-            R.id.temp -> {
-                Toast.makeText(applicationContext, "temp", Toast.LENGTH_SHORT).show()
+            R.id.contact -> {
+                val intent = Intent(this, ContactActivity::class.java)
+                startActivity(intent)
             }
         }
         binding.drawerLayout.closeDrawers()

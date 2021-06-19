@@ -16,7 +16,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import kr.ac.konkuk.koogle.Adapter.RecommendAdapter
+import kr.ac.konkuk.koogle.Adapter.CommentAdapter
 import kr.ac.konkuk.koogle.Adapter.TagAdapter
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
 import kr.ac.konkuk.koogle.Model.TagModel
@@ -33,12 +33,11 @@ import kr.ac.konkuk.koogle.databinding.ActivityProfileBinding
 
 class ProfileActivity : AppCompatActivity() {
     private var tag_debug_data: ArrayList<TagModel> = ArrayList()
-    private var recommend_debug_data: ArrayList<ArrayList<String>> = ArrayList()
     lateinit var binding: ActivityProfileBinding
     lateinit var tagRecyclerView: RecyclerView
     lateinit var recommendRecyclerView: RecyclerView
     lateinit var tagAdapter: TagAdapter
-    lateinit var recommendAdapter: RecommendAdapter
+    lateinit var commentAdapter: CommentAdapter
 
     //파이어베이스 인증 객체 초기화
     private val auth: FirebaseAuth by lazy {
@@ -117,9 +116,9 @@ class ProfileActivity : AppCompatActivity() {
         recommendRecyclerView.layoutManager = LinearLayoutManager(this)
         // 구분선 넣기
         recommendRecyclerView.addItemDecoration(DividerItemDecoration(tagRecyclerView.context, 1))
-        recommendAdapter = RecommendAdapter(this, recommend_debug_data)
+        commentAdapter = CommentAdapter()
         // 아이템 클릭 리스터 설정(미구현)
-        recommendRecyclerView.adapter = recommendAdapter
+        recommendRecyclerView.adapter = commentAdapter
     }
 
     private fun initTagRecyclerView() {
@@ -197,17 +196,6 @@ class ProfileActivity : AppCompatActivity() {
         )
         tag_debug_data.add(TagModel("전공", arrayListOf("컴퓨터", "컴퓨터공학"), -1 ,0))
 
-        recommend_debug_data.add(
-            arrayListOf(
-                "닉네임1", "ㅇㅇㅇ 교환 했었는데 친절하셨습니다 기분좋게" +
-                        "거래했네요! 어쩌고 저쩌고~"
-            )
-        )
-        recommend_debug_data.add(
-            arrayListOf(
-                "그린조아", "갑자기 약속 취소하고 잠수타셔서" +
-                        " 시간만 낭비했네요"
-            )
-        )
+
     }
 }

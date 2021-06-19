@@ -9,7 +9,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Koogle">
-        <activity android:name=".Activity.ImageViewActivity"></activity>
+        <activity android:name=".Activity.ContactActivity"></activity>
+        <activity android:name=".Activity.AddCommentActivity" />
+        <activity android:name=".Activity.ImageViewActivity" />
         <activity android:name=".Activity.EditArticleActivity" />
         <activity android:name=".Activity.CheckMapActivity" />
         <activity android:name=".Activity.MapActivity" />
@@ -57,11 +59,11 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_map" />
     </application>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.INTERNET" />
-
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
 </manifest>

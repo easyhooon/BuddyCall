@@ -41,6 +41,12 @@ class DBKeys {
         const val CHAT_CONTENT = "chatContent"
         const val CHAT_CREATED_AT = "chatCreatedAt"
 
+        //Comment
+        const val DB_COMMENTS = "Comments"
+        const val COMMENT_ID = "commentId"
+        const val COMMENT_CREATED_AT = "commentCreatedAt"
+        const val COMMENT_CONTENT = "commentContent"
+
         //ViewType
         const val LEFT_CHAT = 1 //남들의 채팅(프로필과 이름 내용 모두 보임)
         const val RIGHT_CHAT = 2 //내 채팅(내용만 보임)
@@ -59,6 +65,5 @@ class DBKeys {
         const val TAG_INDEX = "index"
         const val TAG_TYPE = "tagType"
         const val TAG_VALUE = "tagValue"
-
     }
 }
