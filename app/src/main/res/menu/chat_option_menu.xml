@@ -3,4 +3,8 @@
     <item
         android:id="@+id/exitChatRoom"
         android:title="채팅방 나가기" />
+
+    <item
+        android:id="@+id/adminEvaluate"
+        android:title="평가하기"/>
 </menu>

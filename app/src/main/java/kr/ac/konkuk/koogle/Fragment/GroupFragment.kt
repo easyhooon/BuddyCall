@@ -37,7 +37,6 @@ class GroupFragment : Fragment(R.layout.fragment_group) {
     private val auth: FirebaseAuth by lazy {
         Firebase.auth
     }
-
     private val firebaseUser = auth.currentUser!!
 
     private val groupRef: DatabaseReference by lazy {

@@ -2,9 +2,7 @@ package kr.ac.konkuk.koogle.Activity
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -14,13 +12,11 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import kr.ac.konkuk.koogle.Adapter.RecommendAdapter
+import kr.ac.konkuk.koogle.Adapter.CommentAdapter
 import kr.ac.konkuk.koogle.Adapter.TagAdapter
-import kr.ac.konkuk.koogle.DBKeys
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
 import kr.ac.konkuk.koogle.Model.TagModel
 import kr.ac.konkuk.koogle.Model.UserModel
@@ -36,12 +32,8 @@ import kr.ac.konkuk.koogle.databinding.ActivityProfileBinding
 
 class ProfileActivity : ProfileCommonActivity() {
     // private var tag_debug_data: ArrayList<TagModel> = ArrayList()
-    private var recommend_debug_data: ArrayList<ArrayList<String>> = ArrayList()
     lateinit var binding: ActivityProfileBinding
-    lateinit var tagRecyclerView: RecyclerView
-    lateinit var recommendRecyclerView: RecyclerView
-    lateinit var recommendAdapter: RecommendAdapter
-
+    lateinit var commentAdapter: CommentAdapter
 
     //파이어베이스 인증 객체 초기화
     private val auth: FirebaseAuth by lazy {
@@ -112,20 +104,18 @@ class ProfileActivity : ProfileCommonActivity() {
     }
 
     private fun initRecommendRecyclerView() {
-        recommendRecyclerView = findViewById(R.id.recommendRecyclerView)
-        recommendRecyclerView.layoutManager = LinearLayoutManager(this)
+        binding.commentRecyclerView.layoutManager = LinearLayoutManager(this)
         // 구분선 넣기
-        recommendRecyclerView.addItemDecoration(DividerItemDecoration(recommendRecyclerView.context, 1))
-        recommendAdapter = RecommendAdapter(this, recommend_debug_data)
+        binding.commentRecyclerView.addItemDecoration(DividerItemDecoration(this, 1))
+        commentAdapter = CommentAdapter()
         // 아이템 클릭 리스터 설정(미구현)
-        recommendRecyclerView.adapter = recommendAdapter
+        binding.commentRecyclerView.adapter = commentAdapter
     }
 
     override fun initTagRecyclerView(data: ArrayList<TagModel>) {
-        tagRecyclerView = findViewById<RecyclerView>(R.id.tagRecyclerView)
-        tagRecyclerView.layoutManager = LinearLayoutManager(this)
+        binding.tagRecyclerView.layoutManager = LinearLayoutManager(this)
         // 구분선 넣기
-        tagRecyclerView.addItemDecoration(DividerItemDecoration(tagRecyclerView.context, 1))
+        binding.tagRecyclerView.addItemDecoration(DividerItemDecoration(this, 1))
 
         tagAdapter = TagAdapter(this, data)
         tagAdapter.itemClickListener = object : TagAdapter.OnItemClickListener {
@@ -138,7 +128,7 @@ class ProfileActivity : ProfileCommonActivity() {
                 // 미구현
             }
         }
-        tagRecyclerView.adapter = tagAdapter
+        binding.tagRecyclerView.adapter = tagAdapter
         val simpleCallBack = object : ItemTouchHelper.SimpleCallback(
             ItemTouchHelper.DOWN or ItemTouchHelper.UP,
             ItemTouchHelper.RIGHT
@@ -157,21 +147,10 @@ class ProfileActivity : ProfileCommonActivity() {
             }
         }
         val itemTouchHelper = ItemTouchHelper(simpleCallBack)
-        itemTouchHelper.attachToRecyclerView(tagRecyclerView)
+        itemTouchHelper.attachToRecyclerView(binding.tagRecyclerView)
     }
 
     private fun initData() {
-        recommend_debug_data.add(
-            arrayListOf(
-                "닉네임1", "ㅇㅇㅇ 교환 했었는데 친절하셨습니다 기분좋게" +
-                        "거래했네요! 어쩌고 저쩌고~"
-            )
-        )
-        recommend_debug_data.add(
-            arrayListOf(
-                "그린조아", "갑자기 약속 취소하고 잠수타셔서" +
-                        " 시간만 낭비했네요"
-            )
-        )
+
     }
 }
