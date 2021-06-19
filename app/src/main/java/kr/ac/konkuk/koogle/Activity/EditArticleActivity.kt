@@ -3,13 +3,18 @@ package kr.ac.konkuk.koogle.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -22,9 +27,12 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
 import kr.ac.konkuk.koogle.Activity.ArticleActivity.Companion.ARTICLE_INFO
+import kr.ac.konkuk.koogle.Adapter.AddArticleImageAdapter
 import kr.ac.konkuk.koogle.DBKeys
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_CONTENT
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_CREATED_AT
+import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_IMAGE_FILE_NAME
+import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_IMAGE_PATH
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_IMAGE_URL
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_TITLE
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_ARTICLES
@@ -36,6 +44,7 @@ import kr.ac.konkuk.koogle.Model.ArticleModel
 import kr.ac.konkuk.koogle.Model.Entity.SearchResultEntity
 import kr.ac.konkuk.koogle.Model.UserModel
 import kr.ac.konkuk.koogle.databinding.ActivityEditArticleBinding
+import java.io.File
 
 //기존 글의 데이터 읽어오기
 class EditArticleActivity : AppCompatActivity() {
@@ -45,13 +54,18 @@ class EditArticleActivity : AppCompatActivity() {
 
     private lateinit var searchResult: SearchResultEntity
 
-    private var selectedUri: Uri? = null
-
     private lateinit var articleId: String
 
     private lateinit var writerName: String
-
     private lateinit var currentNumber: String
+
+    private var isFirstImageUpdate = true
+    private var selectedUriList: ArrayList<Uri> = arrayListOf()
+    private var oldFileNameList: ArrayList<String> = arrayListOf()
+    private var fileNameList: ArrayList<String> = arrayListOf()
+    private var downloadedUrlList: ArrayList<String> = arrayListOf()
+
+    private lateinit var imageAdapter: AddArticleImageAdapter
 
     private val auth: FirebaseAuth by lazy {
         Firebase.auth
@@ -87,6 +101,7 @@ class EditArticleActivity : AppCompatActivity() {
 
         initDB()
         initButton()
+        initImageRecyclerView()
     }
 
     private fun initDB() {
@@ -121,10 +136,17 @@ class EditArticleActivity : AppCompatActivity() {
                     binding.titleEditText.setText(articleModel.articleTitle)
                     binding.recruitmentNumberEditText.setText(articleModel.recruitmentNumber.toString())
                     binding.locationTextView.text = articleModel.desiredLocation?.fullAddress ?: DEFAULT_LOCATION
-                    if (articleModel.articleImageUrl.isNotEmpty()) {
-                        Glide.with(binding.photoImageView)
-                            .load(articleModel.articleImageUrl)
-                            .into(binding.photoImageView)
+                    if (articleModel.articleImageUrl.isEmpty()) {
+                        binding.imageRecyclerView.visibility = View.GONE
+                    } else {
+                        oldFileNameList = articleModel.articleImageFileName
+                        fileNameList.addAll(oldFileNameList)
+                        initImageRecyclerView()
+                        for (uri in articleModel.articleImageUrl) {
+                            Log.i("uri", Uri.parse(uri).toString())
+                            imageAdapter.addItem(Uri.parse(uri))
+                        }
+                        binding.imageRecyclerView.visibility = View.VISIBLE
                     }
                     binding.contentEditText.setText(articleModel.articleContent)
                     currentNumber = articleModel.currentNumber.toString()
@@ -166,53 +188,50 @@ class EditArticleActivity : AppCompatActivity() {
             val articleContent = binding.contentEditText.text.toString()
             val recruitmentNumber = binding.recruitmentNumberEditText.text.toString().toInt()
 
+            if (articleTitle.isEmpty()) {
+                Toast.makeText(this, "글의 제목을 입력해주세요.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if (articleContent.isEmpty()) {
+                Toast.makeText(this, "글의 내용을 입력해주세요.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
             if (currentNumber.toInt() > recruitmentNumber) {
                 Toast.makeText(this, "이미 설정 인원보다 그룹 인원이 많습니다", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             } else {
-
                 showProgress()
 
                 //중간에 이미지가 있으면 업로드 과정을 추가
-                if (selectedUri != null) {
-                    val photoUri = selectedUri ?: return@setOnClickListener
-                    uploadPhoto(photoUri,
-                        //내부 비동기
-                        successHandler = { uri ->
-                            //이미지 uri를 첨부해서 업로드
-                            //이미지가 있는 상황
-                            //업로드한 url을 가져와서 같이 넣어줬기 때문에 url도 함께 들어갈 수 있음
-                            updateArticle(
-                                articleTitle,
-                                articleContent,
-                                recruitmentNumber,
-                                uri
-                            )
-                            updateChatRoom(
-                                articleTitle,
-                                recruitmentNumber,
-                            )
-                        },
-                        errorHandler = {
-                            //작업을 취소
-                            Toast.makeText(this, "사진 업로드에 실패했습니다", Toast.LENGTH_SHORT).show()
-                            hideProgress()
-                        }
-                    )
-                } else {
-                    //이미지가 없는 상황
-                    updateArticle(
-                        articleTitle,
-                        articleContent,
-                        recruitmentNumber,
-                        ""
-                    )
-                    updateChatRoom(
-                        articleTitle,
-                        recruitmentNumber
-                    )
+                selectedUriList = imageAdapter.getUriList()
+
+                if (selectedUriList.isNotEmpty()) {
+                    for ((i, uri) in selectedUriList.withIndex()) {
+                        uploadPhoto(uri, i,
+                            //내부 비동기
+                            successHandler = { uploadUri ->
+                                updateImage(uploadUri)
+                            },
+                            errorHandler = {
+                                Toast.makeText(this, "사진 업로드에 실패했습니다.", Toast.LENGTH_SHORT).show()
+                            }
+                        )
+                    }
                 }
+                updateArticle(
+                    articleTitle,
+                    articleContent,
+                    recruitmentNumber,
+                    downloadedUrlList
+                )
+                updateChatRoom(
+                    articleTitle,
+                    recruitmentNumber,
+                )
             }
+
         }
 
         binding.backButton.setOnClickListener {
@@ -227,7 +246,6 @@ class EditArticleActivity : AppCompatActivity() {
         }
     }
 
-
     private fun updateChatRoom(
         articleTitle: String,
         recruitmentNumber: Int
@@ -241,51 +259,68 @@ class EditArticleActivity : AppCompatActivity() {
 
         hideProgress()
         finish()
-
     }
 
     //successHandler의 반환값 String
-    private fun uploadPhoto(uri: Uri, successHandler: (String) -> Unit, errorHandler: () -> Unit) {
+    private fun uploadPhoto(uri: Uri, num: Int, successHandler: (String) -> Unit, errorHandler: () -> Unit) {
         //파일명이 중복이 되지 않도록
         //이렇게 두면 이거 삭제는 어떻게 하남
-        val fileName = "${articleId}.png"
-        storage.reference.child(DBKeys.ARTICLE_IMAGE_PATH).child(fileName)
-            .putFile(uri)
-            //성공했는지 여부를 체크
-            .addOnCompleteListener {
-                if (it.isSuccessful) {
-                    storage.reference.child(DBKeys.ARTICLE_IMAGE_PATH).child(fileName).downloadUrl
-                        .addOnSuccessListener { uri ->
-                            //업로드를 성공하면 download url을 가져옴
-                            successHandler(uri.toString())
-                        }.addOnFailureListener {
-                            errorHandler()
-                        }
-                } else {
-                    errorHandler()
+        val fileName = "${System.currentTimeMillis()}.jpg"
+        fileNameList.add(fileName)
+        val fileRef = storage.reference.child(ARTICLE_IMAGE_PATH).child(fileName)
+
+        if (uri.toString().contains("http")){
+            successHandler(uri.toString())
+        } else {
+            fileRef.putFile(uri)
+                //성공했는지 여부를 체크
+                .addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        storage.reference.child(DBKeys.ARTICLE_IMAGE_PATH)
+                            .child(fileName).downloadUrl
+                            .addOnSuccessListener { uploadedUri ->
+                                successHandler(uploadedUri.toString())
+                            }.addOnFailureListener {
+                                errorHandler()
+                            }
+                    } else {
+                        errorHandler()
+                    }
                 }
-            }
+        }
     }
 
     private fun updateArticle(
         articleTitle: String,
         articleContent: String,
         recruitmentNumber: Int,
-        articleImageUrl: String
+        uriList: ArrayList<String>
     ) {
         val article = mutableMapOf<String, Any>()
 
         article[ARTICLE_TITLE] = articleTitle
         article[ARTICLE_CONTENT] = articleContent
-        article[ARTICLE_IMAGE_URL] = articleImageUrl
+        article[ARTICLE_IMAGE_URL] = uriList
+        article[ARTICLE_IMAGE_FILE_NAME] = fileNameList
         article[ARTICLE_CREATED_AT] = System.currentTimeMillis()
         article[RECRUITMENT_NUMBER] = recruitmentNumber
-        article[DESIRED_LOCATION] = searchResult
+        if (::searchResult.isInitialized)
+            article[DESIRED_LOCATION] = searchResult
 
         currentArticleRef.updateChildren(article)
 
         hideProgress()
         finish()
+    }
+
+    private fun updateImage(uri: String) {
+        if (isFirstImageUpdate) {
+            articleRef.child(articleId).child(DBKeys.ARTICLE_THUMBNAIL_IMAGE_URL).setValue(uri)
+            isFirstImageUpdate = false
+        }
+        val imageRef = articleRef.child(articleId).child(ARTICLE_IMAGE_URL)
+        downloadedUrlList.add(uri)
+        imageRef.setValue(downloadedUrlList)
     }
 
     override fun onRequestPermissionsResult(
@@ -306,6 +341,7 @@ class EditArticleActivity : AppCompatActivity() {
 
     private fun startContentProvider() {
         val intent = Intent(Intent.ACTION_GET_CONTENT)
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
         intent.type = "image/*"
         startActivityForResult(intent, AddArticleActivity.CONTENT_PROVIDER_REQUEST_CODE)
     }
@@ -326,13 +362,40 @@ class EditArticleActivity : AppCompatActivity() {
             AddArticleActivity.CONTENT_PROVIDER_REQUEST_CODE -> {
                 //data 안에 사진의 uri 가 넘어온것
                 //우선 null 처리
-                val uri = data?.data
-                if (uri != null) {
-                    binding.photoImageView.setImageURI(uri)
-                    selectedUri = uri
-                } else {
-                    Toast.makeText(this, "사진을 가져오지 못했습니다.", Toast.LENGTH_SHORT).show()
+                if (data?.data != null && data?.clipData == null) {
+                    initImageRecyclerView()
+                    val uri = data.data
+
+                    if (uri != null) {
+                        imageAdapter.addItem(uri)
+                    }
+
+                    if (binding.imageRecyclerView.visibility == View.GONE)
+                        binding.imageRecyclerView.visibility = View.VISIBLE
                 }
+
+                if (data?.clipData != null) {
+                    initImageRecyclerView()
+
+                    val clipData = data.clipData!!
+
+                    when (clipData.itemCount) {
+                        in 2..9 -> {
+                            for (i in 0 until clipData.itemCount) {
+                                imageAdapter.addItem(clipData.getItemAt(i).uri)
+                            }
+                        }
+                        else -> {
+                            Toast.makeText(this, "사진은 최대 10개 선택 가능합니다.", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+
+                    if (binding.imageRecyclerView.visibility == View.GONE)
+                        binding.imageRecyclerView.visibility = View.VISIBLE
+                }
+//                else {
+//                    Toast.makeText(this, "사진을 가져오지 못했습니다.", Toast.LENGTH_SHORT).show()
+//                }
             }
             AddArticleActivity.LOCATION_SEARCH_REQUEST_CODE -> {
                 if (resultCode == RESULT_OK) {
@@ -354,6 +417,40 @@ class EditArticleActivity : AppCompatActivity() {
             }
             .create()
             .show()
+    }
+
+    private fun initImageRecyclerView() {
+        binding.imageRecyclerView.layoutManager =
+            LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        imageAdapter = AddArticleImageAdapter(selectedUriList)
+        imageAdapter.itemClickListener = object : AddArticleImageAdapter.OnItemClickListener {
+            override fun OnItemClick(
+                holder: AddArticleImageAdapter.ViewHolder
+            ) {
+                imageAdapter.removeItem(holder.adapterPosition)
+                if (imageAdapter.getUriList().isEmpty())
+                    binding.imageRecyclerView.visibility = View.GONE
+            }
+        }
+        binding.imageRecyclerView.adapter = imageAdapter
+
+        val simpleCallback = object : ItemTouchHelper.SimpleCallback(
+            ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT,
+            ItemTouchHelper.UP or ItemTouchHelper.DOWN) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                imageAdapter.moveItem(viewHolder.adapterPosition, target.adapterPosition)
+                return true
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {}
+        }
+
+        val itemTouchHelper = ItemTouchHelper(simpleCallback)
+        itemTouchHelper.attachToRecyclerView(binding.imageRecyclerView)
     }
 
     companion object {

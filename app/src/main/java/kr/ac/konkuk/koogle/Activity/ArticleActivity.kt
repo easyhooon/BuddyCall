@@ -19,12 +19,17 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kr.ac.konkuk.koogle.Adapter.ArticleImageAdapter
+import kr.ac.konkuk.koogle.DBKeys
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_ID
+import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_IMAGE_FILE_NAME
+import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_IMAGE_PATH
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_TITLE
 import kr.ac.konkuk.koogle.DBKeys.Companion.CURRENT_NUMBER
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_ARTICLES
@@ -61,6 +66,7 @@ class ArticleActivity : AppCompatActivity() {
     private lateinit var currentNumber:String
 
     private var userIdList:MutableList<String> = mutableListOf()
+    private var fileNameList: ArrayList<String> = arrayListOf()
 
     private lateinit var imageAdapter: ArticleImageAdapter
 
@@ -93,6 +99,10 @@ class ArticleActivity : AppCompatActivity() {
 
     private val currentGroupUserRef: DatabaseReference by lazy {
         Firebase.database.reference.child(DB_GROUPS).child(articleId).child(DB_USERS).child(currentUserId)
+    }
+
+    private val storage: FirebaseStorage by lazy {
+        Firebase.storage
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -193,6 +203,10 @@ class ArticleActivity : AppCompatActivity() {
     private fun deleteArticle() {
         currentArticleRef.setValue(null)
         currentGroupRef.setValue(null)
+        val storageRef = storage.reference.child(ARTICLE_IMAGE_PATH)
+        for (name in fileNameList) {
+            storageRef.child(name).delete()
+        }
     }
 
     private fun initButton() {
@@ -266,14 +280,12 @@ class ArticleActivity : AppCompatActivity() {
                                 if (articleModel.articleImageUrl.isEmpty()) {
                                     binding.photoImageRecyclerView.visibility = View.GONE
                                 } else {
+                                    fileNameList = articleModel.articleImageFileName
                                     initImageRecyclerView()
                                     for (uri in articleModel.articleImageUrl) {
                                         Log.i("uri", Uri.parse(uri).toString())
                                         imageAdapter.addItem(Uri.parse(uri))
                                     }
-//                                    Glide.with(binding.photoImageView)
-//                                        .load(articleModel.articleImageUrl)
-//                                        .into(binding.photoImageView)
                                 }
                             }
 
