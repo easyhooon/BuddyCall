@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -20,6 +21,7 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.theartofdev.edmodo.cropper.CropImage
+import kotlinx.android.synthetic.main.activity_add_tag.*
 import kr.ac.konkuk.koogle.Adapter.AddTagAdapter
 import kr.ac.konkuk.koogle.Adapter.TagAdapter
 import kr.ac.konkuk.koogle.DBKeys
@@ -90,28 +92,32 @@ class EditProfileActivity : ProfileCommonActivity() {
             startActivity(intent)
             finish()
         }
-
-        binding.userNameChangeBtn.setOnClickListener {
-            setActiveChangeUserName(true)
-        }
-
-        binding.userNameChangeUpdateBtn.setOnClickListener {
-            setActiveChangeUserName(false)
-        }
-
         binding.addNewTagBtn.setOnClickListener {
             val intent = Intent(this, AddNewTagActivity::class.java)
             startActivityForResult(intent, newTagRequest)
         }
-        binding.userProfileChangeBtn.setOnClickListener {
-            //에뮬레이터에는 해당 저장소가 존재하지 않아 기능하지 않음, 실기기에 연결해서 수행해야함
-            CropImage.activity()
-                .setAspectRatio(1,1)
-                .start(this);
-        }
-        binding.profileEditButton.setOnClickListener {
-            saveTag()
-            finish()
+        binding.apply{
+            userNameChangeBtn.setOnClickListener {
+                setActiveChangeUserName(true)
+            }
+
+            userNameChangeUpdateBtn.setOnClickListener {
+                setActiveChangeUserName(false)
+            }
+
+            userProfileChangeBtn.setOnClickListener {
+                //에뮬레이터에는 해당 저장소가 존재하지 않아 기능하지 않음, 실기기에 연결해서 수행해야함
+                CropImage.activity()
+                    .setAspectRatio(1,1)
+                    .start(this@EditProfileActivity);
+            }
+            profileEditButton.setOnClickListener {
+                saveTag()
+                finish()
+            }
+            accountInfoButton.setOnClickListener {
+                finish()
+            }
         }
     }
 
@@ -208,14 +214,16 @@ class EditProfileActivity : ProfileCommonActivity() {
         binding.tagRecyclerView.addItemDecoration(DividerItemDecoration(this, 1))
 
         tagAdapter = TagAdapter(this, data)
-        tagAdapter.itemClickListener = object : TagAdapter.OnItemClickListener {
+        // 서브태그들 클릭했을 때 이벤트 구현
+        tagAdapter.subTagClickListener = object : TagAdapter.OnItemClickListener {
             override fun onItemClick(
                 holder: TagAdapter.DefaultViewHolder,
-                view: View,
+                view: EditText,
                 data: TagModel,
                 position: Int
             ) {
-                // 미구현
+                Log.d("jan", "Click")
+                view.isEnabled = true
             }
         }
         binding.tagRecyclerView.adapter = tagAdapter
