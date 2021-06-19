@@ -2,6 +2,7 @@ package kr.ac.konkuk.koogle.Activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -156,9 +157,10 @@ class AddNewTagActivity:AppCompatActivity() {
         binding.commitBtn.setOnClickListener {
             val intentR = Intent()
             val selectedTags: HashMap<String, TagModel> = adapter.selectedList
-            intentR.putExtra("selectedTags", selectedTags) //사용자에게 입력받은값 넣기
-
-            setResult(RESULT_OK, intentR) //결과를 저장
+            if (selectedTags.isNotEmpty()){
+                intentR.putExtra("selectedTags", selectedTags) //사용자에게 입력받은값 넣기
+                setResult(RESULT_OK, intentR) //결과를 저장
+            }
 
             finish() //액티비티 종료
 

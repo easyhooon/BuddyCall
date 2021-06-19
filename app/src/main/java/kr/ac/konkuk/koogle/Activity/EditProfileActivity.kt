@@ -52,6 +52,7 @@ class EditProfileActivity : ProfileCommonActivity() {
     // new Tag Activity 로부터 전달받은 데이타가 잘 DB에 들어가는 지 확인하기 위한 함수
     // resultData: new Tag Activity 로부터 전해받은 Data
     private fun test(resultData: HashMap<String, TagModel>? = null){
+        /*
         userTagRef = Firebase.database.reference
             .child(DBKeys.DB_USER_TAG).child(firebaseUser.uid)
         // 임시: 화면에 뿌려주어야 하는데 일단은 DB에 넣도록 구현함
@@ -68,8 +69,13 @@ class EditProfileActivity : ProfileCommonActivity() {
             newTag[DBKeys.TAG_VALUE] = value.value
             userTagRef.child(key).setValue(newTag)
             j++
-        }
+        }*/
         // 수정 방향: adapter 에 그대로 전달하기
+        var newList:ArrayList<TagModel> = arrayListOf()
+        for((key, value) in resultData!!){
+            newList.add(value)
+        }
+        tagAdapter.updateData(newList)
     }
 
     private fun initButton() {
@@ -172,7 +178,9 @@ class EditProfileActivity : ProfileCommonActivity() {
 
         // 새 태그 추가 액티비티에서 전달받은 경우
         if (requestCode == newTagRequest){
-            test(data?.extras?.getSerializable("selectedTags") as HashMap<String, TagModel>)
+            val data = data?.extras?.getSerializable("selectedTags")
+            if(data!=null)
+                test(data  as HashMap<String, TagModel>)
         }
 
 
