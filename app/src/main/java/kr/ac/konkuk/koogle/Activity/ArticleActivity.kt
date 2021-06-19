@@ -224,7 +224,7 @@ class ArticleActivity : AppCompatActivity() {
                     }
                     ad.setNegativeButton(
                         "참여하기"
-                    ) { dialog, _ ->
+                    ) { _, _ ->
                         //글과 그룹 모두 삭제
                         showProgress()
                         joinGroup(currentUserId, currentUserName, currentUserProfileImage)

@@ -2,6 +2,7 @@ package kr.ac.konkuk.koogle.Activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -12,12 +13,16 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import kr.ac.konkuk.koogle.Adapter.CommentAdapter
 import kr.ac.konkuk.koogle.Adapter.TagAdapter
+import kr.ac.konkuk.koogle.DBKeys.Companion.DB_COMMENTS
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
+import kr.ac.konkuk.koogle.Model.CommentModel
+import kr.ac.konkuk.koogle.Model.GroupModel
 import kr.ac.konkuk.koogle.Model.TagModel
 import kr.ac.konkuk.koogle.Model.UserModel
 import kr.ac.konkuk.koogle.R
@@ -34,10 +39,19 @@ class ProfileActivity : ProfileCommonActivity() {
     // private var tag_debug_data: ArrayList<TagModel> = ArrayList()
     lateinit var binding: ActivityProfileBinding
     lateinit var commentAdapter: CommentAdapter
+    private var userCommentList =  mutableListOf<CommentModel>()
 
-    //파이어베이스 인증 객체 초기화
-    private val auth: FirebaseAuth by lazy {
-        Firebase.auth
+    private val userRef: DatabaseReference by lazy {
+        Firebase.database.reference.child(DB_USERS)
+        //val userRef = FirebaseDatabase.getInstance().getReference(DB_USERS).child(uid)와 같다
+    }
+
+    private val currentUserRef: DatabaseReference by lazy {
+        userRef.child(firebaseUser.uid)
+    }
+
+    private val currentUserCommentRef: DatabaseReference by lazy {
+        currentUserRef.child(DB_COMMENTS)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,9 +62,7 @@ class ProfileActivity : ProfileCommonActivity() {
     }
 
     private fun init() {
-        initData()
-        initRecommendRecyclerView()
-        initUserInfo()
+        initDB()
         initButton()
     }
 
@@ -73,14 +85,9 @@ class ProfileActivity : ProfileCommonActivity() {
     }
 
 
-    private fun initUserInfo() {
-        //입력 로그인용 유저의 데이터를 불러오기 위한 uid
-        val uid = firebaseUser.uid
-        val currentUserRef = Firebase.database.reference.child(DB_USERS).child(uid)
-//        val userRef = FirebaseDatabase.getInstance().getReference(DB_USERS).child(uid)와 같다
-
-//        파이어베이스 데이터베이스의 정보 가져오기
-        currentUserRef.addValueEventListener(object : ValueEventListener {
+    private fun initDB() {
+        //파이어베이스 데이터베이스의 정보 가져오기
+        currentUserRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
                     val userModel: UserModel? = snapshot.getValue(UserModel::class.java)
@@ -101,14 +108,34 @@ class ProfileActivity : ProfileCommonActivity() {
 
             override fun onCancelled(error: DatabaseError) {}
         })
+
+        currentUserCommentRef.addListenerForSingleValueEvent(object: ValueEventListener{
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                for (snapshot in dataSnapshot.children) {
+                    val commentModel = snapshot.getValue(CommentModel::class.java)
+                    Log.i("ProfileActivity", "commentModel: $commentModel")
+                    if (commentModel != null) {
+                        userCommentList.add(commentModel)
+                    }
+                }
+                //동기적 실행을 위해 위치 옮김
+                initCommentRecyclerView()
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+
+            }
+
+        })
+
+
     }
 
-    private fun initRecommendRecyclerView() {
+    private fun initCommentRecyclerView() {
         binding.commentRecyclerView.layoutManager = LinearLayoutManager(this)
         // 구분선 넣기
         binding.commentRecyclerView.addItemDecoration(DividerItemDecoration(this, 1))
         commentAdapter = CommentAdapter()
-        // 아이템 클릭 리스터 설정(미구현)
         binding.commentRecyclerView.adapter = commentAdapter
     }
 
@@ -148,9 +175,5 @@ class ProfileActivity : ProfileCommonActivity() {
         }
         val itemTouchHelper = ItemTouchHelper(simpleCallBack)
         itemTouchHelper.attachToRecyclerView(binding.tagRecyclerView)
-    }
-
-    private fun initData() {
-
     }
 }
