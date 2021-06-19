@@ -5,14 +5,15 @@
     android:background="@color/test_gray"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:padding="10dp">
+    android:paddingHorizontal="8dp"
+    android:paddingVertical="4dp">
 
     <TextView
         android:id="@+id/mainTagText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="2"
-        android:gravity="center"
+        android:gravity="left"
         android:text="TextView"
         android:textColor="@color/black" />
 
