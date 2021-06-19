@@ -160,8 +160,8 @@ class ChatRoomActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        if(::writerId.isInitialized){
-            if(firebaseUser.uid == writerId){
+        if(::adminId.isInitialized){
+            if(firebaseUser.uid == adminId){
                 val menuInflater = menuInflater
                 menuInflater.inflate(R.menu.chat_admin_option_menu, menu)
             }
@@ -224,8 +224,9 @@ class ChatRoomActivity : AppCompatActivity() {
             }
 
             R.id.adminEvaluate -> {
-                val intent = Intent(this@ChatRoomActivity, MainActivity::class.java)
+                val intent = Intent(this@ChatRoomActivity, AddCommentActivity::class.java)
                 intent.putExtra(ADMIN_ID, adminId)
+                intent.putExtra(GROUP_ID, groupId)
                 startActivity(intent)
                 finish()
             }

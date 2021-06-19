@@ -36,6 +36,7 @@ import kr.ac.konkuk.koogle.databinding.ActivityProfileBinding
  */
 
 class ProfileActivity : ProfileCommonActivity() {
+    private val profileEditRequest = 1110
     // private var tag_debug_data: ArrayList<TagModel> = ArrayList()
     lateinit var binding: ActivityProfileBinding
     lateinit var commentAdapter: CommentAdapter
@@ -74,7 +75,7 @@ class ProfileActivity : ProfileCommonActivity() {
 
         binding.profileEditButton.setOnClickListener {
             val intent = Intent(this, EditProfileActivity::class.java)
-            startActivity(intent)
+            startActivityForResult(intent, profileEditRequest)
         }
 
         binding.backButton.setOnClickListener {
@@ -117,6 +118,7 @@ class ProfileActivity : ProfileCommonActivity() {
                     if (commentModel != null) {
                         userCommentList.add(commentModel)
                     }
+
                 }
                 //동기적 실행을 위해 위치 옮김
                 initCommentRecyclerView()
@@ -125,9 +127,15 @@ class ProfileActivity : ProfileCommonActivity() {
             override fun onCancelled(error: DatabaseError) {
 
             }
-
         })
+    }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        // 리사이클러뷰 갱신
+        if(requestCode==profileEditRequest){
+            initRecyclerView()
+        }
 
     }
 
@@ -137,17 +145,18 @@ class ProfileActivity : ProfileCommonActivity() {
         binding.commentRecyclerView.addItemDecoration(DividerItemDecoration(this, 1))
         commentAdapter = CommentAdapter()
         binding.commentRecyclerView.adapter = commentAdapter
+        commentAdapter.submitList(userCommentList)
     }
 
     override fun initTagRecyclerView(data: ArrayList<TagModel>) {
         binding.tagRecyclerView.layoutManager = LinearLayoutManager(this)
         // 구분선 넣기
-        binding.tagRecyclerView.addItemDecoration(DividerItemDecoration(this, 1))
+        //binding.tagRecyclerView.addItemDecoration(DividerItemDecoration(this, 1))
 
         tagAdapter = TagAdapter(this, data)
         tagAdapter.itemClickListener = object : TagAdapter.OnItemClickListener {
             override fun onItemClick(
-                holder: TagAdapter.ViewHolder,
+                holder: TagAdapter.DefaultViewHolder,
                 view: View,
                 data: TagModel,
                 position: Int

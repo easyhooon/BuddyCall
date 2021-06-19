@@ -38,7 +38,7 @@ abstract class ProfileCommonActivity: AppCompatActivity(){
     }
     //DB 객체 초기화
     open val firebaseUser = auth.currentUser!!
-    private val storage = FirebaseStorage.getInstance()
+    open val storage = FirebaseStorage.getInstance()
     lateinit var userTagRef: DatabaseReference
     lateinit var imageUri: Uri
     lateinit var fileRef: StorageReference
@@ -56,7 +56,7 @@ abstract class ProfileCommonActivity: AppCompatActivity(){
     }
 
     // 리사이클러뷰 초기화
-    private fun initRecyclerView(){
+    protected fun initRecyclerView(){
         // DB 에서 유저 태그 데이터 받아옴
         val tagData: ArrayList<TagModel> = arrayListOf()
         userTagRef = Firebase.database.reference
@@ -72,8 +72,8 @@ abstract class ProfileCommonActivity: AppCompatActivity(){
                         tagData.add(
                             TagModel(
                                 s.key.toString(), newSubTag,
-                                s.child(DBKeys.TAG_TYPE).value.toString().toInt(),
-                                s.child(DBKeys.TAG_VALUE).value.toString().toInt()
+                                s.child(DBKeys.TAG_VALUE).value.toString().toInt(),
+                                s.child(DBKeys.TAG_TYPE).value.toString().toInt()
                             ))
                     }
                     // 로딩 작업이 끝난 이후 RecyclerView 를 초기화하는 순서를 맞추기 위해 이곳에 넣음

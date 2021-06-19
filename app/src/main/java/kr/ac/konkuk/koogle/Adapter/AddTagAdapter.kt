@@ -1,9 +1,13 @@
 package kr.ac.konkuk.koogle.Adapter
 
 import android.content.Context
+import android.text.Editable
+import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.children
@@ -31,28 +35,9 @@ import kr.ac.konkuk.koogle.R
 
     selected
  */
-class AddTagAdapter(val context: Context, val data: MutableList<TagModel?>)
-    :RecyclerView.Adapter<RecyclerView.ViewHolder>(){
-    var selectedList: HashMap<String, TagModel> = hashMapOf<String, TagModel>()
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val view: View
-
-        return when (viewType) {
-            TagType.TAG ->{
-                view = LayoutInflater.from(context).inflate(R.layout.row_add_tag, parent, false)
-                DefaultViewHolder(view)
-            }
-            TagType.VALUE->{
-                view = LayoutInflater.from(context).inflate(R.layout.row_add_tag_value, parent, false)
-                ValueViewHolder(view)
-            }
-            else -> {
-                view = LayoutInflater.from(context).inflate(R.layout.row_add_tag, parent, false)
-                DefaultViewHolder(view)
-            }
-        }
-    }
+class AddTagAdapter(open val context: Context, open var data: MutableList<TagModel>)
+    : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
+    var selectedList: HashMap<String, TagModel> = hashMapOf()
 
     // name: sub tag
     // selected: 해당 sub tag를 유저가 선택하였는지 여부
@@ -67,8 +52,14 @@ class AddTagAdapter(val context: Context, val data: MutableList<TagModel?>)
         val TagRef: DatabaseReference = Firebase.database.reference.child(DBKeys.DB_MAIN_TAGS)
         var subTagList: ArrayList<subTagModel> = arrayListOf()
 
+        // 유저가 검색창에 입력함에 따라 데이터가 변경됨
+        fun setData(newData: MutableList<TagModel>){
+            data = newData
+            notifyDataSetChanged()
+        }
+
         // SubTag 한 칸을 생성한다.
-        private fun makeSubTagView(tagName: String): TextView{
+        fun makeSubTagView(tagName: String): TextView{
             var subTagText = TextView(context)
             subTagText.text = tagName
             // 모서리가 둥근 태그 스타일 적용(임시)
@@ -199,8 +190,55 @@ class AddTagAdapter(val context: Context, val data: MutableList<TagModel?>)
     // Tag 밑에 수치형 데이터 가 있는 형태의 row
     inner class ValueViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
         val mainTagText: TextView = itemView.findViewById(R.id.mainTagText)
+        val valueText: EditText = itemView.findViewById(R.id.tagValueText)
         var mainTag: String = ""
         init {
+            valueText.addTextChangedListener(object: TextWatcher{
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+                }
+
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                }
+                override fun afterTextChanged(s: Editable?) {
+                    // 선택 리스트에 추가하기
+                    if(valueText.length() != 0){
+                        // 이미 리스트에 있으면 값만 변경, 없으면 태그 모델 만들기
+                        if(selectedList[mainTag]!=null){
+                            selectedList[mainTag]!!.value = valueText.text.toString().toInt()
+                        }else{
+                            selectedList[mainTag] =
+                                TagModel(mainTag, arrayListOf(),
+                                    valueText.text.toString().toInt(), TagType.VALUE)
+                        }
+                    }
+                    // 선택 리스트에서 제거하기
+                    else selectedList.remove(mainTag)
+                }
+            })
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        val view: View
+
+        return when (viewType) {
+            TagType.TAG ->{
+                view = LayoutInflater.from(context).inflate(R.layout.row_add_tag, parent, false)
+                DefaultViewHolder(view)
+            }
+            TagType.VALUE->{
+                view = LayoutInflater.from(context).inflate(R.layout.row_add_tag_value, parent, false)
+                ValueViewHolder(view)
+            }
+            else -> {
+                view = LayoutInflater.from(context).inflate(R.layout.row_add_tag, parent, false)
+                DefaultViewHolder(view)
+            }
         }
     }
 
@@ -209,7 +247,7 @@ class AddTagAdapter(val context: Context, val data: MutableList<TagModel?>)
         if(holder is DefaultViewHolder){
             holder.mainTag = tagName
             holder.mainTagText.text = tagName
-            holder.settingSubTags(tagName, 10)
+            holder.settingSubTags(tagName, 20)
         }else if(holder is ValueViewHolder){
             holder.mainTag = tagName
             holder.mainTagText.text = tagName

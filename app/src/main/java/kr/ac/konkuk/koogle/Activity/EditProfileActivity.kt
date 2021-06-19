@@ -19,7 +19,6 @@ import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
 import com.theartofdev.edmodo.cropper.CropImage
 import kr.ac.konkuk.koogle.Adapter.AddTagAdapter
 import kr.ac.konkuk.koogle.Adapter.TagAdapter
@@ -48,28 +47,35 @@ class EditProfileActivity : ProfileCommonActivity() {
         initUserInfo()
         initButton()
     }
-    
-    // new Tag Activity 로부터 전달받은 데이타가 잘 DB에 들어가는 지 확인하기 위한 함수
-    // resultData: new Tag Activity 로부터 전해받은 Data
-    private fun test(resultData: HashMap<String, TagModel>? = null){
-        /*
+
+    // 현재 상태를 DB에 저장
+    // 기존의 데이터는 사라진다.
+    private fun saveTag(){
         userTagRef = Firebase.database.reference
             .child(DBKeys.DB_USER_TAG).child(firebaseUser.uid)
-        // 임시: 화면에 뿌려주어야 하는데 일단은 DB에 넣도록 구현함
+
         var j = tagAdapter.itemCount
-        for((key, value) in resultData!!){
+        val tags = mutableMapOf<String, Any>()
+        for(value in tagAdapter.data) {
             val newTag = mutableMapOf<String, Any>()
             val newSubTag = mutableMapOf<String, Any>()
-            for((i, s) in value.sub_tag_list.withIndex()){
+            for ((i, s) in value.sub_tag_list.withIndex()) {
                 newSubTag[s] = i
             }
             newTag[DBKeys.TAG_INDEX] = j
             newTag[DBKeys.SUB_TAGS] = newSubTag
             newTag[DBKeys.TAG_TYPE] = value.tag_type
             newTag[DBKeys.TAG_VALUE] = value.value
-            userTagRef.child(key).setValue(newTag)
+            tags[value.main_tag_name] = newTag
             j++
-        }*/
+        }
+        userTagRef.setValue(tags)
+    }
+    
+    // new Tag Activity 로부터 전달받은 데이타가 잘 DB에 들어가는 지 확인하기 위한 함수
+    // resultData: new Tag Activity 로부터 전해받은 Data
+    private fun test(resultData: HashMap<String, TagModel>? = null){
+
         // 수정 방향: adapter 에 그대로 전달하기
         var newList:ArrayList<TagModel> = arrayListOf()
         for((key, value) in resultData!!){
@@ -104,6 +110,7 @@ class EditProfileActivity : ProfileCommonActivity() {
                 .start(this);
         }
         binding.profileEditButton.setOnClickListener {
+            saveTag()
             finish()
         }
     }
@@ -133,46 +140,6 @@ class EditProfileActivity : ProfileCommonActivity() {
             Toast.makeText(this, "닉네임을 변경하였습니다", Toast.LENGTH_SHORT).show()
         }
     }
-
-/*
-    private fun initData() {
-        // 임시 데이터
-        tag_debug_data.add(TagModel("언어", arrayListOf("한국어", "영어"), -1, 0))
-        tag_debug_data.add(TagModel("성격", arrayListOf("활동적인", "솔직한"), -1, 0))
-        tag_debug_data.add(
-            TagModel(
-                "취미", arrayListOf(
-                    "영화감상", "게임", "서핑",
-                    "여행", "독서", "술", "요리", "그림그리기"
-                ), -1, 0
-            )
-        )
-        tag_debug_data.add(TagModel("전공", arrayListOf("컴퓨터", "컴퓨터공학"), -1, 0))
-        tag_debug_data.add(TagModel("언어", arrayListOf("한국어", "영어"), -1, 0))
-        tag_debug_data.add(TagModel("성격", arrayListOf("활동적인", "솔직한"), -1, 0))
-        tag_debug_data.add(
-            TagModel(
-                "해외여행", arrayListOf(
-                    "러시아", "태국", "중국",
-                    "싱가폴", "미국", "캐나다", "브라질", "그린란드", "영국", "대만"
-                ), -1 ,0
-            )
-        )
-        tag_debug_data.add(TagModel("전공", arrayListOf("컴퓨터", "컴퓨터공학"), -1 ,0))
-        tag_debug_data.add(TagModel("언어", arrayListOf("한국어", "영어"), -1 ,0))
-        tag_debug_data.add(TagModel("성격", arrayListOf("활동적인", "솔직한"), -1 ,0))
-        tag_debug_data.add(
-            TagModel(
-                "취미", arrayListOf(
-                    "영화감상", "게임", "서핑",
-                    "여행", "독서", "술", "요리", "그림그리기"
-                ), -1 ,0
-            )
-        )
-        tag_debug_data.add(TagModel("전공", arrayListOf("컴퓨터", "컴퓨터공학"), -1 ,0))
-
-    }
-*/
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -205,7 +172,7 @@ class EditProfileActivity : ProfileCommonActivity() {
         }
         val uid = firebaseUser.uid
 
-        fileRef = FirebaseStorage.getInstance().reference.child(USER_PROFILE_IMAGE_PATH).child("$uid.jpg")
+        fileRef = storage.reference.child(USER_PROFILE_IMAGE_PATH).child("$uid.jpg")
 
         val uploadTask = fileRef.putFile(imageUri)
 
@@ -243,7 +210,7 @@ class EditProfileActivity : ProfileCommonActivity() {
         tagAdapter = TagAdapter(this, data)
         tagAdapter.itemClickListener = object : TagAdapter.OnItemClickListener {
             override fun onItemClick(
-                holder: TagAdapter.ViewHolder,
+                holder: TagAdapter.DefaultViewHolder,
                 view: View,
                 data: TagModel,
                 position: Int
