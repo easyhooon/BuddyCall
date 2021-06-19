@@ -21,9 +21,10 @@ import kr.ac.konkuk.koogle.Model.TagType
 class TagAdapter(open val context: Context, open val data: MutableList<TagModel>)
     : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
     interface OnItemClickListener {
-        fun onItemClick(holder: DefaultViewHolder, view: View, data: TagModel, position: Int)
+        fun onItemClick(holder: DefaultViewHolder, view: EditText, data: TagModel, position: Int)
     }
     var itemClickListener: OnItemClickListener? = null
+    var subTagClickListener: OnItemClickListener? = null
 
     // ProfileActivity 가 아닌 EditProfileActivity 에서만 사용해야 함
     // AddNewTagActivity 에서 새롭게 받아온 것들 넣기
@@ -73,10 +74,28 @@ class TagAdapter(open val context: Context, open val data: MutableList<TagModel>
         var mainTag: String = ""
         var subTagView: LinearLayout = itemView.findViewById(R.id.subTagView)
 
-        init {
-            itemView.setOnClickListener {
-                itemClickListener?.onItemClick(this, it, data[adapterPosition], adapterPosition)
+        // SubTag 한 칸을 생성한다.
+        fun makeSubTagView(tagName: String): TextView {
+            var subTagText = EditText(context)
+            subTagText.isEnabled = false
+            subTagText.setText(tagName)
+            // 모서리가 둥근 태그 스타일 적용(임시)
+            subTagText.setTextAppearance(R.style.TAG_STYLE)
+            subTagText.setBackgroundResource(R.drawable.layout_tag_background)
+            // 태그 간 간격 설정
+            val p = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            p.setMargins(5)
+            subTagText.layoutParams = p
+            
+            // 클릭 이벤트 설정
+            subTagText.setOnClickListener {
+                itemClickListener?.onItemClick(this, subTagText, data[adapterPosition], adapterPosition)
             }
+
+            return subTagText
         }
 
         // 소분류 태그 테이블 생성
@@ -102,19 +121,8 @@ class TagAdapter(open val context: Context, open val data: MutableList<TagModel>
                 }
                 lastRow =
                     subTagView.getChildAt(subTagView.childCount - 1) as LinearLayout
-                var subTagText = TextView(context)
-                subTagText.text = tag
-                // 모서리가 둥근 태그 스타일 적용(임시)
-                subTagText.setTextAppearance(R.style.TAG_STYLE)
-                subTagText.setBackgroundResource(R.drawable.layout_tag_background)
-                // 태그 간 간격 설정
-                val p = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                )
-                p.setMargins(5)
-                subTagText.layoutParams = p
-                lastRow.addView(subTagText)
+
+                lastRow.addView(makeSubTagView(tag))
             }
         }
 
@@ -149,7 +157,6 @@ class TagAdapter(open val context: Context, open val data: MutableList<TagModel>
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val view:View
-        Log.d("jan","create")
         return when(viewType){
             TagType.TAG ->{
                 view = LayoutInflater.from(context).inflate(R.layout.row_user_tag, parent, false)
@@ -189,7 +196,6 @@ class TagAdapter(open val context: Context, open val data: MutableList<TagModel>
 
     // 헤더의 경우 메뉴에 포함되지 않으므로 제외
     override fun getItemViewType(position: Int): Int {
-        Log.d("jan","${data[position].tag_type}")
         return data[position].tag_type
     }
 

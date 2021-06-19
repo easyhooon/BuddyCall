@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.EditText
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -154,14 +155,14 @@ class ProfileActivity : ProfileCommonActivity() {
         //binding.tagRecyclerView.addItemDecoration(DividerItemDecoration(this, 1))
 
         tagAdapter = TagAdapter(this, data)
-        tagAdapter.itemClickListener = object : TagAdapter.OnItemClickListener {
+        // 서브태그들 클릭했을 때 이벤트 구현
+        tagAdapter.subTagClickListener = object : TagAdapter.OnItemClickListener {
             override fun onItemClick(
                 holder: TagAdapter.DefaultViewHolder,
-                view: View,
+                view: EditText,
                 data: TagModel,
                 position: Int
             ) {
-                // 미구현
             }
         }
         binding.tagRecyclerView.adapter = tagAdapter
