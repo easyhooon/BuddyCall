@@ -117,6 +117,7 @@ class ProfileActivity : ProfileCommonActivity() {
                     if (commentModel != null) {
                         userCommentList.add(commentModel)
                     }
+
                 }
                 //동기적 실행을 위해 위치 옮김
                 initCommentRecyclerView()
@@ -137,6 +138,7 @@ class ProfileActivity : ProfileCommonActivity() {
         binding.commentRecyclerView.addItemDecoration(DividerItemDecoration(this, 1))
         commentAdapter = CommentAdapter()
         binding.commentRecyclerView.adapter = commentAdapter
+        commentAdapter.submitList(userCommentList)
     }
 
     override fun initTagRecyclerView(data: ArrayList<TagModel>) {

@@ -224,8 +224,9 @@ class ChatRoomActivity : AppCompatActivity() {
             }
 
             R.id.adminEvaluate -> {
-                val intent = Intent(this@ChatRoomActivity, MainActivity::class.java)
+                val intent = Intent(this@ChatRoomActivity, AddCommentActivity::class.java)
                 intent.putExtra(ADMIN_ID, adminId)
+                intent.putExtra(GROUP_ID, groupId)
                 startActivity(intent)
                 finish()
             }
