@@ -32,8 +32,10 @@ import kr.ac.konkuk.koogle.DBKeys.Companion.ADMIN_PROFILE_IMAGE_URL
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_CONTENT
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_CREATED_AT
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_ID
+import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_IMAGE_FILE_NAME
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_IMAGE_PATH
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_IMAGE_URL
+import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_THUMBNAIL_IMAGE_URL
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_TITLE
 import kr.ac.konkuk.koogle.DBKeys.Companion.CURRENT_NUMBER
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_ARTICLES
@@ -62,10 +64,14 @@ class AddArticleActivity : AppCompatActivity() {
 
     lateinit var articleId: String
 
+    private lateinit var writerName:String
+
     private lateinit var searchResult: SearchResultEntity
 
-    private lateinit var selectedUriList: ArrayList<Uri>
-    private lateinit var downloadedUrlList: ArrayList<String>
+    private var isFirstImageUpdate = true
+    private var selectedUriList: ArrayList<Uri> = arrayListOf()
+    private var fileNameList: ArrayList<String> = arrayListOf()
+    private var downloadedUrlList: ArrayList<String> = arrayListOf()
 
     private lateinit var imageAdapter: AddArticleImageAdapter
 
@@ -92,8 +98,6 @@ class AddArticleActivity : AppCompatActivity() {
     private val currentGroupRef: DatabaseReference by lazy {
         groupRef.child(articleId)
     }
-
-    private lateinit var writerName:String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -172,9 +176,7 @@ class AddArticleActivity : AppCompatActivity() {
             showProgress()
 
             //중간에 이미지가 있으면 업로드 과정을 추가
-            selectedUriList = arrayListOf()
             selectedUriList = imageAdapter.getUriList()
-            downloadedUrlList = arrayListOf<String>()
 
             if (selectedUriList.isNotEmpty()) {
                 for ((i, uri) in selectedUriList.withIndex()) {
@@ -271,7 +273,8 @@ class AddArticleActivity : AppCompatActivity() {
     private fun uploadPhoto(uri: Uri, num: Int, successHandler: (String) -> Unit, errorHandler: () -> Unit) {
         //파일명이 중복이 되지 않도록
         //이렇게 두면 이거 삭제는 어떻게 하남
-        val fileName = "${articleId}_$num.jpg"
+        val fileName = "${System.currentTimeMillis()}.jpg"
+        fileNameList.add(fileName)
         storage.reference.child(ARTICLE_IMAGE_PATH).child(fileName)
             .putFile(uri)
             //성공했는지 여부를 체크
@@ -312,7 +315,9 @@ class AddArticleActivity : AppCompatActivity() {
         article[WRITER_PROFILE_IMAGE_URL] = writerProfileImageUrl
         article[RECRUITMENT_NUMBER] = recruitmentNumber
         article[CURRENT_NUMBER] = 1
-        article[DESIRED_LOCATION] = searchResult
+        article[ARTICLE_IMAGE_FILE_NAME] = fileNameList
+        if (::searchResult.isInitialized)
+            article[DESIRED_LOCATION] = searchResult
 
 //        currentArticleRef.updateChildren(article)
         currentArticleRef.setValue(article)
@@ -322,6 +327,10 @@ class AddArticleActivity : AppCompatActivity() {
     }
 
     private fun updateImage(uri: String) {
+        if (isFirstImageUpdate) {
+            articleRef.child(articleId).child(ARTICLE_THUMBNAIL_IMAGE_URL).setValue(uri)
+            isFirstImageUpdate = false
+        }
         val imageRef = articleRef.child(articleId).child(ARTICLE_IMAGE_URL)
         downloadedUrlList.add(uri)
         imageRef.setValue(downloadedUrlList)
@@ -365,15 +374,24 @@ class AddArticleActivity : AppCompatActivity() {
             CONTENT_PROVIDER_REQUEST_CODE -> {
                 //data 안에 사진의 uri 가 넘어온것
                 //우선 null 처리
+                if (data?.data != null && data?.clipData == null) {
+                    initImageRecyclerView()
+                    val uri = data.data
+
+                    if (uri != null) {
+                        imageAdapter.addItem(uri)
+                    }
+
+                    if (binding.imageRecyclerView.visibility == View.GONE)
+                        binding.imageRecyclerView.visibility = View.VISIBLE
+                }
+
                 if (data?.clipData != null) {
                     initImageRecyclerView()
 
                     val clipData = data.clipData!!
 
                     when (clipData.itemCount) {
-                        1 -> {
-                            imageAdapter.addItem(data.clipData!!.getItemAt(0).uri)
-                        }
                         in 2..9 -> {
                             for (i in 0 until clipData.itemCount) {
                                 imageAdapter.addItem(clipData.getItemAt(i).uri)
@@ -387,9 +405,9 @@ class AddArticleActivity : AppCompatActivity() {
                     if (binding.imageRecyclerView.visibility == View.GONE)
                         binding.imageRecyclerView.visibility = View.VISIBLE
                 }
-                else {
-                    Toast.makeText(this, "사진을 가져오지 못했습니다.", Toast.LENGTH_SHORT).show()
-                }
+//                else {
+//                    Toast.makeText(this, "사진을 가져오지 못했습니다.", Toast.LENGTH_SHORT).show()
+//                }
             }
             LOCATION_SEARCH_REQUEST_CODE -> {
                 if(resultCode == RESULT_OK){
@@ -413,10 +431,9 @@ class AddArticleActivity : AppCompatActivity() {
     }
 
     private fun initImageRecyclerView() {
-        //val oldUriList = imageAdapter.getUriList()
         binding.imageRecyclerView.layoutManager =
-            LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        imageAdapter = AddArticleImageAdapter()
+            LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL,  false)
+        imageAdapter = AddArticleImageAdapter(selectedUriList)
         imageAdapter.itemClickListener = object : AddArticleImageAdapter.OnItemClickListener {
             override fun OnItemClick(
                 holder: AddArticleImageAdapter.ViewHolder
@@ -426,8 +443,6 @@ class AddArticleActivity : AppCompatActivity() {
                     binding.imageRecyclerView.visibility = View.GONE
             }
         }
-        //for (uri in oldUriList)
-            //imageAdapter.addItem(uri)
         binding.imageRecyclerView.adapter = imageAdapter
 
         val simpleCallback = object : ItemTouchHelper.SimpleCallback(

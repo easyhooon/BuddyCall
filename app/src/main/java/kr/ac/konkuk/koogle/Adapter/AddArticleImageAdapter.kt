@@ -4,12 +4,12 @@ import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import kr.ac.konkuk.koogle.databinding.ItemAddArticleImageBinding
 import kr.ac.konkuk.koogle.databinding.ItemArticleImageBinding
 
-class AddArticleImageAdapter()
+class AddArticleImageAdapter(private val uriList:ArrayList<Uri>)
     : RecyclerView.Adapter<AddArticleImageAdapter.ViewHolder>() {
-    private val uriList:ArrayList<Uri> = arrayListOf()
 
     interface OnItemClickListener {
         fun OnItemClick(holder: ViewHolder)
@@ -51,7 +51,9 @@ class AddArticleImageAdapter()
     }
 
     override fun onBindViewHolder(holder: AddArticleImageAdapter.ViewHolder, position: Int) {
-        holder.binding.itemImageView.setImageURI(uriList[position])
+        Glide.with(holder.binding.itemImageView)
+            .load(uriList[position])
+            .into(holder.binding.itemImageView)
     }
 
     override fun getItemCount(): Int {
