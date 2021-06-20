@@ -194,11 +194,20 @@
             </ScrollView>
 
             <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/tagRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:padding="16dp" />
+
+            <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/photoImageRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="140dp"
                 android:layout_gravity="center"
-                android:orientation="horizontal" />
+                android:orientation="horizontal" >
+
+            </androidx.recyclerview.widget.RecyclerView>
 
             <Button
                 android:id="@+id/contactButton"
