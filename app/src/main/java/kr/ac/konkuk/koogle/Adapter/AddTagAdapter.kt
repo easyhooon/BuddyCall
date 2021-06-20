@@ -65,6 +65,7 @@ class AddTagAdapter(open val context: Context, open var data: MutableList<TagMod
             // 모서리가 둥근 태그 스타일 적용(임시)
             subTagText.setTextAppearance(R.style.TAG_STYLE)
             subTagText.setBackgroundResource(R.drawable.layout_tag_background)
+            subTagText.textSize = 12f
             // 태그 간 간격 설정
             val p = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,

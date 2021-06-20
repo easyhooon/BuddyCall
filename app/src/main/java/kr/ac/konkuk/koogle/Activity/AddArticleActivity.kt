@@ -168,7 +168,7 @@ class AddArticleActivity : AppCompatActivity() {
             val articleTitle = binding.titleEditText.text.toString()
             val articleContent = binding.contentEditText.text.toString()
             val recruitmentNumberText = binding.recruitmentNumberEditText.text.toString()
-            val recruitmentNumber = recruitmentNumberText.toInt()
+
 
             if (articleTitle.isEmpty()) {
                 Toast.makeText(this, "글의 제목을 입력해주세요.", Toast.LENGTH_SHORT).show()
@@ -187,6 +187,7 @@ class AddArticleActivity : AppCompatActivity() {
 
             showProgress()
 
+            val recruitmentNumber = recruitmentNumberText.toInt()
             //중간에 이미지가 있으면 업로드 과정을 추가
             selectedUriList = imageAdapter.getUriList()
 

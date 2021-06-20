@@ -184,6 +184,7 @@
                 android:src="@drawable/ic_baseline_add_24"
                 app:tint="@color/white"
                 android:backgroundTint="@color/colorMain"
+                app:borderWidth="0dp"
                 android:layout_marginVertical="12dp"/>
 
         </LinearLayout>
