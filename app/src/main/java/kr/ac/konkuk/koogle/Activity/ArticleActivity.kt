@@ -44,6 +44,7 @@ import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_IMAGE_PATH
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_TITLE
 import kr.ac.konkuk.koogle.DBKeys.Companion.CURRENT_NUMBER
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_ARTICLES
+import kr.ac.konkuk.koogle.DBKeys.Companion.DB_BLOCK_USERS
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_GROUPS
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_MAIN_TAGS
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
@@ -69,6 +70,7 @@ class ArticleActivity : AppCompatActivity() {
     val scope = CoroutineScope(Dispatchers.Main)
 
     private lateinit var writerId:String
+    private lateinit var writerName:String
     private lateinit var articleId:String
     private lateinit var articleTitle:String
 
@@ -114,6 +116,10 @@ class ArticleActivity : AppCompatActivity() {
 
     private val currentGroupUserRef: DatabaseReference by lazy {
         Firebase.database.reference.child(DB_GROUPS).child(articleId).child(DB_USERS).child(currentUserId)
+    }
+
+    private val currentUserBlockRef: DatabaseReference by lazy {
+        currentUserRef.child(DB_BLOCK_USERS)
     }
 
     private val storage: FirebaseStorage by lazy {
@@ -205,7 +211,26 @@ class ArticleActivity : AppCompatActivity() {
                 ad.show()
             }
             R.id.userBlock -> {
-                Toast.makeText(this@ArticleActivity, "해당 유저를 차단하였습니다", Toast.LENGTH_SHORT).show()
+                //dialog 한번 뿌리고 진짜 삭제
+                val ad = AlertDialog.Builder(this@ArticleActivity)
+                ad.setMessage("해당 유저를 차단하시겠습니까? \n차단하시면 해당 유저의 글을 볼 수 없습니다.")
+                ad.setPositiveButton(
+                    "취소"
+                ) { dialog, _ ->
+                    dialog.dismiss()
+                }
+                ad.setNegativeButton(
+                    "차단"
+                ) { dialog, _ ->
+                    //글과 그룹 모두 삭제
+                    userBlock(writerId, writerName)
+                    Toast.makeText(this@ArticleActivity, "해당 유저를 차단하였습니다", Toast.LENGTH_SHORT).show()
+                    val intent = Intent(this@ArticleActivity,MainActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                    dialog.dismiss()
+                }
+                ad.show()
             }
             else -> {
                 //뒤로가기
@@ -215,6 +240,17 @@ class ArticleActivity : AppCompatActivity() {
 
         return super.onOptionsItemSelected(item)
     }
+
+    private fun userBlock(writerId: String, writerName:String) {
+        val blockId = currentUserBlockRef.push().key.toString()
+
+        val block = mutableMapOf<String, Any>()
+        block[USER_ID] = writerId
+        block[USER_NAME] = writerName
+
+        currentUserBlockRef.child(blockId).updateChildren(block)
+    }
+
 
     private fun deleteArticle() {
         currentArticleRef.setValue(null)
@@ -303,6 +339,7 @@ class ArticleActivity : AppCompatActivity() {
 
                             if (articleModel != null) {
                                 writerId = articleModel.writerId
+                                writerName = articleModel.writerName
                                 articleTitle = articleModel.articleTitle
                                 if (articleModel.articleImageUrl.isEmpty()) {
                                     val scrollParams = LinearLayout.LayoutParams(

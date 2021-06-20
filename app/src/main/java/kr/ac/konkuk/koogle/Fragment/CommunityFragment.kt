@@ -28,10 +28,13 @@ import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_CONTENT
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_ID
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_TITLE
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_ARTICLES
+import kr.ac.konkuk.koogle.DBKeys.Companion.DB_BLOCK_USERS
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_MAIN_TAGS
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
 import kr.ac.konkuk.koogle.DBKeys.Companion.SUB_TAGS
 import kr.ac.konkuk.koogle.Model.ArticleModel
+import kr.ac.konkuk.koogle.Model.BlockUserModel
+import kr.ac.konkuk.koogle.Model.GroupModel
 import kr.ac.konkuk.koogle.Model.TagModel
 import kr.ac.konkuk.koogle.R
 import kr.ac.konkuk.koogle.databinding.FragmentCommunityBinding
@@ -42,6 +45,8 @@ class CommunityFragment : Fragment(R.layout.fragment_community) {
     private var binding: FragmentCommunityBinding? = null
 
     private lateinit var communityAdapter: CommunityAdapter
+
+    private var blockList = mutableListOf<String>()
 
     private val articleList = mutableListOf<ArticleModel>()
     private var searchedArticleList = mutableListOf<ArticleModel>()
@@ -54,6 +59,13 @@ class CommunityFragment : Fragment(R.layout.fragment_community) {
     private val articleRef: DatabaseReference by lazy {
         Firebase.database.reference.child(DB_ARTICLES)
     }
+    private val currentUserRef: DatabaseReference by lazy {
+        Firebase.database.reference.child(DB_USERS).child(firebaseUser.uid)
+    }
+
+    private val currentUserBlockRef: DatabaseReference by lazy {
+        currentUserRef.child(DB_BLOCK_USERS)
+    }
 
     private val listener = object : ChildEventListener {
         override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
@@ -61,7 +73,11 @@ class CommunityFragment : Fragment(R.layout.fragment_community) {
             val articleModel = snapshot.getValue(ArticleModel::class.java)
             articleModel ?: return
 
-            articleList.add(0, articleModel) //최신글이 위로 올라오도록
+            if (!blockList.contains(articleModel.writerId)) {
+                //최신글이 위로 올라오도록
+                articleList.add(0, articleModel)
+            }
+
             communityAdapter.submitList(articleList)
             communityAdapter.notifyDataSetChanged()
         }
@@ -104,21 +120,51 @@ class CommunityFragment : Fragment(R.layout.fragment_community) {
 
         if(auth.currentUser != null) {
             Log.i("Community fragment", "onViewCreated: ${firebaseUser.uid}")
-            initRecyclerView()
-            initButton()
-
-            //데이터를 가져옴
-            //addSingleValueListener -> 즉시성, 1회만 호출
-            //addChildEventListener -> 한번 등록해놓으면 계속 이벤트가 발생할때마다 등록이된다.
-            //activity 의 경우 activity 가 종료되면 이벤트가 다 날라가고 view 가 다 destroy 됨
-            //fragment 는 재사용이 되기때문에 onviewcreated 가 호출될때마다 중복으로 데이터를 가져오게됨
-            //따라서 eventlistener 를 전역으로 정의를 해놓고 viewcreated 될때마다 attach 를 하고 destroy 가 될때마다 remove 를 해주는 방식을 채택
-            articleRef.addChildEventListener(listener)
+            initDB()
+//            initRecyclerView()
+//            initButton()
+//
+//            //데이터를 가져옴
+//            //addSingleValueListener -> 즉시성, 1회만 호출
+//            //addChildEventListener -> 한번 등록해놓으면 계속 이벤트가 발생할때마다 등록이된다.
+//            //activity 의 경우 activity 가 종료되면 이벤트가 다 날라가고 view 가 다 destroy 됨
+//            //fragment 는 재사용이 되기때문에 onviewcreated 가 호출될때마다 중복으로 데이터를 가져오게됨
+//            //따라서 eventlistener 를 전역으로 정의를 해놓고 viewcreated 될때마다 attach 를 하고 destroy 가 될때마다 remove 를 해주는 방식을 채택
+//            articleRef.addChildEventListener(listener)
         }
         else {
             val intent = Intent(context, LogInActivity::class.java)
             activity?.startActivity(intent)
         }
+    }
+
+    private fun initDB() {
+        currentUserBlockRef.addListenerForSingleValueEvent(object: ValueEventListener{
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                for(snapshot in dataSnapshot.children){
+                    val blockUserModel = snapshot.getValue(BlockUserModel::class.java)
+                    if (blockUserModel != null) {
+                        blockList.add(blockUserModel.userId)
+                    }
+                }
+                initRecyclerView()
+                initButton()
+
+                //데이터를 가져옴
+                //addSingleValueListener -> 즉시성, 1회만 호출
+                //addChildEventListener -> 한번 등록해놓으면 계속 이벤트가 발생할때마다 등록이된다.
+                //activity 의 경우 activity 가 종료되면 이벤트가 다 날라가고 view 가 다 destroy 됨
+                //fragment 는 재사용이 되기때문에 onviewcreated 가 호출될때마다 중복으로 데이터를 가져오게됨
+                //따라서 eventlistener 를 전역으로 정의를 해놓고 viewcreated 될때마다 attach 를 하고 destroy 가 될때마다 remove 를 해주는 방식을 채택
+                articleRef.addChildEventListener(listener)
+            }
+
+
+            override fun onCancelled(error: DatabaseError) {
+
+            }
+
+        })
     }
 
     private fun initRecyclerView() {
@@ -274,12 +320,12 @@ class CommunityFragment : Fragment(R.layout.fragment_community) {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-
-        //view가 다시 보일때마다 뷰를 다시 그림
-        communityAdapter.notifyDataSetChanged()
-    }
+//    override fun onResume() {
+//        super.onResume()
+//
+//        //view가 다시 보일때마다 뷰를 다시 그림
+//        communityAdapter.notifyDataSetChanged()
+//    }
 
     override fun onDestroyView() {
         super.onDestroyView()
