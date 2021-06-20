@@ -1,6 +1,8 @@
 package kr.ac.konkuk.koogle.Adapter
 
 import android.content.Context
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -17,8 +19,11 @@ import kr.ac.konkuk.koogle.Model.TagType
     2021-05-27 주예진 작성
     프로필에서 표시되는 태그 Recycler View 의 row adapter
     대분류 태그(제목)와 소분류 태그를 표시
+    isSetting: 프로필에서 사용할 것인지 프로필 편집 창에서 사용할 것인지에 따라
+    태그를 누를 수 있는 지 여부가 결정됨
  */
-class TagAdapter(open val context: Context, open val data: MutableList<TagModel>)
+class TagAdapter(val context: Context, val data: MutableList<TagModel>,
+                 val isSetting: Boolean)
     : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
     interface OnItemClickListener {
         fun onItemClick(holder: DefaultViewHolder, view: EditText, data: TagModel, position: Int)
@@ -73,11 +78,30 @@ class TagAdapter(open val context: Context, open val data: MutableList<TagModel>
         var mainTagText: TextView = itemView.findViewById(R.id.mainTagText)
         var mainTag: String = ""
         var subTagView: LinearLayout = itemView.findViewById(R.id.subTagView)
+        var editNow: Int = 0
+        var editNowSub: Int = 0
+
+        private fun editTagStart(subTagName: String): Boolean{
+            for((j, t) in data.withIndex()){
+                for((i, st) in t.sub_tag_list.withIndex()){
+                    if(subTagName == st){
+                        editNow = j
+                        editNowSub = i
+                        return true
+                    }
+                }
+            }
+            return false
+        }
+
+        private fun editTag(subTagName: String){
+            data[editNow].sub_tag_list[editNowSub] = subTagName
+        }
 
         // SubTag 한 칸을 생성한다.
         fun makeSubTagView(tagName: String): TextView {
             var subTagText = EditText(context)
-            subTagText.isEnabled = false
+            subTagText.isFocusable = isSetting
             subTagText.setText(tagName)
             // 모서리가 둥근 태그 스타일 적용(임시)
             subTagText.setTextAppearance(R.style.TAG_STYLE)
@@ -89,7 +113,28 @@ class TagAdapter(open val context: Context, open val data: MutableList<TagModel>
             )
             p.setMargins(5)
             subTagText.layoutParams = p
-            
+
+            // 편집 세팅
+            subTagText.addTextChangedListener(object: TextWatcher{
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+                    if(!editTagStart(subTagText.text.toString()))
+                        Log.d("jan", "editTagFail")
+                }
+
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                }
+
+                override fun afterTextChanged(s: Editable?) {
+                    editTag(subTagText.text.toString())
+                }
+
+            })
+
             // 클릭 이벤트 설정
             subTagText.setOnClickListener {
                 itemClickListener?.onItemClick(this, subTagText, data[adapterPosition], adapterPosition)
@@ -98,15 +143,40 @@ class TagAdapter(open val context: Context, open val data: MutableList<TagModel>
             return subTagText
         }
 
+        // 태그 추가 버튼
+        fun makePlusBtn(): TextView {
+            var subTagText = TextView(context)
+            subTagText.text = "+"
+            // 모서리가 둥근 태그 스타일 적용(임시)
+            subTagText.setTextAppearance(R.style.TAG_STYLE)
+            subTagText.setBackgroundResource(R.drawable.layout_tag_background)
+            subTagText.setBackgroundResource(R.drawable.layout_tag_background)
+            // 태그 간 간격 설정
+            val p = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            p.setMargins(5)
+            subTagText.layoutParams = p
+
+            subTagText.setOnClickListener {
+                var lastRow: LinearLayout =
+                    subTagView.getChildAt(subTagView.childCount - 1) as LinearLayout
+                lastRow.addView(makeSubTagView(" "), lastRow.childCount-1)
+            }
+            return subTagText
+        }
+
         // 소분류 태그 테이블 생성
         fun bind(model: TagModel) {
+            var lastRow: LinearLayout
             for (tag in model.sub_tag_list) {
                 // row 가 하나도 없으면 새로 만들기
                 if (subTagView.childCount == 0) {
                     addRow()
                 }
                 // 새로운 Table row 를 추가해야 하는지 길이 검사(임시)
-                var lastRow: LinearLayout =
+                lastRow =
                     subTagView.getChildAt(subTagView.childCount - 1) as LinearLayout
                 var len = 0
                 val row_len = 26
@@ -124,6 +194,20 @@ class TagAdapter(open val context: Context, open val data: MutableList<TagModel>
 
                 lastRow.addView(makeSubTagView(tag))
             }
+            // 프로필 편집 액티비티의 경우 + 버튼 추가
+            if(isSetting){
+                lastRow =
+                    subTagView.getChildAt(subTagView.childCount - 1) as LinearLayout
+                lastRow.addView(makePlusBtn())
+
+                // 데이터에 추가
+                for(d in data){
+                    if(d.main_tag_name == mainTag){
+                        d.sub_tag_list.add(" ")
+                    }
+                }
+            }
+
         }
 
         // 태그 row 추가
@@ -137,14 +221,6 @@ class TagAdapter(open val context: Context, open val data: MutableList<TagModel>
             row.orientation = LinearLayout.HORIZONTAL
             row.layoutParams = lp
             subTagView.addView(row)
-        }
-
-        private fun addTagItem(table: TableLayout, item: TextView) {
-            // 한 row가 가득 차면 새로운 row 생성
-            // 조건 미구현
-            if (false) {
-                table.addView(TableRow(context))
-            }
         }
     }
 

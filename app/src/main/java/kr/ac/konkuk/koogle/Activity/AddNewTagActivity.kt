@@ -147,18 +147,6 @@ class AddNewTagActivity:AppCompatActivity() {
     }
 
     private fun initView() {
-        // 임시
-        /*
-        binding.addNewTagBtn.setOnClickListener {
-            val text = binding.searchEditText.text.toString()
-            if(text.length<2){
-                Toast.makeText(this, "태그를 2자 이상 입력해주세요", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            commitMainTag(binding.searchEditText.text.toString())
-            binding.searchEditText.text.clear()
-        }
-        */
         binding.apply {
             // 새 태그 버튼: 검색 창에 있는 태그가 DB에 있으면 무시, 없으면 목록에 추가한다
             // DB 에는 아직 추가하지 않음. 유저가 최종적으로 프로필에 적용했을 때 추가한다

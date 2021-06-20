@@ -66,7 +66,11 @@ class EditProfileActivity : ProfileCommonActivity() {
             val newTag = mutableMapOf<String, Any>()
             val newSubTag = mutableMapOf<String, Any>()
             for ((i, s) in value.sub_tag_list.withIndex()) {
-                newSubTag[s] = i
+                val content = s.split(" ")
+                // 만약 아무 내용 없는 서브 태그가 있으면 무시한다.
+                if(content[0]==null || content[0]==""|| content[0]==" ")
+                    continue
+                newSubTag[content[0]] = i
             }
             newTag[TAG_INDEX] = j
             newTag[SUB_TAGS] = newSubTag
@@ -217,8 +221,9 @@ class EditProfileActivity : ProfileCommonActivity() {
         // 구분선 넣기
         binding.tagRecyclerView.addItemDecoration(DividerItemDecoration(this, 1))
 
-        tagAdapter = TagAdapter(this, data)
+        tagAdapter = TagAdapter(this, data, true)
         // 서브태그들 클릭했을 때 이벤트 구현
+        /*
         tagAdapter.subTagClickListener = object : TagAdapter.OnItemClickListener {
             override fun onItemClick(
                 holder: TagAdapter.DefaultViewHolder,
@@ -229,7 +234,7 @@ class EditProfileActivity : ProfileCommonActivity() {
                 Log.d("jan", "Click")
                 view.isEnabled = true
             }
-        }
+        }*/
         binding.tagRecyclerView.adapter = tagAdapter
         val simpleCallBack = object : ItemTouchHelper.SimpleCallback(
             ItemTouchHelper.DOWN or ItemTouchHelper.UP,

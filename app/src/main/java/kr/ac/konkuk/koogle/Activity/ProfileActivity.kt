@@ -154,7 +154,7 @@ class ProfileActivity : ProfileCommonActivity() {
         // 구분선 넣기
         //binding.tagRecyclerView.addItemDecoration(DividerItemDecoration(this, 1))
 
-        tagAdapter = TagAdapter(this, data)
+        tagAdapter = TagAdapter(this, data, false)
         // 서브태그들 클릭했을 때 이벤트 구현
         tagAdapter.subTagClickListener = object : TagAdapter.OnItemClickListener {
             override fun onItemClick(
