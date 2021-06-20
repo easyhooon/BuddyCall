@@ -12,6 +12,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
@@ -304,8 +305,25 @@ class ArticleActivity : AppCompatActivity() {
                                 writerId = articleModel.writerId
                                 articleTitle = articleModel.articleTitle
                                 if (articleModel.articleImageUrl.isEmpty()) {
-                                    binding.photoImageRecyclerView.visibility = View.INVISIBLE
+                                    val scrollParams = LinearLayout.LayoutParams(
+                                        LinearLayout.LayoutParams.MATCH_PARENT,
+                                        0,
+                                        9.0f
+                                    )
+                                    binding.contentScrollView.layoutParams = scrollParams
+                                    binding.contentScrollView.scrollBarFadeDuration = 0
+                                    binding.contentScrollView.isAlwaysDrawnWithCacheEnabled = true
+                                    binding.photoImageRecyclerView.visibility = View.GONE
+
                                 } else {
+                                    val scrollParams = LinearLayout.LayoutParams(
+                                        LinearLayout.LayoutParams.MATCH_PARENT,
+                                        0,
+                                        6.0f
+                                    )
+                                    binding.contentScrollView.layoutParams = scrollParams
+                                    binding.photoImageRecyclerView.visibility = View.VISIBLE
+
                                     fileNameList = articleModel.articleImageFileName
                                     initImageRecyclerView()
                                     for (uri in articleModel.articleImageUrl) {

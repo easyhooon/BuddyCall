@@ -135,79 +135,87 @@
 
             </FrameLayout>
 
-            <LinearLayout
-                android:id="@+id/locationInfoLayout"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1.2"
-                android:orientation="horizontal"
-                android:background="@drawable/borderline_top_bottom">
-
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:src="@drawable/ic_baseline_location_24"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="6dp"
-                    android:padding="10dp" />
-
-                <TextView
-                    android:id="@+id/locationTextView"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="4"
-                    android:gravity="center_vertical"
-                    android:padding="16dp"
-                    android:text="@string/location"
-                    android:textSize="14sp"/>
-
-                <Button
-                    android:id="@+id/showMapButton"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="2"
-                    android:layout_gravity="center"
-                    android:layout_margin="6dp"
-                    android:fontFamily="@font/font"
-                    android:text="지도 보기"/>
-
-            </LinearLayout>
-
             <ScrollView
+                android:id="@+id/contentScrollView"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="4.8">
+                android:layout_weight="9">
 
-                <TextView
-                    android:layout_marginTop="16dp"
-                    android:id="@+id/contentTextView"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="16dp"
-                    android:paddingVertical="16dp"
-                    android:textSize="16sp"
-                    android:lines="12"
-                    android:gravity="top"
-                    android:hint="@string/content" />
+                    android:orientation="vertical">
 
+                    <LinearLayout
+                        android:id="@+id/locationInfoLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1.2"
+                        android:orientation="horizontal"
+                        android:background="@drawable/borderline_top_bottom">
+
+                        <ImageView
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:src="@drawable/ic_baseline_location_24"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="6dp"
+                            android:padding="10dp"
+                            tools:ignore="NestedWeights" />
+
+                        <TextView
+                            android:id="@+id/locationTextView"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="4"
+                            android:gravity="center_vertical"
+                            android:padding="16dp"
+                            android:text="@string/location"
+                            android:textSize="14sp"/>
+
+                        <Button
+                            android:id="@+id/showMapButton"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="2"
+                            android:layout_gravity="center"
+                            android:layout_margin="6dp"
+                            android:fontFamily="@font/font"
+                            android:text="지도 보기"/>
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_marginTop="16dp"
+                        android:id="@+id/contentTextView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="16dp"
+                        android:paddingVertical="16dp"
+                        android:textSize="16sp"
+                        android:gravity="top"
+                        android:hint="@string/content" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/tagRecyclerView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:padding="16dp" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/photoImageRecyclerView"
+                        android:layout_width="match_parent"
+                        android:layout_height="140dp"
+                        android:layout_gravity="center"
+                        android:orientation="horizontal"
+                        android:visibility="gone">
+
+                    </androidx.recyclerview.widget.RecyclerView>
+
+                </LinearLayout>
             </ScrollView>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/tagRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:padding="16dp" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/photoImageRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="140dp"
-                android:layout_gravity="center"
-                android:orientation="horizontal" >
-
-            </androidx.recyclerview.widget.RecyclerView>
 
             <Button
                 android:id="@+id/contactButton"
