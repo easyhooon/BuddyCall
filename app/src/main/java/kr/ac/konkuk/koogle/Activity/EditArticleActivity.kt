@@ -243,6 +243,10 @@ class EditArticleActivity : AppCompatActivity() {
             val intent = Intent(this, LocationSearchActivity::class.java)
             startActivityForResult(intent, AddArticleActivity.LOCATION_SEARCH_REQUEST_CODE)
         }
+        binding.tagAddButton.setOnClickListener {
+            val intent = Intent(this, AddNewTagActivity::class.java)
+            startActivityForResult(intent, AddArticleActivity.TAG_ADD_REQUEST_CODE)
+        }
     }
 
     private fun updateChatRoom(

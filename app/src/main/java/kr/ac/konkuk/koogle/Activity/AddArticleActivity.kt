@@ -222,6 +222,11 @@ class AddArticleActivity : AppCompatActivity() {
             val intent = Intent(this, LocationSearchActivity::class.java)
             startActivityForResult(intent, LOCATION_SEARCH_REQUEST_CODE)
         }
+
+        binding.tagAddButton.setOnClickListener {
+            val intent = Intent(this, AddNewTagActivity::class.java)
+            startActivityForResult(intent, AddArticleActivity.TAG_ADD_REQUEST_CODE)
+        }
     }
 
     private fun addUserGroup(articleId: String, articleTitle: String) {
@@ -467,6 +472,7 @@ class AddArticleActivity : AppCompatActivity() {
     companion object {
         const val LOCATION_SEARCH_REQUEST_CODE = 100
         const val CONTENT_PROVIDER_REQUEST_CODE = 200
+        const val TAG_ADD_REQUEST_CODE = 300
         const val SEARCH_RESULT_FINAL = "SEARCH_RESULT_FINAL"
     }
 }
