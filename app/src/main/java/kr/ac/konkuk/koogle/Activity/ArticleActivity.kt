@@ -47,6 +47,7 @@ import kr.ac.konkuk.koogle.DBKeys.Companion.DB_GROUPS
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_MAIN_TAGS
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
 import kr.ac.konkuk.koogle.DBKeys.Companion.GROUP_ID
+import kr.ac.konkuk.koogle.DBKeys.Companion.TAG_INDEX
 import kr.ac.konkuk.koogle.DBKeys.Companion.USER_EMAIL
 import kr.ac.konkuk.koogle.DBKeys.Companion.USER_ID
 import kr.ac.konkuk.koogle.DBKeys.Companion.USER_NAME
@@ -426,7 +427,7 @@ class ArticleActivity : AppCompatActivity() {
     private fun initRecyclerView(){
         // DB 에서 게시글 태그 데이터 받아옴
         val tagData: ArrayList<TagModel> = arrayListOf()
-        currentArticleRef.child(DB_MAIN_TAGS).orderByChild(DBKeys.TAG_INDEX)
+        currentArticleRef.child(DB_MAIN_TAGS).orderByChild(TAG_INDEX)
             .limitToFirst(MAXSHOWTAG).addListenerForSingleValueEvent(object:ValueEventListener{
                 override fun onDataChange(snapshot: DataSnapshot) {
                     for(s in snapshot.children){

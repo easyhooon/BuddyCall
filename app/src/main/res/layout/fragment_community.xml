@@ -29,8 +29,10 @@
                 android:id="@+id/searchEditText"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
                 android:layout_weight="6"
-                android:layout_gravity="center_vertical"/>
+                android:hint="제목, 글 내용, 태그 등"
+                android:inputType="textNoSuggestions"/>
 
             <ImageView
                 android:id="@+id/settingImageView"
