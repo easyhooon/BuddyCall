@@ -72,6 +72,7 @@
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:padding="6dp"
+        android:scaleType="center"
         android:src="@drawable/profile_image"
         app:srcCompat="@drawable/ic_launcher_foreground" />
 
