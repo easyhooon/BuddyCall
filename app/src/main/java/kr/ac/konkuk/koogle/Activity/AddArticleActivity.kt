@@ -68,6 +68,8 @@ class AddArticleActivity : AppCompatActivity() {
 
     lateinit var articleId: String
 
+    lateinit var writerId: String
+
     private lateinit var writerName:String
 
     private lateinit var searchResult: SearchResultEntity
@@ -87,6 +89,10 @@ class AddArticleActivity : AppCompatActivity() {
 
     private val storage: FirebaseStorage by lazy {
         Firebase.storage
+    }
+
+    private val currentUserRef: DatabaseReference by lazy {
+        userRef.child(firebaseUser.uid)
     }
     private val articleRef: DatabaseReference by lazy {
         Firebase.database.reference.child(DB_ARTICLES)
@@ -116,7 +122,6 @@ class AddArticleActivity : AppCompatActivity() {
     }
 
     private fun initDB() {
-        val currentUserRef = userRef.child(auth.currentUser?.uid.toString())
         currentUserRef.addListenerForSingleValueEvent(object: ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
                 val userModel: UserModel? = snapshot.getValue(UserModel::class.java)
@@ -158,10 +163,10 @@ class AddArticleActivity : AppCompatActivity() {
 
         // 글 작성 완료 버튼 클릭시
         binding.submitButton.setOnClickListener {
+            writerId = firebaseUser.uid
             articleId = articleRef.push().key.toString()
             val articleTitle = binding.titleEditText.text.toString()
             val articleContent = binding.contentEditText.text.toString()
-            val writerId = auth.currentUser?.uid.orEmpty()
             val recruitmentNumberText = binding.recruitmentNumberEditText.text.toString()
             val recruitmentNumber = recruitmentNumberText.toInt()
 
