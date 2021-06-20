@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:fillViewport="true" >
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -49,6 +49,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="end|center"
                     android:layout_marginEnd="15dp"
+                    android:fontFamily="@font/font"
                     android:text="완료" />
 
             </LinearLayout>
@@ -59,41 +60,39 @@
                 android:layout_height="1dp"
                 android:background="@color/gray_cc" />
 
-            <LinearLayout
+            <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
+                android:layout_height="0dp"
+                android:layout_weight="5.5">
 
-                <EditText
-                    android:id="@+id/titleEditText"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1.2"
-                    android:layout_marginHorizontal="16dp"
-                    android:padding="16dp"
-                    android:background="@android:color/transparent"
-                    android:hint="@string/input_title"
-                    tools:ignore="RtlSymmetry" />
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
-                <View
-                    android:id="@+id/TitleEditTextUnderLineView"
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginHorizontal="14dp"
-                    android:background="@color/gray_cc" />
+                    <EditText
+                        android:id="@+id/titleEditText"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:paddingVertical="8dp"
+                        android:layout_marginHorizontal="16dp"
+                        android:background="@android:color/transparent"
+                        android:hint="@string/input_title"
+                        tools:ignore="RtlSymmetry" />
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/tagRecyclerView"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center"
-                    android:padding="16dp" />
+                    <View
+                        android:id="@+id/TitleEditTextUnderLineView"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/gray_cc" />
 
-                <androidx.core.widget.NestedScrollView
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="6"
-                    android:layout_marginHorizontal="16dp" >
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/tagRecyclerView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:padding="16dp" />
 
                     <EditText
                         android:id="@+id/contentEditText"
@@ -102,37 +101,44 @@
                         android:padding="16dp"
                         android:background="@android:color/transparent"
                         android:hint="@string/input_content"
-                        android:lines="12"
                         android:gravity="top"
                         android:inputType="textMultiLine" />
 
-                </androidx.core.widget.NestedScrollView>
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/imageRecyclerView"
-                    android:layout_width="match_parent"
-                    android:layout_height="110dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginVertical="8dp"
-                    android:orientation="horizontal"
-                    android:visibility="gone"/>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/recruitmentNumberLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1.1"
-                    android:layout_marginHorizontal="16dp"
-                    android:layout_marginVertical="10dp">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/recruitmentNumberEditText"
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/imageRecyclerView"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:hint="모집인원"
-                        android:inputType="number" />
+                        android:layout_height="110dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginVertical="8dp"
+                        android:orientation="horizontal"
+                        android:visibility="gone"/>
 
-                </com.google.android.material.textfield.TextInputLayout>
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/recruitmentNumberLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1.1"
+                        android:layout_marginHorizontal="16dp"
+                        android:layout_marginVertical="10dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/recruitmentNumberEditText"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:hint="모집인원"
+                            android:inputType="number" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </LinearLayout>
+
+            </androidx.core.widget.NestedScrollView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
 
                 <LinearLayout
                     android:id="@+id/locationInfoLayout"
@@ -141,7 +147,8 @@
                     android:layout_weight="1"
                     android:paddingStart="10dp"
                     android:orientation="horizontal"
-                    android:background="@drawable/borderline_top_bottom" >
+                    android:background="@drawable/borderline_top_bottom"
+                    tools:ignore="NestedWeights,RtlSymmetry">
 
                     <ImageView
                         android:layout_width="0dp"
