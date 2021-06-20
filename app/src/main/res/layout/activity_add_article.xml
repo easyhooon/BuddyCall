@@ -76,6 +76,13 @@
                     android:hint="@string/input_title"
                     tools:ignore="RtlSymmetry" />
 
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/tagRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:padding="16dp" />
+
                 <View
                     android:id="@+id/TitleEditTextUnderLineView"
                     android:layout_width="match_parent"
@@ -180,6 +187,14 @@
                         android:layout_weight="1"
                         android:padding="5dp"
                         android:src="@drawable/ic_baseline_add_location_24" />
+
+                    <ImageView
+                        android:id="@+id/tagAddButton"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:padding="5dp"
+                        android:src="@drawable/ic_baseline_local_offer_24" />
 
                     <View
                         android:layout_width="0dp"
