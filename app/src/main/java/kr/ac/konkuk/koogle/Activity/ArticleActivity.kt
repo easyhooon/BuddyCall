@@ -10,11 +10,14 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.target.SimpleTarget
@@ -32,6 +35,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kr.ac.konkuk.koogle.Adapter.ArticleImageAdapter
+import kr.ac.konkuk.koogle.Adapter.TagAdapter
 import kr.ac.konkuk.koogle.DBKeys
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_ID
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_IMAGE_FILE_NAME
@@ -40,6 +44,7 @@ import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_TITLE
 import kr.ac.konkuk.koogle.DBKeys.Companion.CURRENT_NUMBER
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_ARTICLES
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_GROUPS
+import kr.ac.konkuk.koogle.DBKeys.Companion.DB_MAIN_TAGS
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
 import kr.ac.konkuk.koogle.DBKeys.Companion.GROUP_ID
 import kr.ac.konkuk.koogle.DBKeys.Companion.USER_EMAIL
@@ -48,6 +53,7 @@ import kr.ac.konkuk.koogle.DBKeys.Companion.USER_NAME
 import kr.ac.konkuk.koogle.DBKeys.Companion.USER_PROFILE_IMAGE_URL
 import kr.ac.konkuk.koogle.Model.ArticleModel
 import kr.ac.konkuk.koogle.Model.Entity.SearchResultEntity
+import kr.ac.konkuk.koogle.Model.TagModel
 import kr.ac.konkuk.koogle.Model.UserModel
 import kr.ac.konkuk.koogle.databinding.ActivityArticleBinding
 import java.text.SimpleDateFormat
@@ -59,6 +65,9 @@ class ArticleActivity : AppCompatActivity() {
     lateinit var binding: ActivityArticleBinding
 
     val scope = CoroutineScope(Dispatchers.Main)
+
+    // 게시물에서 최대로 표시할 태그
+    val maxShowTag = 10
 
     private lateinit var writerId:String
     private lateinit var articleId:String
@@ -75,6 +84,7 @@ class ArticleActivity : AppCompatActivity() {
     private var fileNameList: ArrayList<String> = arrayListOf()
 
     private lateinit var imageAdapter: ArticleImageAdapter
+    private lateinit var tagRecyclerAdapter : TagAdapter
 
     private lateinit var mapInfo:SearchResultEntity
 
@@ -119,6 +129,7 @@ class ArticleActivity : AppCompatActivity() {
         initDB()
         initViews()
         initImageRecyclerView()
+        initRecyclerView()
         initButton()
     }
 
@@ -410,6 +421,53 @@ class ArticleActivity : AppCompatActivity() {
         Toast.makeText(this, "채팅방이 생성되었습니다. 그룹을 확인해주세요.", Toast.LENGTH_SHORT).show()
 
         finish()
+    }
+
+    // 리사이클러뷰 초기화
+    private fun initRecyclerView(){
+        // DB 에서 게시글 태그 데이터 받아옴
+        val tagData: ArrayList<TagModel> = arrayListOf()
+        currentArticleRef.child(DB_MAIN_TAGS).orderByChild(DBKeys.TAG_INDEX)
+            .limitToFirst(maxShowTag).addListenerForSingleValueEvent(object:ValueEventListener{
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    for(s in snapshot.children){
+                        val newSubTag = arrayListOf<String>()
+                        for(st in s.child(DBKeys.SUB_TAGS).children){
+                            newSubTag.add(st.key.toString())
+                        }
+                        tagData.add(
+                            TagModel(
+                                s.key.toString(), newSubTag,
+                                s.child(DBKeys.TAG_VALUE).value.toString().toInt(),
+                                s.child(DBKeys.TAG_TYPE).value.toString().toInt()
+                            ))
+                    }
+                    // 로딩 작업이 끝난 이후 RecyclerView 를 초기화하는 순서를 맞추기 위해 이곳에 넣음
+                    initTagRecyclerView(tagData)
+                }
+                override fun onCancelled(error: DatabaseError) {
+                    return
+                }
+            })
+        initTagRecyclerView(arrayListOf())
+    }
+
+    // 태그 관련 리사이클러뷰 추가
+    private fun initTagRecyclerView(data: ArrayList<TagModel>){
+        binding.tagRecyclerView.layoutManager = LinearLayoutManager(this)
+
+        tagRecyclerAdapter = TagAdapter(this, data, false)
+        // 서브태그들 클릭했을 때 이벤트 구현
+        tagRecyclerAdapter.subTagClickListener = object : TagAdapter.OnItemClickListener {
+            override fun onItemClick(
+                holder: TagAdapter.DefaultViewHolder,
+                view: EditText,
+                data: TagModel,
+                position: Int
+            ) {
+            }
+        }
+        binding.tagRecyclerView.adapter = tagRecyclerAdapter
     }
 
     private fun showProgress() {
