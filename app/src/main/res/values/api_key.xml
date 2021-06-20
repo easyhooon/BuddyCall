@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name = "google_map">AIzaSyBBYUqDEZ7k3NwzkrI05ssk6DSgIMdi8UI</string>
+<!--    <string name = "google_map">AIzaSyBBYUqDEZ7k3NwzkrI05ssk6DSgIMdi8UI</string>-->
+    <string name = "google_map">AIzaSyD5RkMt0O60MnU7hZF3AZmvKhKl19c6jF4</string>
 </resources>

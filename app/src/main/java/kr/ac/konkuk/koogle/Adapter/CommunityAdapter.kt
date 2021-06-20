@@ -40,11 +40,11 @@ class CommunityAdapter(val onItemClicked: (ArticleModel) -> Unit): ListAdapter<A
                 onItemClicked(articleModel)
             }
 
-            if(articleModel.currentNumber == articleModel.recruitmentNumber){
-                binding.currentNumberTextView.setTextColor(Color.RED)
-                binding.slash.setTextColor(Color.RED)
-                binding.recruitmentNumberTextView.setTextColor(Color.RED)
-            }
+//            if(articleModel.currentNumber == articleModel.recruitmentNumber){
+//                binding.currentNumberTextView.setTextColor(Color.RED)
+//                binding.slash.setTextColor(Color.RED)
+//                binding.recruitmentNumberTextView.setTextColor(Color.RED)
+//            }
 
             if(articleModel.articleThumbnailImageUrl.isNotEmpty()){
                 Glide.with(binding.articleThumbnailImage)
