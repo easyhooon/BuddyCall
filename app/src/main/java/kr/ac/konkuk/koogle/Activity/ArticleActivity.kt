@@ -293,7 +293,7 @@ class ArticleActivity : AppCompatActivity() {
                                 writerId = articleModel.writerId
                                 articleTitle = articleModel.articleTitle
                                 if (articleModel.articleImageUrl.isEmpty()) {
-                                    binding.photoImageRecyclerView.visibility = View.GONE
+                                    binding.photoImageRecyclerView.visibility = View.INVISIBLE
                                 } else {
                                     fileNameList = articleModel.articleImageFileName
                                     initImageRecyclerView()

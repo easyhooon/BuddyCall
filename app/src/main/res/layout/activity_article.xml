@@ -139,7 +139,7 @@
                 android:id="@+id/locationInfoLayout"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="1.6"
+                android:layout_weight="1.2"
                 android:orientation="horizontal"
                 android:background="@drawable/borderline_top_bottom">
 
@@ -205,7 +205,7 @@
                 android:layout_height="0dp"
                 android:layout_gravity="center"
                 android:ems="10"
-                android:layout_weight="1.4"
+                android:layout_weight="1.2"
                 android:layout_margin="10dp"
                 android:text="@string/contact" />
 
