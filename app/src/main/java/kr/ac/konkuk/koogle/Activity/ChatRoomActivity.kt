@@ -19,6 +19,7 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_chat_room.*
 import kr.ac.konkuk.koogle.Adapter.ChatAdapter
+import kr.ac.konkuk.koogle.DBKeys.Companion.ADMIN_ID
 import kr.ac.konkuk.koogle.DBKeys.Companion.CHAT_CONTENT
 import kr.ac.konkuk.koogle.DBKeys.Companion.CHAT_CREATED_AT
 import kr.ac.konkuk.koogle.DBKeys.Companion.CHAT_ID
@@ -159,8 +160,16 @@ class ChatRoomActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        val menuInflater = menuInflater
-        menuInflater.inflate(R.menu.chat_option_menu, menu)
+        if(::adminId.isInitialized){
+            if(firebaseUser.uid == adminId){
+                val menuInflater = menuInflater
+                menuInflater.inflate(R.menu.chat_admin_option_menu, menu)
+            }
+            else{
+                val menuInflater = menuInflater
+                menuInflater.inflate(R.menu.chat_option_menu, menu)
+            }
+        }
 
         return super.onCreateOptionsMenu(menu)
     }
@@ -212,6 +221,14 @@ class ChatRoomActivity : AppCompatActivity() {
                     ad.show()
                 }
 
+            }
+
+            R.id.adminEvaluate -> {
+                val intent = Intent(this@ChatRoomActivity, AddCommentActivity::class.java)
+                intent.putExtra(ADMIN_ID, adminId)
+                intent.putExtra(GROUP_ID, groupId)
+                startActivity(intent)
+                finish()
             }
             else -> {
                 //뒤로가기
@@ -301,7 +318,6 @@ class ChatRoomActivity : AppCompatActivity() {
     private fun initDB() {
         val intent = intent
         groupId = intent.getStringExtra(GROUP_ID).toString()
-
         currentGroupRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val groupModel: GroupModel? = snapshot.getValue(GroupModel::class.java)
@@ -310,7 +326,6 @@ class ChatRoomActivity : AppCompatActivity() {
                     currentNumber = groupModel.currentNumber.toString()
                     binding.chatTitleTextView.text = groupModel.articleTitle
                     binding.currentNumberTextView.text = currentNumber
-
                 }
             }
 

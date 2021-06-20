@@ -17,7 +17,9 @@ class DBKeys {
         const val ARTICLE_ID = "articleId"
         const val ARTICLE_TITLE = "articleTitle"
         const val ARTICLE_CONTENT = "articleContent"
+        const val ARTICLE_THUMBNAIL_IMAGE_URL = "articleThumbnailImageUrl"
         const val ARTICLE_IMAGE_URL = "articleImageUrl"
+        const val ARTICLE_IMAGE_FILE_NAME = "articleImageFileName"
         const val ARTICLE_CREATED_AT = "articleCreatedAt"
         const val WRITER_ID = "writerId"
         const val WRITER_NAME = "writerName"
@@ -41,6 +43,12 @@ class DBKeys {
         const val CHAT_CONTENT = "chatContent"
         const val CHAT_CREATED_AT = "chatCreatedAt"
 
+        //Comment
+        const val DB_COMMENTS = "Comments"
+        const val COMMENT_ID = "commentId"
+        const val COMMENT_CREATED_AT = "commentCreatedAt"
+        const val COMMENT_CONTENT = "commentContent"
+
         //ViewType
         const val LEFT_CHAT = 1 //남들의 채팅(프로필과 이름 내용 모두 보임)
         const val RIGHT_CHAT = 2 //내 채팅(내용만 보임)
@@ -52,17 +60,12 @@ class DBKeys {
         const val USED = "used"
         const val USED_TAGS = "usedTags" // 이 태그가 태그 리스트로써 쓰인 횟수
         const val USED_VALUE = "usedValue" // 이 태그가 수치로써 쓰인 횟수
+        const val SUB_TAGS = "subTag"
 
-        // 소분류 태그
-        const val DB_SUB_TAGS = "SubTag"
-        // ID를 이름으로 쓰기
-        const val SUB_TAG_ID = "subTagId"
-        const val REL_TAG = "relTag"
-
-        // 유저-태그 관계 테이블(프로필)
-        const val DB_USER_TAGS = "UserTags"
-
-        // 유저태그-소분류 태그 연결 테이블(프로필)
-        const val DB_USER_TAGS_REL = "UserRelTags"
+        // 유저-태그정보
+        const val DB_USER_TAG = "UserTags"
+        const val TAG_INDEX = "index"
+        const val TAG_TYPE = "tagType"
+        const val TAG_VALUE = "tagValue"
     }
 }

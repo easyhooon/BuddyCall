@@ -3,7 +3,4 @@
     <item
         android:id="@+id/userBlock"
         android:title="유저차단" />
-    <item
-        android:id="@+id/notInterested"
-        android:title="관심없음" />
 </menu>

@@ -37,7 +37,6 @@ class GroupFragment : Fragment(R.layout.fragment_group) {
     private val auth: FirebaseAuth by lazy {
         Firebase.auth
     }
-
     private val firebaseUser = auth.currentUser!!
 
     private val groupRef: DatabaseReference by lazy {
@@ -68,11 +67,10 @@ class GroupFragment : Fragment(R.layout.fragment_group) {
             for (groupId in userGroupList) {
                 Log.i("GroupFragment", "userGroupList :  $groupId")
             }
-
             for (groupId in userGroupList) {
                 if (groupId == groupModel.groupId) {
                     Log.i("GroupFragment", "유저가 속한 그룹의 아이디 :  ${groupModel.groupId}")
-                    groupList.add(groupModel)
+                    groupList.add(0, groupModel) //최신 그룹이 위로 올라오도록
                 }
             }
 //            if (userGroupList.contains(groupModel.groupId)){
@@ -142,33 +140,6 @@ class GroupFragment : Fragment(R.layout.fragment_group) {
     }
 
     private fun initDB() {
-//        scope.launch {
-//            binding?.progressBar?.visibility = View.VISIBLE
-//            CoroutineScope(Dispatchers.IO).async {
-//                currentUserGroupRef.addListenerForSingleValueEvent(object: ValueEventListener{
-//                    override fun onDataChange(dataSnapshot: DataSnapshot) {
-//                        for (snapshot in dataSnapshot.children){
-//                            val groupModel = snapshot.getValue(GroupModel::class.java)
-//                            Log.i("GroupFragment", "groupModel: $groupModel")
-//                            if (groupModel != null) {
-//                                userGroupList.add(groupModel.groupId)
-//                            }
-//                        }
-//                        //동기적 실행을 위해 위치 옮김
-//                        initRecyclerView()
-//                        groupRef.addChildEventListener(listener)
-//
-//                    }
-//
-//                    override fun onCancelled(error: DatabaseError) {
-//
-//                    }
-//
-//                })
-//            }.await()
-//            binding?.progressBar?.visibility = View.GONE
-//        }
-
         currentUserGroupRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 for (snapshot in dataSnapshot.children) {
@@ -180,14 +151,17 @@ class GroupFragment : Fragment(R.layout.fragment_group) {
                 }
                 //동기적 실행을 위해 위치 옮김
                 initRecyclerView()
-                groupRef.addChildEventListener(listener)
 
+//                scope.launch {
+//                    delay(1000)
+//                    groupRef.addChildEventListener(listener)
+//                }
+                groupRef.addChildEventListener(listener)
             }
 
             override fun onCancelled(error: DatabaseError) {
 
             }
-
         })
     }
 

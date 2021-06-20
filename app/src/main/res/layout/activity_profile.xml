@@ -92,6 +92,7 @@
         android:layout_width="0dp"
         android:layout_marginHorizontal="12dp"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/font"
         android:text="계정 정보"
         android:layout_marginBottom="8dp"
         app:layout_constraintEnd_toStartOf="@id/profileEditButton"/>
@@ -100,6 +101,7 @@
         android:id="@+id/profileEditButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/font"
         android:text="프로필 수정"
         android:layout_marginHorizontal="12dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -146,14 +148,18 @@
             android:text="추천해요"
             android:textSize="18sp" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recommendRecyclerView"
+            <ScrollView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginHorizontal="12dp"
-                android:nestedScrollingEnabled="false">
+                android:layout_height="match_parent">
 
-            </androidx.recyclerview.widget.RecyclerView>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/commentRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginHorizontal="12dp"
+                    android:nestedScrollingEnabled="false">
+                </androidx.recyclerview.widget.RecyclerView>
+            </ScrollView>
 
         </LinearLayout>
 

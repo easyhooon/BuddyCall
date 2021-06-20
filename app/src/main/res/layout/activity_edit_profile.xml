@@ -104,7 +104,7 @@
             android:ems="8"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="36dp"
-
+            android:fontFamily="@font/font"
             android:text="이름 변경"/>
 
         <Button
@@ -122,6 +122,7 @@
             android:ems="8"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="36dp"
+            android:fontFamily="@font/font"
             android:text="프로필 변경"/>
     </LinearLayout>
 
@@ -134,6 +135,7 @@
         android:layout_width="0dp"
         android:layout_marginHorizontal="36dp"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/font"
         android:text="@string/cancel"
         android:layout_marginBottom="8dp"
         app:layout_constraintEnd_toStartOf="@id/profileEditButton"/>
@@ -142,7 +144,8 @@
         android:id="@+id/profileEditButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="@string/check"
+        android:fontFamily="@font/font"
+        android:text="저장"
         android:layout_marginHorizontal="36dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -174,11 +177,14 @@
 
             </androidx.recyclerview.widget.RecyclerView>
 
-            <ImageButton
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/addNewTagBtn"
-                android:layout_width="60dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:srcCompat="@drawable/ic_baseline_add_box_24" />
+                android:src="@drawable/ic_baseline_add_24"
+                app:tint="@color/white"
+                android:backgroundTint="@color/colorMain"
+                android:layout_marginVertical="12dp"/>
 
         </LinearLayout>
 

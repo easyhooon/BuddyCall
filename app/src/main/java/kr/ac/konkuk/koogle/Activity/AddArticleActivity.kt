@@ -26,18 +26,23 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
 import kotlinx.android.synthetic.main.activity_add_article.*
 import kr.ac.konkuk.koogle.Adapter.AddArticleImageAdapter
+import kr.ac.konkuk.koogle.Adapter.TagAdapter
+import kr.ac.konkuk.koogle.DBKeys
 import kr.ac.konkuk.koogle.DBKeys.Companion.ADMIN_ID
 import kr.ac.konkuk.koogle.DBKeys.Companion.ADMIN_NAME
 import kr.ac.konkuk.koogle.DBKeys.Companion.ADMIN_PROFILE_IMAGE_URL
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_CONTENT
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_CREATED_AT
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_ID
+import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_IMAGE_FILE_NAME
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_IMAGE_PATH
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_IMAGE_URL
+import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_THUMBNAIL_IMAGE_URL
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_TITLE
 import kr.ac.konkuk.koogle.DBKeys.Companion.CURRENT_NUMBER
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_ARTICLES
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_GROUPS
+import kr.ac.konkuk.koogle.DBKeys.Companion.DB_MAIN_TAGS
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
 import kr.ac.konkuk.koogle.DBKeys.Companion.DESIRED_LOCATION
 import kr.ac.konkuk.koogle.DBKeys.Companion.GROUP_ID
@@ -51,6 +56,7 @@ import kr.ac.konkuk.koogle.DBKeys.Companion.WRITER_ID
 import kr.ac.konkuk.koogle.DBKeys.Companion.WRITER_NAME
 import kr.ac.konkuk.koogle.DBKeys.Companion.WRITER_PROFILE_IMAGE_URL
 import kr.ac.konkuk.koogle.Model.Entity.SearchResultEntity
+import kr.ac.konkuk.koogle.Model.TagModel
 import kr.ac.konkuk.koogle.Model.UserModel
 import kr.ac.konkuk.koogle.databinding.ActivityAddArticleBinding
 
@@ -62,12 +68,19 @@ class AddArticleActivity : AppCompatActivity() {
 
     lateinit var articleId: String
 
+    lateinit var writerId: String
+
+    private lateinit var writerName:String
+
     private lateinit var searchResult: SearchResultEntity
 
-    private lateinit var selectedUriList: ArrayList<Uri>
-    private lateinit var downloadedUrlList: ArrayList<String>
+    private var isFirstImageUpdate = true
+    private var selectedUriList: ArrayList<Uri> = arrayListOf()
+    private var fileNameList: ArrayList<String> = arrayListOf()
+    private var downloadedUrlList: ArrayList<String> = arrayListOf()
 
     private lateinit var imageAdapter: AddArticleImageAdapter
+    private lateinit var tagRecyclerAdapter : TagAdapter
 
     private val auth: FirebaseAuth by lazy {
         Firebase.auth
@@ -76,6 +89,10 @@ class AddArticleActivity : AppCompatActivity() {
 
     private val storage: FirebaseStorage by lazy {
         Firebase.storage
+    }
+
+    private val currentUserRef: DatabaseReference by lazy {
+        userRef.child(firebaseUser.uid)
     }
     private val articleRef: DatabaseReference by lazy {
         Firebase.database.reference.child(DB_ARTICLES)
@@ -93,8 +110,6 @@ class AddArticleActivity : AppCompatActivity() {
         groupRef.child(articleId)
     }
 
-    private lateinit var writerName:String
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAddArticleBinding.inflate(layoutInflater)
@@ -103,10 +118,10 @@ class AddArticleActivity : AppCompatActivity() {
         initDB()
         initButton()
         initImageRecyclerView()
+        initRecyclerView()
     }
 
     private fun initDB() {
-        val currentUserRef = userRef.child(auth.currentUser?.uid.toString())
         currentUserRef.addListenerForSingleValueEvent(object: ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
                 val userModel: UserModel? = snapshot.getValue(UserModel::class.java)
@@ -146,11 +161,12 @@ class AddArticleActivity : AppCompatActivity() {
             }
         }
 
+        // 글 작성 완료 버튼 클릭시
         binding.submitButton.setOnClickListener {
+            writerId = firebaseUser.uid
             articleId = articleRef.push().key.toString()
             val articleTitle = binding.titleEditText.text.toString()
             val articleContent = binding.contentEditText.text.toString()
-            val writerId = auth.currentUser?.uid.orEmpty()
             val recruitmentNumberText = binding.recruitmentNumberEditText.text.toString()
             val recruitmentNumber = recruitmentNumberText.toInt()
 
@@ -172,9 +188,7 @@ class AddArticleActivity : AppCompatActivity() {
             showProgress()
 
             //중간에 이미지가 있으면 업로드 과정을 추가
-            selectedUriList = arrayListOf()
             selectedUriList = imageAdapter.getUriList()
-            downloadedUrlList = arrayListOf<String>()
 
             if (selectedUriList.isNotEmpty()) {
                 for ((i, uri) in selectedUriList.withIndex()) {
@@ -197,7 +211,8 @@ class AddArticleActivity : AppCompatActivity() {
                 articleTitle,
                 articleContent,
                 recruitmentNumber,
-                downloadedUrlList
+                downloadedUrlList,
+                tagRecyclerAdapter.data
             )
             createChatRoom(
                 writerId,
@@ -219,6 +234,11 @@ class AddArticleActivity : AppCompatActivity() {
         binding.locationAddButton.setOnClickListener {
             val intent = Intent(this, LocationSearchActivity::class.java)
             startActivityForResult(intent, LOCATION_SEARCH_REQUEST_CODE)
+        }
+
+        binding.tagAddButton.setOnClickListener {
+            val intent = Intent(this, AddNewTagActivity::class.java)
+            startActivityForResult(intent, AddArticleActivity.TAG_ADD_REQUEST_CODE)
         }
     }
 
@@ -271,7 +291,8 @@ class AddArticleActivity : AppCompatActivity() {
     private fun uploadPhoto(uri: Uri, num: Int, successHandler: (String) -> Unit, errorHandler: () -> Unit) {
         //파일명이 중복이 되지 않도록
         //이렇게 두면 이거 삭제는 어떻게 하남
-        val fileName = "${articleId}_$num.jpg"
+        val fileName = "${System.currentTimeMillis()}.jpg"
+        fileNameList.add(fileName)
         storage.reference.child(ARTICLE_IMAGE_PATH).child(fileName)
             .putFile(uri)
             //성공했는지 여부를 체크
@@ -288,7 +309,6 @@ class AddArticleActivity : AppCompatActivity() {
                 }
             }
     }
-
     private fun uploadArticle(
         writerId: String,
         writerName: String,
@@ -297,7 +317,8 @@ class AddArticleActivity : AppCompatActivity() {
         articleTitle: String,
         articleContent: String,
         recruitmentNumber: Int,
-        uriList: ArrayList<String>
+        uriList: ArrayList<String>,
+        tagList: MutableList<TagModel>
     ) {
         val currentArticleRef = articleRef.child(articleId)
         val article = mutableMapOf<String, Any>()
@@ -312,7 +333,31 @@ class AddArticleActivity : AppCompatActivity() {
         article[WRITER_PROFILE_IMAGE_URL] = writerProfileImageUrl
         article[RECRUITMENT_NUMBER] = recruitmentNumber
         article[CURRENT_NUMBER] = 1
-        article[DESIRED_LOCATION] = searchResult
+        article[ARTICLE_IMAGE_FILE_NAME] = fileNameList
+        if (::searchResult.isInitialized)
+            article[DESIRED_LOCATION] = searchResult
+
+        // 태그 정보 추가
+        if(!tagList.isNullOrEmpty()){
+            val tags = mutableMapOf<String, Any>()
+            for((j, value) in tagList.withIndex()){
+                val newTag = mutableMapOf<String, Any>()
+                val newSubTag = mutableMapOf<String, Any>()
+                for ((i, s) in value.sub_tag_list.withIndex()) {
+                    val content = s.split(" ")
+                    // 만약 아무 내용 없는 서브 태그가 있으면 무시한다.
+                    if(content[0]==null || content[0]==""|| content[0]==" ")
+                        continue
+                    newSubTag[content[0]] = i
+                }
+                newTag[DBKeys.TAG_INDEX] = j
+                newTag[DBKeys.SUB_TAGS] = newSubTag
+                newTag[DBKeys.TAG_TYPE] = value.tag_type
+                newTag[DBKeys.TAG_VALUE] = value.value
+                tags[value.main_tag_name] = newTag
+            }
+            article[DB_MAIN_TAGS] = tags
+        }
 
 //        currentArticleRef.updateChildren(article)
         currentArticleRef.setValue(article)
@@ -322,6 +367,10 @@ class AddArticleActivity : AppCompatActivity() {
     }
 
     private fun updateImage(uri: String) {
+        if (isFirstImageUpdate) {
+            articleRef.child(articleId).child(ARTICLE_THUMBNAIL_IMAGE_URL).setValue(uri)
+            isFirstImageUpdate = false
+        }
         val imageRef = articleRef.child(articleId).child(ARTICLE_IMAGE_URL)
         downloadedUrlList.add(uri)
         imageRef.setValue(downloadedUrlList)
@@ -357,23 +406,47 @@ class AddArticleActivity : AppCompatActivity() {
     private fun hideProgress() {
         binding.progressBar.isVisible = false
     }
+    // new Tag Activity 로부터 전달받은 데이타를 리사이클러뷰 어댑터로 전달
+    // resultData: new Tag Activity 로부터 전해받은 Data
+    private fun tossToAdapter(resultData: HashMap<String, TagModel>? = null){
 
+        var newList:ArrayList<TagModel> = arrayListOf()
+        for((key, value) in resultData!!){
+            newList.add(value)
+        }
+        tagRecyclerAdapter.updateData(newList)
+    }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
         when (requestCode) {
+            TAG_ADD_REQUEST_CODE -> {
+                // 새 태그 추가 액티비티에서 전달받은 경우
+                val data = data?.extras?.getSerializable("selectedTags")
+                if(data!=null)
+                    tossToAdapter(data  as HashMap<String, TagModel>)
+            }
             CONTENT_PROVIDER_REQUEST_CODE -> {
                 //data 안에 사진의 uri 가 넘어온것
                 //우선 null 처리
+                if (data?.data != null && data?.clipData == null) {
+                    initImageRecyclerView()
+                    val uri = data.data
+
+                    if (uri != null) {
+                        imageAdapter.addItem(uri)
+                    }
+
+                    if (binding.imageRecyclerView.visibility == View.GONE)
+                        binding.imageRecyclerView.visibility = View.VISIBLE
+                }
+
                 if (data?.clipData != null) {
                     initImageRecyclerView()
 
                     val clipData = data.clipData!!
 
                     when (clipData.itemCount) {
-                        1 -> {
-                            imageAdapter.addItem(data.clipData!!.getItemAt(0).uri)
-                        }
                         in 2..9 -> {
                             for (i in 0 until clipData.itemCount) {
                                 imageAdapter.addItem(clipData.getItemAt(i).uri)
@@ -387,9 +460,9 @@ class AddArticleActivity : AppCompatActivity() {
                     if (binding.imageRecyclerView.visibility == View.GONE)
                         binding.imageRecyclerView.visibility = View.VISIBLE
                 }
-                else {
-                    Toast.makeText(this, "사진을 가져오지 못했습니다.", Toast.LENGTH_SHORT).show()
-                }
+//                else {
+//                    Toast.makeText(this, "사진을 가져오지 못했습니다.", Toast.LENGTH_SHORT).show()
+//                }
             }
             LOCATION_SEARCH_REQUEST_CODE -> {
                 if(resultCode == RESULT_OK){
@@ -413,10 +486,9 @@ class AddArticleActivity : AppCompatActivity() {
     }
 
     private fun initImageRecyclerView() {
-        //val oldUriList = imageAdapter.getUriList()
         binding.imageRecyclerView.layoutManager =
-            LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        imageAdapter = AddArticleImageAdapter()
+            LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL,  false)
+        imageAdapter = AddArticleImageAdapter(selectedUriList)
         imageAdapter.itemClickListener = object : AddArticleImageAdapter.OnItemClickListener {
             override fun OnItemClick(
                 holder: AddArticleImageAdapter.ViewHolder
@@ -426,8 +498,6 @@ class AddArticleActivity : AppCompatActivity() {
                     binding.imageRecyclerView.visibility = View.GONE
             }
         }
-        //for (uri in oldUriList)
-            //imageAdapter.addItem(uri)
         binding.imageRecyclerView.adapter = imageAdapter
 
         val simpleCallback = object : ItemTouchHelper.SimpleCallback(
@@ -449,9 +519,52 @@ class AddArticleActivity : AppCompatActivity() {
         itemTouchHelper.attachToRecyclerView(binding.imageRecyclerView)
     }
 
+    // 태그 관련 리사이클러뷰 초기화
+    private fun initRecyclerView(){
+        initTagRecyclerView(arrayListOf())
+    }
+
+    // 태그 관련 리사이클러뷰 초기화
+    private fun initTagRecyclerView(data: ArrayList<TagModel>){
+        binding.tagRecyclerView.layoutManager = LinearLayoutManager(this)
+
+        tagRecyclerAdapter = TagAdapter(this, data, true)
+        // 서브태그들 클릭했을 때 이벤트 구현
+        tagRecyclerAdapter.subTagClickListener = object : TagAdapter.OnItemClickListener {
+            override fun onItemClick(
+                holder: TagAdapter.DefaultViewHolder,
+                view: EditText,
+                data: TagModel,
+                position: Int
+            ) {
+            }
+        }
+        binding.tagRecyclerView.adapter = tagRecyclerAdapter
+        val simpleCallBack = object : ItemTouchHelper.SimpleCallback(
+            ItemTouchHelper.DOWN or ItemTouchHelper.UP,
+            ItemTouchHelper.RIGHT
+        ) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                tagRecyclerAdapter.moveItem(viewHolder.adapterPosition, target.adapterPosition)
+                return true
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                tagRecyclerAdapter.removeItem(viewHolder.adapterPosition)
+            }
+        }
+        val itemTouchHelper = ItemTouchHelper(simpleCallBack)
+        itemTouchHelper.attachToRecyclerView(binding.tagRecyclerView)
+    }
+
     companion object {
         const val LOCATION_SEARCH_REQUEST_CODE = 100
         const val CONTENT_PROVIDER_REQUEST_CODE = 200
+        const val TAG_ADD_REQUEST_CODE = 300
         const val SEARCH_RESULT_FINAL = "SEARCH_RESULT_FINAL"
     }
 }

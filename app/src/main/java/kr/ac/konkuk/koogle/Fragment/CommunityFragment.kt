@@ -3,6 +3,7 @@ package kr.ac.konkuk.koogle.Fragment
 import android.content.Intent
 import android.os.Bundle
 import android.provider.ContactsContract
+import android.text.TextUtils
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -13,20 +14,21 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.database.ChildEventListener
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import kr.ac.konkuk.koogle.Activity.AddArticleActivity
 import kr.ac.konkuk.koogle.Activity.ArticleActivity
 import kr.ac.konkuk.koogle.Activity.LogInActivity
 import kr.ac.konkuk.koogle.Adapter.CommunityAdapter
+import kr.ac.konkuk.koogle.DBKeys
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_ID
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_ARTICLES
+import kr.ac.konkuk.koogle.DBKeys.Companion.DB_MAIN_TAGS
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
+import kr.ac.konkuk.koogle.DBKeys.Companion.SUB_TAGS
 import kr.ac.konkuk.koogle.Model.ArticleModel
+import kr.ac.konkuk.koogle.Model.TagModel
 import kr.ac.konkuk.koogle.R
 import kr.ac.konkuk.koogle.databinding.FragmentCommunityBinding
 
@@ -38,6 +40,7 @@ class CommunityFragment : Fragment(R.layout.fragment_community) {
     private lateinit var communityAdapter: CommunityAdapter
 
     private val articleList = mutableListOf<ArticleModel>()
+    private var searchedArticleList = mutableListOf<ArticleModel>()
 
     private val auth: FirebaseAuth by lazy {
         Firebase.auth
@@ -54,7 +57,7 @@ class CommunityFragment : Fragment(R.layout.fragment_community) {
             val articleModel = snapshot.getValue(ArticleModel::class.java)
             articleModel ?: return
 
-            articleList.add(articleModel)
+            articleList.add(0, articleModel) //최신글이 위로 올라오도록
             communityAdapter.submitList(articleList)
             communityAdapter.notifyDataSetChanged()
         }
@@ -154,6 +157,67 @@ class CommunityFragment : Fragment(R.layout.fragment_community) {
 
                 //이것도 가능
                 //startActivity(Intent(requireContext(),ArticleAddActivity::class.java))
+            }
+        }
+
+        binding!!.searchImageView.setOnClickListener {
+            val searchText = binding!!.searchEditText.text.toString()
+            val articleRef = Firebase.database.reference.child(DB_ARTICLES)
+
+            if (searchText.isEmpty()) {
+                articleRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        articleList.clear()
+                        for (article in snapshot.children) {
+                            articleList.add(0, article.getValue(ArticleModel::class.java)!!)
+                        }
+                        communityAdapter.submitList(articleList)
+                        communityAdapter.notifyDataSetChanged()
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+
+                    }
+
+                })
+            } else {
+                searchedArticleList.clear()
+                articleRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        for (article in snapshot.children) {
+                            for (tag in article.child(DB_MAIN_TAGS).children) {
+                                var isContain = false
+                                if (searchText in tag.key.toString()) {
+                                    searchedArticleList.add(
+                                        0,
+                                        article.getValue(ArticleModel::class.java)!!
+                                    )
+                                    break
+                                }
+                                for (subtag in tag.child(SUB_TAGS).children) {
+                                    if (searchText in subtag.key.toString()) {
+                                        searchedArticleList.add(
+                                            0,
+                                            article.getValue(ArticleModel::class.java)!!
+                                        )
+                                        isContain = true
+                                        break
+                                    }
+                                }
+                                if (isContain) {
+                                    break
+                                }
+                            }
+                        }
+                        communityAdapter.submitList(searchedArticleList)
+                        communityAdapter.notifyDataSetChanged()
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+
+                    }
+
+                })
             }
         }
     }

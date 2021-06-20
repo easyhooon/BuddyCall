@@ -51,6 +51,7 @@ class CardFragment : Fragment(), CardStackListener {
                     cardList.add(cardModel)
                 }
                 cardAdapter.submitList(cardList)
+                cardAdapter.notifyDataSetChanged()
             }
         }
 

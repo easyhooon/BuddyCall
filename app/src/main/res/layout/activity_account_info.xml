@@ -120,6 +120,7 @@
         android:background="#78D2BE"
         android:ems="8"
         android:text="@string/logout"
+        android:fontFamily="@font/font"
         android:textAllCaps="false"
         android:textColor="#FFFFFF"
         app:layout_constraintEnd_toStartOf="@+id/btn_deleteAccount"
@@ -129,6 +130,7 @@
     <Button
         android:id="@+id/btn_deleteAccount"
         android:layout_width="wrap_content"
+        android:fontFamily="@font/font"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:background="#AFABAB"

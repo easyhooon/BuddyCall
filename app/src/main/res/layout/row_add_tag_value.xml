@@ -26,8 +26,10 @@
         android:background="@drawable/style_round_layout_white"
         android:ems="10"
         android:gravity="center|right"
+        android:hint="0"
         android:inputType="numberDecimal"
+        android:maxLength="9"
         android:paddingRight="8dp"
-        android:textSize="14sp"/>
+        android:textSize="14sp" />
 
 </LinearLayout>

@@ -6,23 +6,23 @@ import android.os.Bundle
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
 import com.theartofdev.edmodo.cropper.CropImage
+import kotlinx.android.synthetic.main.activity_add_tag.*
 import kr.ac.konkuk.koogle.Adapter.TagAdapter
 import kr.ac.konkuk.koogle.DBKeys
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
+import kr.ac.konkuk.koogle.DBKeys.Companion.SUB_TAGS
+import kr.ac.konkuk.koogle.DBKeys.Companion.TAG_INDEX
+import kr.ac.konkuk.koogle.DBKeys.Companion.TAG_TYPE
+import kr.ac.konkuk.koogle.DBKeys.Companion.TAG_VALUE
 import kr.ac.konkuk.koogle.DBKeys.Companion.USER_NAME
 import kr.ac.konkuk.koogle.DBKeys.Companion.USER_PROFILE_IMAGE_PATH
 import kr.ac.konkuk.koogle.DBKeys.Companion.USER_PROFILE_IMAGE_URL
@@ -32,40 +32,47 @@ import kr.ac.konkuk.koogle.R
 import kr.ac.konkuk.koogle.databinding.ActivityEditProfileBinding
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
-
-class EditProfileActivity : AppCompatActivity() {
-    private var tag_debug_data: ArrayList<TagModel> = ArrayList()
-    private var recommend_debug_data: ArrayList<ArrayList<String>> = ArrayList()
+class EditProfileActivity : ProfileCommonActivity() {
+    private val newTagRequest = 1110
     lateinit var binding: ActivityEditProfileBinding
-//    lateinit var tagRecyclerView: RecyclerView
-    lateinit var tagAdapter: TagAdapter
-
-    lateinit var imageUri: Uri
-
-    lateinit var fileRef:StorageReference
-
-    //파이어베이스 인증 객체 초기화
-    private val auth: FirebaseAuth by lazy {
-        Firebase.auth
-    }
-    //DB 객체 초기화
-    private val firebaseUser = auth.currentUser!!
-    private val storage = FirebaseStorage.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityEditProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        if(auth.currentUser == null){
-            val intent = Intent(this, LogInActivity::class.java)
-            startActivity(intent)
-        }
-        initData()
-        initTagRecyclerView()
         initUserInfo()
         initButton()
+    }
+
+    // 현재 상태를 DB에 저장
+    // 기존의 데이터는 사라진다.
+    private fun saveTag(){
+        userTagRef = Firebase.database.reference
+            .child(DBKeys.DB_USER_TAG).child(firebaseUser.uid)
+
+        var j = tagAdapter.itemCount
+        val tags = mutableMapOf<String, Any>()
+        for(value in tagAdapter.data) {
+            val newTag = mutableMapOf<String, Any>()
+            val newSubTag = mutableMapOf<String, Any>()
+            for ((i, s) in value.sub_tag_list.withIndex()) {
+                val content = s.split(" ")
+                // 만약 아무 내용 없는 서브 태그가 있으면 무시한다.
+                if(content[0]==null || content[0]==""|| content[0]==" ")
+                    continue
+                newSubTag[content[0]] = i
+            }
+            newTag[TAG_INDEX] = j
+            newTag[SUB_TAGS] = newSubTag
+            newTag[TAG_TYPE] = value.tag_type
+            newTag[TAG_VALUE] = value.value
+            tags[value.main_tag_name] = newTag
+            j++
+        }
+        userTagRef.setValue(tags)
     }
 
     private fun initButton() {
@@ -74,27 +81,32 @@ class EditProfileActivity : AppCompatActivity() {
             startActivity(intent)
             finish()
         }
-
-        binding.userNameChangeBtn.setOnClickListener {
-            setActiveChangeUserName(true)
-        }
-
-        binding.userNameChangeUpdateBtn.setOnClickListener {
-            setActiveChangeUserName(false)
-        }
-
         binding.addNewTagBtn.setOnClickListener {
             val intent = Intent(this, AddNewTagActivity::class.java)
-            startActivity(intent)
+            startActivityForResult(intent, newTagRequest)
         }
-        binding.userProfileChangeBtn.setOnClickListener {
-            //에뮬레이터에는 해당 저장소가 존재하지 않아 기능하지 않음, 실기기에 연결해서 수행해야함
-            CropImage.activity()
-                .setAspectRatio(1,1)
-                .start(this);
-        }
-        binding.profileEditButton.setOnClickListener {
-            finish()
+        binding.apply{
+            userNameChangeBtn.setOnClickListener {
+                setActiveChangeUserName(true)
+            }
+
+            userNameChangeUpdateBtn.setOnClickListener {
+                setActiveChangeUserName(false)
+            }
+
+            userProfileChangeBtn.setOnClickListener {
+                //에뮬레이터에는 해당 저장소가 존재하지 않아 기능하지 않음, 실기기에 연결해서 수행해야함
+                CropImage.activity()
+                    .setAspectRatio(1,1)
+                    .start(this@EditProfileActivity);
+            }
+            profileEditButton.setOnClickListener {
+                saveTag()
+                finish()
+            }
+            accountInfoButton.setOnClickListener {
+                finish()
+            }
         }
     }
 
@@ -123,117 +135,26 @@ class EditProfileActivity : AppCompatActivity() {
             Toast.makeText(this, "닉네임을 변경하였습니다", Toast.LENGTH_SHORT).show()
         }
     }
+    // new Tag Activity 로부터 전달받은 데이타를 리사이클러뷰 어댑터로 전달
+    // resultData: new Tag Activity 로부터 전해받은 Data
+    private fun tossToAdpater(resultData: HashMap<String, TagModel>? = null){
 
-
-    private fun initUserInfo() {
-        //입력 로그인용 유저의 데이터를 불러오기 위한 uid
-        val uid = firebaseUser.uid
-        val currentUserRef = Firebase.database.reference.child(DB_USERS).child(uid)
-//        val userRef = FirebaseDatabase.getInstance().getReference(DB_USERS).child(uid)와 같다
-
-//        파이어베이스 데이터베이스의 정보 가져오기
-        currentUserRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.exists()) {
-                    val userModel: UserModel? = snapshot.getValue(UserModel::class.java)
-                    if (userModel != null) {
-                        if (userModel.userProfileImageUrl.isEmpty()) {
-                            binding.userProfileImage.setImageResource(R.drawable.profile_image)
-                        } else {
-                            Glide.with(binding.userProfileImage)
-                                .load(userModel.userProfileImageUrl)
-                                .into(binding.userProfileImage)
-                        }
-                    }
-                    if (userModel != null) {
-                        binding.userNameText.text = userModel.userName
-                        (binding.userNameEdit as TextView).text = userModel.userName
-                    }
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {}
-        })
-    }
-
-    private fun initTagRecyclerView() {
-        binding.tagRecyclerView.layoutManager = LinearLayoutManager(this)
-        // 구분선 넣기
-        binding.tagRecyclerView.addItemDecoration(DividerItemDecoration(this, 1))
-
-        tagAdapter = TagAdapter(this, tag_debug_data)
-        tagAdapter.itemClickListener = object : TagAdapter.OnItemClickListener {
-            override fun onItemClick(
-                holder: TagAdapter.ViewHolder,
-                view: View,
-                data: TagModel,
-                position: Int
-            ) {
-                // 미구현
-            }
+        var newList:ArrayList<TagModel> = arrayListOf()
+        for((key, value) in resultData!!){
+            newList.add(value)
         }
-        binding.tagRecyclerView.adapter = tagAdapter
-        val simpleCallBack = object : ItemTouchHelper.SimpleCallback(
-            ItemTouchHelper.DOWN or ItemTouchHelper.UP,
-            ItemTouchHelper.RIGHT
-        ) {
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
-            ): Boolean {
-                tagAdapter.moveItem(viewHolder.adapterPosition, target.adapterPosition)
-                return true
-            }
-
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                tagAdapter.removeItem(viewHolder.adapterPosition)
-            }
-        }
-        val itemTouchHelper = ItemTouchHelper(simpleCallBack)
-        itemTouchHelper.attachToRecyclerView(binding.tagRecyclerView)
+        tagAdapter.updateData(newList)
     }
-
-    private fun initData() {
-        // 임시 데이터
-        tag_debug_data.add(TagModel("언어", arrayListOf("한국어", "영어"), -1, 0))
-        tag_debug_data.add(TagModel("성격", arrayListOf("활동적인", "솔직한"), -1, 0))
-        tag_debug_data.add(
-            TagModel(
-                "취미", arrayListOf(
-                    "영화감상", "게임", "서핑",
-                    "여행", "독서", "술", "요리", "그림그리기"
-                ), -1, 0
-            )
-        )
-        tag_debug_data.add(TagModel("전공", arrayListOf("컴퓨터", "컴퓨터공학"), -1, 0))
-        tag_debug_data.add(TagModel("언어", arrayListOf("한국어", "영어"), -1, 0))
-        tag_debug_data.add(TagModel("성격", arrayListOf("활동적인", "솔직한"), -1, 0))
-        tag_debug_data.add(
-            TagModel(
-                "해외여행", arrayListOf(
-                    "러시아", "태국", "중국",
-                    "싱가폴", "미국", "캐나다", "브라질", "그린란드", "영국", "대만"
-                ), -1 ,0
-            )
-        )
-        tag_debug_data.add(TagModel("전공", arrayListOf("컴퓨터", "컴퓨터공학"), -1 ,0))
-        tag_debug_data.add(TagModel("언어", arrayListOf("한국어", "영어"), -1 ,0))
-        tag_debug_data.add(TagModel("성격", arrayListOf("활동적인", "솔직한"), -1 ,0))
-        tag_debug_data.add(
-            TagModel(
-                "취미", arrayListOf(
-                    "영화감상", "게임", "서핑",
-                    "여행", "독서", "술", "요리", "그림그리기"
-                ), -1 ,0
-            )
-        )
-        tag_debug_data.add(TagModel("전공", arrayListOf("컴퓨터", "컴퓨터공학"), -1 ,0))
-
-    }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+
+        // 새 태그 추가 액티비티에서 전달받은 경우
+        if (requestCode == newTagRequest){
+            val data = data?.extras?.getSerializable("selectedTags")
+            if(data!=null)
+                tossToAdpater(data  as HashMap<String, TagModel>)
+        }
+
 
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             val result = CropImage.getActivityResult(data)
@@ -256,7 +177,7 @@ class EditProfileActivity : AppCompatActivity() {
         }
         val uid = firebaseUser.uid
 
-        fileRef = FirebaseStorage.getInstance().reference.child(USER_PROFILE_IMAGE_PATH).child("$uid.jpg")
+        fileRef = storage.reference.child(USER_PROFILE_IMAGE_PATH).child("$uid.jpg")
 
         val uploadTask = fileRef.putFile(imageUri)
 
@@ -284,5 +205,77 @@ class EditProfileActivity : AppCompatActivity() {
                 Toast.makeText(this, "프로필 사진 변경을 실패하였습니다.", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    override fun initTagRecyclerView(data: ArrayList<TagModel>) {
+        binding.tagRecyclerView.layoutManager = LinearLayoutManager(this)
+        // 구분선 넣기
+        binding.tagRecyclerView.addItemDecoration(DividerItemDecoration(this, 1))
+
+        tagAdapter = TagAdapter(this, data, true)
+        // 서브태그들 클릭했을 때 이벤트 구현
+        /*
+        tagAdapter.subTagClickListener = object : TagAdapter.OnItemClickListener {
+            override fun onItemClick(
+                holder: TagAdapter.DefaultViewHolder,
+                view: EditText,
+                data: TagModel,
+                position: Int
+            ) {
+                Log.d("jan", "Click")
+                view.isEnabled = true
+            }
+        }*/
+        binding.tagRecyclerView.adapter = tagAdapter
+        val simpleCallBack = object : ItemTouchHelper.SimpleCallback(
+            ItemTouchHelper.DOWN or ItemTouchHelper.UP,
+            ItemTouchHelper.RIGHT
+        ) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                tagAdapter.moveItem(viewHolder.adapterPosition, target.adapterPosition)
+                return true
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                tagAdapter.removeItem(viewHolder.adapterPosition)
+            }
+        }
+        val itemTouchHelper = ItemTouchHelper(simpleCallBack)
+        itemTouchHelper.attachToRecyclerView(binding.tagRecyclerView)
+    }
+
+    private fun initUserInfo() {
+        //입력 로그인용 유저의 데이터를 불러오기 위한 uid
+        val uid = firebaseUser.uid
+        val currentUserRef = Firebase.database.reference.child(DB_USERS).child(uid)
+//        val userRef = FirebaseDatabase.getInstance().getReference(DB_USERS).child(uid)와 같다
+
+//        파이어베이스 데이터베이스의 정보 가져오기
+        currentUserRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    val userModel: UserModel? = snapshot.getValue(UserModel::class.java)
+                    if (userModel != null) {
+                        if (userModel.userProfileImageUrl.isEmpty()) {
+                            binding.userProfileImage.setImageResource(R.drawable.profile_image)
+                        } else {
+                            Glide.with(binding.userProfileImage)
+                                .load(userModel.userProfileImageUrl)
+                                .into(binding.userProfileImage)
+                        }
+                    }
+                    if (userModel != null) {
+                        binding.userNameText.text = userModel.userName
+                        (binding.userNameEdit as TextView).text = userModel.userName
+                    }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {}
+        })
     }
 }
