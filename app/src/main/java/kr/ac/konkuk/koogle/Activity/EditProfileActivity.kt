@@ -258,7 +258,6 @@ class EditProfileActivity : ProfileCommonActivity() {
                 viewHolder: RecyclerView.ViewHolder,
                 target: RecyclerView.ViewHolder
             ): Boolean {
-                tagAdapter.moveItem(viewHolder.adapterPosition, target.adapterPosition)
                 return true
             }
 
