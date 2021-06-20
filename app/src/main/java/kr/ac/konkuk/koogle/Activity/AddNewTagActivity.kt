@@ -204,6 +204,6 @@ class AddNewTagActivity:AppCompatActivity() {
     }
     companion object{
         // 처음 5명이 사용하기 전까지는 추천에 뜨지 않게 하기
-        const val TAG_INIT_NUM = 5
+        const val TAG_INIT_NUM = -1
     }
 }

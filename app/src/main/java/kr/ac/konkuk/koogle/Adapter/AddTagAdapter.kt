@@ -248,6 +248,7 @@ class AddTagAdapter(open val context: Context, open var data: MutableList<TagMod
         if(holder is DefaultViewHolder){
             holder.mainTag = tagName
             holder.mainTagText.text = tagName
+            holder.subTagView.removeAllViews()
             holder.settingSubTags(tagName, 20)
         }else if(holder is ValueViewHolder){
             holder.mainTag = tagName
