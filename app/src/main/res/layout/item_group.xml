@@ -20,6 +20,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:maxLines="1"
+        android:maxWidth="210dp"
         android:ellipsize="end"
         android:text="title"
         android:textColor="@color/black"

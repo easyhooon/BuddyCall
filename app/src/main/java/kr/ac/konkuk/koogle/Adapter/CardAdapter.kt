@@ -82,9 +82,6 @@ class CardAdapter(val context: Context?): ListAdapter<CardModel, CardAdapter.Vie
                 binding.recruitmentNumberTextView.setTextColor(Color.RED)
             }
 
-            //todo 썸네일 이미지 뷰를 글라이드를 통해 로드
-            //todo 사진이 존재하지 않는다면 해당 이미지뷰가 보이지 않게
-
             binding.checkImageView.setOnClickListener {
                 itemClickListener?.onItemChecked(
                     this,
