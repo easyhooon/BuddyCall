@@ -181,6 +181,14 @@
                         android:padding="5dp"
                         android:src="@drawable/ic_baseline_add_location_24" />
 
+                    <ImageView
+                        android:id="@+id/tagAddButton"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:padding="5dp"
+                        android:src="@drawable/ic_baseline_local_offer_24" />
+
                     <View
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
