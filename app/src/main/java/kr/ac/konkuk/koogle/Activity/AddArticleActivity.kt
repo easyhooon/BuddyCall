@@ -42,6 +42,7 @@ import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_TITLE
 import kr.ac.konkuk.koogle.DBKeys.Companion.CURRENT_NUMBER
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_ARTICLES
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_GROUPS
+import kr.ac.konkuk.koogle.DBKeys.Companion.DB_MAIN_TAGS
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
 import kr.ac.konkuk.koogle.DBKeys.Companion.DESIRED_LOCATION
 import kr.ac.konkuk.koogle.DBKeys.Companion.GROUP_ID
@@ -160,6 +161,7 @@ class AddArticleActivity : AppCompatActivity() {
             }
         }
 
+        // 글 작성 완료 버튼 클릭시
         binding.submitButton.setOnClickListener {
             writerId = firebaseUser.uid
             articleId = articleRef.push().key.toString()
@@ -209,7 +211,8 @@ class AddArticleActivity : AppCompatActivity() {
                 articleTitle,
                 articleContent,
                 recruitmentNumber,
-                downloadedUrlList
+                downloadedUrlList,
+                tagRecyclerAdapter.data
             )
             createChatRoom(
                 writerId,
@@ -306,7 +309,6 @@ class AddArticleActivity : AppCompatActivity() {
                 }
             }
     }
-
     private fun uploadArticle(
         writerId: String,
         writerName: String,
@@ -315,7 +317,8 @@ class AddArticleActivity : AppCompatActivity() {
         articleTitle: String,
         articleContent: String,
         recruitmentNumber: Int,
-        uriList: ArrayList<String>
+        uriList: ArrayList<String>,
+        tagList: MutableList<TagModel>
     ) {
         val currentArticleRef = articleRef.child(articleId)
         val article = mutableMapOf<String, Any>()
@@ -333,6 +336,28 @@ class AddArticleActivity : AppCompatActivity() {
         article[ARTICLE_IMAGE_FILE_NAME] = fileNameList
         if (::searchResult.isInitialized)
             article[DESIRED_LOCATION] = searchResult
+
+        // 태그 정보 추가
+        if(!tagList.isNullOrEmpty()){
+            val tags = mutableMapOf<String, Any>()
+            for((j, value) in tagList.withIndex()){
+                val newTag = mutableMapOf<String, Any>()
+                val newSubTag = mutableMapOf<String, Any>()
+                for ((i, s) in value.sub_tag_list.withIndex()) {
+                    val content = s.split(" ")
+                    // 만약 아무 내용 없는 서브 태그가 있으면 무시한다.
+                    if(content[0]==null || content[0]==""|| content[0]==" ")
+                        continue
+                    newSubTag[content[0]] = i
+                }
+                newTag[DBKeys.TAG_INDEX] = j
+                newTag[DBKeys.SUB_TAGS] = newSubTag
+                newTag[DBKeys.TAG_TYPE] = value.tag_type
+                newTag[DBKeys.TAG_VALUE] = value.value
+                tags[value.main_tag_name] = newTag
+            }
+            article[DB_MAIN_TAGS] = tags
+        }
 
 //        currentArticleRef.updateChildren(article)
         currentArticleRef.setValue(article)
@@ -495,41 +520,11 @@ class AddArticleActivity : AppCompatActivity() {
     }
 
     // 리사이클러뷰 초기화
-    protected fun initRecyclerView(){
-        // DB 에서
-        /*
-        // DB 에서 유저 태그 데이터 받아옴
-        val tagData: ArrayList<TagModel> = arrayListOf()
-        userTagRef = Firebase.database.reference
-            .child(DBKeys.DB_USER_TAG).child(firebaseUser.uid)
-        userTagRef.orderByChild(DBKeys.TAG_INDEX)
-            .limitToFirst(maxShowTag).addListenerForSingleValueEvent(object:ValueEventListener{
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    for(s in snapshot.children){
-                        val newSubTag = arrayListOf<String>()
-                        for(st in s.child(DBKeys.SUB_TAGS).children){
-                            newSubTag.add(st.key.toString())
-                        }
-                        tagData.add(
-                            TagModel(
-                                s.key.toString(), newSubTag,
-                                s.child(DBKeys.TAG_VALUE).value.toString().toInt(),
-                                s.child(DBKeys.TAG_TYPE).value.toString().toInt()
-                            ))
-                    }
-                    // 로딩 작업이 끝난 이후 RecyclerView 를 초기화하는 순서를 맞추기 위해 이곳에 넣음
-                    initTagRecyclerView(tagData)
-                }
-                override fun onCancelled(error: DatabaseError) {
-                    return
-                }
-            })
-         */
-
-
+    private fun initRecyclerView(){
         initTagRecyclerView(arrayListOf())
     }
 
+    // 태그 관련 리사이클러뷰 추가
     private fun initTagRecyclerView(data: ArrayList<TagModel>){
         binding.tagRecyclerView.layoutManager = LinearLayoutManager(this)
 
