@@ -143,15 +143,40 @@ class TagAdapter(val context: Context, val data: MutableList<TagModel>,
             return subTagText
         }
 
+        // 태그 추가 버튼
+        fun makePlusBtn(): TextView {
+            var subTagText = TextView(context)
+            subTagText.text = "+"
+            // 모서리가 둥근 태그 스타일 적용(임시)
+            subTagText.setTextAppearance(R.style.TAG_STYLE)
+            subTagText.setBackgroundResource(R.drawable.layout_tag_background)
+            subTagText.setBackgroundResource(R.drawable.layout_tag_background)
+            // 태그 간 간격 설정
+            val p = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            p.setMargins(5)
+            subTagText.layoutParams = p
+
+            subTagText.setOnClickListener {
+                var lastRow: LinearLayout =
+                    subTagView.getChildAt(subTagView.childCount - 1) as LinearLayout
+                lastRow.addView(makeSubTagView(" "), lastRow.childCount-1)
+            }
+            return subTagText
+        }
+
         // 소분류 태그 테이블 생성
         fun bind(model: TagModel) {
+            var lastRow: LinearLayout
             for (tag in model.sub_tag_list) {
                 // row 가 하나도 없으면 새로 만들기
                 if (subTagView.childCount == 0) {
                     addRow()
                 }
                 // 새로운 Table row 를 추가해야 하는지 길이 검사(임시)
-                var lastRow: LinearLayout =
+                lastRow =
                     subTagView.getChildAt(subTagView.childCount - 1) as LinearLayout
                 var len = 0
                 val row_len = 26
@@ -169,6 +194,20 @@ class TagAdapter(val context: Context, val data: MutableList<TagModel>,
 
                 lastRow.addView(makeSubTagView(tag))
             }
+            // 프로필 편집 액티비티의 경우 + 버튼 추가
+            if(isSetting){
+                lastRow =
+                    subTagView.getChildAt(subTagView.childCount - 1) as LinearLayout
+                lastRow.addView(makePlusBtn())
+
+                // 데이터에 추가
+                for(d in data){
+                    if(d.main_tag_name == mainTag){
+                        d.sub_tag_list.add(" ")
+                    }
+                }
+            }
+
         }
 
         // 태그 row 추가
@@ -182,14 +221,6 @@ class TagAdapter(val context: Context, val data: MutableList<TagModel>,
             row.orientation = LinearLayout.HORIZONTAL
             row.layoutParams = lp
             subTagView.addView(row)
-        }
-
-        private fun addTagItem(table: TableLayout, item: TextView) {
-            // 한 row가 가득 차면 새로운 row 생성
-            // 조건 미구현
-            if (false) {
-                table.addView(TableRow(context))
-            }
         }
     }
 

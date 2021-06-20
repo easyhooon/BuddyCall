@@ -66,7 +66,11 @@ class EditProfileActivity : ProfileCommonActivity() {
             val newTag = mutableMapOf<String, Any>()
             val newSubTag = mutableMapOf<String, Any>()
             for ((i, s) in value.sub_tag_list.withIndex()) {
-                newSubTag[s] = i
+                val content = s.split(" ")
+                // 만약 아무 내용 없는 서브 태그가 있으면 무시한다.
+                if(content[0]==null || content[0]==""|| content[0]==" ")
+                    continue
+                newSubTag[content[0]] = i
             }
             newTag[TAG_INDEX] = j
             newTag[SUB_TAGS] = newSubTag
