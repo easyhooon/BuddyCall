@@ -5,15 +5,12 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewbinding.ViewBinding
 import com.bumptech.glide.Glide
-import de.hdodenhof.circleimageview.CircleImageView
 import kr.ac.konkuk.koogle.DBKeys.Companion.LEFT_CHAT
 import kr.ac.konkuk.koogle.DBKeys.Companion.RIGHT_CHAT
 import kr.ac.konkuk.koogle.Model.ChatModel
-import kr.ac.konkuk.koogle.R
-import kr.ac.konkuk.koogle.databinding.ItemCardBinding
 import kr.ac.konkuk.koogle.databinding.ItemLeftChatBinding
 import kr.ac.konkuk.koogle.databinding.ItemRightChatBinding
 import java.text.SimpleDateFormat
@@ -22,11 +19,11 @@ import java.util.*
 class ChatAdapter(val context: Context, private val chatList: MutableList<ChatModel>) :
     RecyclerView.Adapter<ChatAdapter.BaseViewHolder<*>>() {
 
-    abstract class BaseViewHolder<T>(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    abstract class BaseViewHolder<T>(private val binding: ViewBinding) : RecyclerView.ViewHolder(binding.root) {
         abstract fun bind(item: T)
     }
 
-    inner class LeftViewHolder(private val binding: ItemLeftChatBinding) : BaseViewHolder<ChatModel>(binding.root) {
+    inner class LeftViewHolder(private val binding: ItemLeftChatBinding) : BaseViewHolder<ChatModel>(binding) {
 
         @SuppressLint("SimpleDateFormat")
         val format = SimpleDateFormat("a HH:mm", Locale.KOREA)
@@ -46,7 +43,7 @@ class ChatAdapter(val context: Context, private val chatList: MutableList<ChatMo
         }
     }
 
-    inner class RightViewHolder(private val binding: ItemRightChatBinding) : BaseViewHolder<ChatModel>(binding.root) {
+    inner class RightViewHolder(private val binding: ItemRightChatBinding) : BaseViewHolder<ChatModel>(binding) {
 
         @SuppressLint("SimpleDateFormat")
         val format = SimpleDateFormat("a HH:mm", Locale.KOREA)

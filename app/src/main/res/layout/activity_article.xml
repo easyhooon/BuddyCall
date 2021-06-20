@@ -201,10 +201,12 @@
                         android:id="@+id/tagRecyclerView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:background="@drawable/borderline_top_bottom"
                         android:layout_gravity="center"
                         android:padding="16dp" />
 
                     <androidx.recyclerview.widget.RecyclerView
+                        android:layout_marginTop="12dp"
                         android:id="@+id/photoImageRecyclerView"
                         android:layout_width="match_parent"
                         android:layout_height="140dp"
