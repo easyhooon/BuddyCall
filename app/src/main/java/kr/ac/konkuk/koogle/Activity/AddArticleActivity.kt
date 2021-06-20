@@ -403,7 +403,7 @@ class AddArticleActivity : AppCompatActivity() {
     }
     // new Tag Activity 로부터 전달받은 데이타를 리사이클러뷰 어댑터로 전달
     // resultData: new Tag Activity 로부터 전해받은 Data
-    private fun tossToAdpater(resultData: HashMap<String, TagModel>? = null){
+    private fun tossToAdapter(resultData: HashMap<String, TagModel>? = null){
 
         var newList:ArrayList<TagModel> = arrayListOf()
         for((key, value) in resultData!!){
@@ -419,7 +419,7 @@ class AddArticleActivity : AppCompatActivity() {
                 // 새 태그 추가 액티비티에서 전달받은 경우
                 val data = data?.extras?.getSerializable("selectedTags")
                 if(data!=null)
-                    tossToAdpater(data  as HashMap<String, TagModel>)
+                    tossToAdapter(data  as HashMap<String, TagModel>)
             }
             CONTENT_PROVIDER_REQUEST_CODE -> {
                 //data 안에 사진의 uri 가 넘어온것
@@ -514,12 +514,12 @@ class AddArticleActivity : AppCompatActivity() {
         itemTouchHelper.attachToRecyclerView(binding.imageRecyclerView)
     }
 
-    // 리사이클러뷰 초기화
+    // 태그 관련 리사이클러뷰 초기화
     private fun initRecyclerView(){
         initTagRecyclerView(arrayListOf())
     }
 
-    // 태그 관련 리사이클러뷰 추가
+    // 태그 관련 리사이클러뷰 초기화
     private fun initTagRecyclerView(data: ArrayList<TagModel>){
         binding.tagRecyclerView.layoutManager = LinearLayoutManager(this)
 

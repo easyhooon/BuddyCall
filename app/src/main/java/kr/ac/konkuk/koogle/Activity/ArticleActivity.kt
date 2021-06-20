@@ -66,9 +66,6 @@ class ArticleActivity : AppCompatActivity() {
 
     val scope = CoroutineScope(Dispatchers.Main)
 
-    // 게시물에서 최대로 표시할 태그
-    val maxShowTag = 10
-
     private lateinit var writerId:String
     private lateinit var articleId:String
     private lateinit var articleTitle:String
@@ -430,7 +427,7 @@ class ArticleActivity : AppCompatActivity() {
         // DB 에서 게시글 태그 데이터 받아옴
         val tagData: ArrayList<TagModel> = arrayListOf()
         currentArticleRef.child(DB_MAIN_TAGS).orderByChild(DBKeys.TAG_INDEX)
-            .limitToFirst(maxShowTag).addListenerForSingleValueEvent(object:ValueEventListener{
+            .limitToFirst(MAXSHOWTAG).addListenerForSingleValueEvent(object:ValueEventListener{
                 override fun onDataChange(snapshot: DataSnapshot) {
                     for(s in snapshot.children){
                         val newSubTag = arrayListOf<String>()
@@ -484,5 +481,8 @@ class ArticleActivity : AppCompatActivity() {
         const val MAP_INFO = "MAP_INFO"
         const val ARTICLE_INFO = "ARTICLE_INFO"
         const val WRITER_INFO = "WRITER_INFO"
+        // 게시물에서 최대로 표시할 태그
+        const val MAXSHOWTAG = 10
+
     }
 }
