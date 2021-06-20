@@ -1,15 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Activity.ImageViewActivity"
-    android:background="@color/black">
+    android:background="@color/black"
+    tools:context=".Activity.ImageViewActivity">
 
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="centerCrop" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:scaleType="fitCenter" />
+
+    <ImageView
+        android:id="@+id/cancelImageView"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="right|top"
+        android:layout_margin="20dp"
+        app:srcCompat="@drawable/cancel"
+        app:tint="#FFFFFF"
+        tools:layout_editor_absoluteX="345dp"
+        tools:ignore="RtlHardcoded" />
+
+</FrameLayout>
