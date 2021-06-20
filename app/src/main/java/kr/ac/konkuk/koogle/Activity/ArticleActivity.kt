@@ -329,6 +329,7 @@ class ArticleActivity : AppCompatActivity() {
                                 binding.contentTextView.text = articleModel.articleContent
                                 recruitmentNumber = articleModel.recruitmentNumber.toString()
                                 currentNumber = articleModel.currentNumber.toString()
+
                                 Glide.with(binding.articleThumbnailBackground)
                                     .load(articleModel.articleThumbnailImageUrl)
                                     .into(binding.articleThumbnailBackground)
