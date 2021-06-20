@@ -16,7 +16,7 @@
         android:layout_weight="3"
         android:gravity="left"
         android:text="TextView"
-        android:textColor="@color/black" />
+        android:textColor="@color/white" />
 
     <TextView
         android:id="@+id/tagValueText"

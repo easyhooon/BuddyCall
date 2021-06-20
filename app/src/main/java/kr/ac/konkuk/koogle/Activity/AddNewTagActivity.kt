@@ -37,8 +37,6 @@ class AddNewTagActivity:AppCompatActivity() {
     lateinit var adapter: AddTagAdapter
     lateinit var rootRef:DatabaseReference
     lateinit var tagRef:DatabaseReference
-    // 처음 5명이 사용하기 전까지는 추천에 뜨지 않게 하기
-    val TAG_INIT_NUM = 5
 
     //Firebase Auth를 initialize 해주는 코드
     private val auth: FirebaseAuth by lazy {
@@ -102,35 +100,6 @@ class AddNewTagActivity:AppCompatActivity() {
         setDataRecyclerView(null)
     }
 
-/*
-    private fun commitMainTag(mainTag: String): Boolean{
-        tagRef.orderByChild(DBKeys.TAG_ID)
-            .equalTo(mainTag).addListenerForSingleValueEvent(object:ValueEventListener{
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    if(snapshot.childrenCount>0){
-                        // 있으면 tagNum만 늘어난다.
-                        tagRef.child(mainTag).child(DBKeys.USED_NUM).setValue(
-                            snapshot.child(mainTag).child(DBKeys.USED_NUM).value.toString().toInt() + 1
-                        )
-
-                    }else{
-                        // 없으면 추가하고 false 반환
-                        val newTag = mutableMapOf<String, Any>()
-
-                        newTag[DBKeys.TAG_ID] = mainTag
-                        newTag[DBKeys.USED_NUM] = TAG_INIT_NUM
-                        tagRef.child(mainTag).updateChildren(newTag)
-                    }
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
-                }
-
-            })
-        return false
-    }
-*/
     private fun commitSubTag(mainTag: String): Boolean{
         // 이미 DB에 있는 태그인지 확인한다
 
@@ -149,7 +118,7 @@ class AddNewTagActivity:AppCompatActivity() {
     private fun initView() {
         binding.apply {
             // 새 태그 버튼: 검색 창에 있는 태그가 DB에 있으면 무시, 없으면 목록에 추가한다
-            // DB 에는 아직 추가하지 않음. 유저가 최종적으로 프로필에 적용했을 때 추가한다
+            // sub Tag 는 DB 에는 아직 추가하지 않음. 유저가 최종적으로 프로필에 적용했을 때 추가한다
             addNewTagBtn.setOnClickListener {
                 // 입력 창에 아무 것도 없으면 무시
                 if(searchEditText.length() == 0){
@@ -164,7 +133,6 @@ class AddNewTagActivity:AppCompatActivity() {
                             Toast.makeText(this@AddNewTagActivity,
                                 R.string.msg_exist_tag, Toast.LENGTH_SHORT).show()
                             return
-
                         }else{
                             // 없으면 목록에 추가한다
                             val newTag = mutableMapOf<String, Any>()
@@ -233,5 +201,9 @@ class AddNewTagActivity:AppCompatActivity() {
 
             })
         }
+    }
+    companion object{
+        // 처음 5명이 사용하기 전까지는 추천에 뜨지 않게 하기
+        const val TAG_INIT_NUM = 5
     }
 }

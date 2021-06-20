@@ -158,7 +158,7 @@ class TagAdapter(val context: Context, val data: MutableList<TagModel>,
 
             // 클릭 이벤트 설정
             subTagText.setOnClickListener {
-                itemClickListener?.onItemClick(this, subTagText, data[adapterPosition], adapterPosition)
+                subTagClickListener?.onItemClick(this, subTagText, data[adapterPosition], adapterPosition)
             }
 
             return subTagText

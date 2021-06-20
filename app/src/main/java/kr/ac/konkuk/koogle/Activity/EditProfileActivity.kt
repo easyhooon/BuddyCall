@@ -3,6 +3,7 @@ package kr.ac.konkuk.koogle.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
@@ -47,12 +48,32 @@ class EditProfileActivity : ProfileCommonActivity() {
         initButton()
     }
 
-    // 현재 상태를 DB에 저장
+    // 전체 Tag DB 에 변경사항 반영 ( 사용 횟수 증가)
+    private fun pushDBTag(){
+        var tagRef = Firebase.database.reference.child(DBKeys.DB_MAIN_TAGS)
+
+        for ((key, value) in tagAdapter.data) {
+            tagRef.child(key)
+                .addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        // DB 에 같은 값이 있음: 사용 회수 증가
+                        if (snapshot.childrenCount > 0) {
+                            // 사용 회수 의미적으로 증가(=감소)
+                            tagRef.child(key).child(DBKeys.USED).setValue(
+                                snapshot.child(DBKeys.USED).value.toString().toInt() - 1
+                            )
+                        }
+                    }
+                    override fun onCancelled(error: DatabaseError) {}
+                })
+        }
+    }
+
+    // 현재 상태를 user DB에 저장
     // 기존의 데이터는 사라진다.
     private fun saveTag(){
         userTagRef = Firebase.database.reference
             .child(DBKeys.DB_USER_TAG).child(firebaseUser.uid)
-
         var j = tagAdapter.itemCount
         val tags = mutableMapOf<String, Any>()
         for(value in tagAdapter.data) {
@@ -101,6 +122,7 @@ class EditProfileActivity : ProfileCommonActivity() {
                     .start(this@EditProfileActivity);
             }
             profileEditButton.setOnClickListener {
+                pushDBTag()
                 saveTag()
                 finish()
             }
@@ -213,19 +235,7 @@ class EditProfileActivity : ProfileCommonActivity() {
         binding.tagRecyclerView.addItemDecoration(DividerItemDecoration(this, 1))
 
         tagAdapter = TagAdapter(this, data, true)
-        // 서브태그들 클릭했을 때 이벤트 구현
-        /*
-        tagAdapter.subTagClickListener = object : TagAdapter.OnItemClickListener {
-            override fun onItemClick(
-                holder: TagAdapter.DefaultViewHolder,
-                view: EditText,
-                data: TagModel,
-                position: Int
-            ) {
-                Log.d("jan", "Click")
-                view.isEnabled = true
-            }
-        }*/
+
         binding.tagRecyclerView.adapter = tagAdapter
         val simpleCallBack = object : ItemTouchHelper.SimpleCallback(
             ItemTouchHelper.DOWN or ItemTouchHelper.UP,
@@ -236,7 +246,6 @@ class EditProfileActivity : ProfileCommonActivity() {
                 viewHolder: RecyclerView.ViewHolder,
                 target: RecyclerView.ViewHolder
             ): Boolean {
-                tagAdapter.moveItem(viewHolder.adapterPosition, target.adapterPosition)
                 return true
             }
 

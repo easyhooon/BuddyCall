@@ -358,6 +358,7 @@ class AddArticleActivity : AppCompatActivity() {
                 tags[value.main_tag_name] = newTag
             }
             article[DB_MAIN_TAGS] = tags
+            pushDBTag()
         }
 
 //        currentArticleRef.updateChildren(article)
@@ -365,6 +366,27 @@ class AddArticleActivity : AppCompatActivity() {
 
         hideProgress()
         finish()
+    }
+
+    // 전체 Tag DB 에 Tag 변경사항 반영 (사용 횟수 증가)
+    private fun pushDBTag(){
+        var tagRef = Firebase.database.reference.child(DBKeys.DB_MAIN_TAGS)
+
+        for ((key, value) in tagRecyclerAdapter.data) {
+            tagRef.child(key)
+                .addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        // DB 에 같은 값이 있음: 사용 회수 증가
+                        if (snapshot.childrenCount > 0) {
+                            // 사용 회수 의미적으로 증가(=감소)
+                            tagRef.child(key).child(DBKeys.USED).setValue(
+                                snapshot.child(DBKeys.USED).value.toString().toInt() - 1
+                            )
+                        }
+                    }
+                    override fun onCancelled(error: DatabaseError) {}
+                })
+        }
     }
 
     private fun updateImage(uri: String) {
