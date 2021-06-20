@@ -9,6 +9,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -22,7 +24,9 @@ import kr.ac.konkuk.koogle.Activity.ArticleActivity
 import kr.ac.konkuk.koogle.Activity.LogInActivity
 import kr.ac.konkuk.koogle.Adapter.CommunityAdapter
 import kr.ac.konkuk.koogle.DBKeys
+import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_CONTENT
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_ID
+import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_TITLE
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_ARTICLES
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_MAIN_TAGS
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
@@ -145,6 +149,16 @@ class CommunityFragment : Fragment(R.layout.fragment_community) {
     }
 
     private fun initButton() {
+        val spinner = binding!!.searchSpinner
+        ArrayAdapter.createFromResource(
+            requireContext(),
+            R.array.search_spinner,
+            android.R.layout.simple_spinner_item
+        ).also { adapter ->
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            spinner.adapter = adapter
+        }
+
         binding!!.btnAddArticle.setOnClickListener {
 
             context?.let {
@@ -175,49 +189,87 @@ class CommunityFragment : Fragment(R.layout.fragment_community) {
                         communityAdapter.notifyDataSetChanged()
                     }
 
-                    override fun onCancelled(error: DatabaseError) {
-
-                    }
+                    override fun onCancelled(error: DatabaseError) {}
 
                 })
             } else {
-                searchedArticleList.clear()
-                articleRef.addListenerForSingleValueEvent(object : ValueEventListener {
-                    override fun onDataChange(snapshot: DataSnapshot) {
-                        for (article in snapshot.children) {
-                            for (tag in article.child(DB_MAIN_TAGS).children) {
-                                var isContain = false
-                                if (searchText in tag.key.toString()) {
-                                    searchedArticleList.add(
-                                        0,
-                                        article.getValue(ArticleModel::class.java)!!
-                                    )
-                                    break
-                                }
-                                for (subtag in tag.child(SUB_TAGS).children) {
-                                    if (searchText in subtag.key.toString()) {
+                val position = binding!!.searchSpinner.selectedItemPosition
+
+                if (position == 0) {
+                    searchedArticleList.clear()
+                    articleRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            for (article in snapshot.children) {
+                                for (tag in article.child(DB_MAIN_TAGS).children) {
+                                    var isContain = false
+                                    if (searchText in tag.key.toString()) {
                                         searchedArticleList.add(
                                             0,
                                             article.getValue(ArticleModel::class.java)!!
                                         )
-                                        isContain = true
+                                        break
+                                    }
+                                    for (subtag in tag.child(SUB_TAGS).children) {
+                                        if (searchText in subtag.key.toString()) {
+                                            searchedArticleList.add(
+                                                0,
+                                                article.getValue(ArticleModel::class.java)!!
+                                            )
+                                            isContain = true
+                                            break
+                                        }
+                                    }
+                                    if (isContain) {
                                         break
                                     }
                                 }
-                                if (isContain) {
-                                    break
+                            }
+                            communityAdapter.submitList(searchedArticleList)
+                            communityAdapter.notifyDataSetChanged()
+                        }
+
+                        override fun onCancelled(error: DatabaseError) {}
+
+                    })
+                } else if (position == 1) {
+                    searchedArticleList.clear()
+                    articleRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            for (article in snapshot.children) {
+                                if (searchText in article.child(ARTICLE_TITLE).value.toString()) {
+                                    searchedArticleList.add(
+                                        0,
+                                        article.getValue(ArticleModel::class.java)!!
+                                    )
                                 }
                             }
+                            communityAdapter.submitList(searchedArticleList)
+                            communityAdapter.notifyDataSetChanged()
                         }
-                        communityAdapter.submitList(searchedArticleList)
-                        communityAdapter.notifyDataSetChanged()
-                    }
 
-                    override fun onCancelled(error: DatabaseError) {
+                        override fun onCancelled(error: DatabaseError) {}
 
-                    }
+                    })
+                } else {
+                    searchedArticleList.clear()
+                    articleRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            for (article in snapshot.children) {
+                                if (searchText in article.child(ARTICLE_CONTENT).value.toString()) {
+                                    searchedArticleList.add(
+                                        0,
+                                        article.getValue(ArticleModel::class.java)!!
+                                    )
+                                }
+                            }
+                            communityAdapter.submitList(searchedArticleList)
+                            communityAdapter.notifyDataSetChanged()
+                        }
 
-                })
+                        override fun onCancelled(error: DatabaseError) {}
+
+                    })
+                }
             }
         }
     }
