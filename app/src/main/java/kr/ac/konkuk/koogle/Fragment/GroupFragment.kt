@@ -140,33 +140,6 @@ class GroupFragment : Fragment(R.layout.fragment_group) {
     }
 
     private fun initDB() {
-//        scope.launch {
-//            binding?.progressBar?.visibility = View.VISIBLE
-//            CoroutineScope(Dispatchers.IO).async {
-//                currentUserGroupRef.addListenerForSingleValueEvent(object: ValueEventListener{
-//                    override fun onDataChange(dataSnapshot: DataSnapshot) {
-//                        for (snapshot in dataSnapshot.children){
-//                            val groupModel = snapshot.getValue(GroupModel::class.java)
-//                            Log.i("GroupFragment", "groupModel: $groupModel")
-//                            if (groupModel != null) {
-//                                userGroupList.add(groupModel.groupId)
-//                            }
-//                        }
-//                        //동기적 실행을 위해 위치 옮김
-//                        initRecyclerView()
-//                        groupRef.addChildEventListener(listener)
-//
-//                    }
-//
-//                    override fun onCancelled(error: DatabaseError) {
-//
-//                    }
-//
-//                })
-//            }.await()
-//            binding?.progressBar?.visibility = View.GONE
-//        }
-
         currentUserGroupRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 for (snapshot in dataSnapshot.children) {

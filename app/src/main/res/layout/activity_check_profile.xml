@@ -23,15 +23,42 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
+            android:id="@+id/writerNameText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
-            android:text="프로필 수정"
+            android:text="닉네임"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/backButton"/>
+
+        <TextView
+            android:id="@+id/sirTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="님의"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/writerNameText"/>
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:text="프로필"
             android:textColor="@color/black"
             android:textSize="20sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/backButton"
+            app:layout_constraintStart_toEndOf="@+id/sirTextView"
             app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -76,94 +103,47 @@
                 android:layout_marginHorizontal="12dp"
                 android:text="@string/nickname" />
 
-            <EditText
-                android:id="@+id/userNameEdit"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="20sp"
-                android:layout_marginHorizontal="12dp"
-                android:ems="10"
-                android:inputType="textPersonName"
-                android:text="@string/nickname"
-                android:visibility="gone"/>
-
         </LinearLayout>
 
+        <View
+            android:id="@+id/userLevelView"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
     </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/changeLayout"
-        app:layout_constraintTop_toBottomOf="@id/userInfo"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/userNameChangeBtn"
-            android:layout_width="wrap_content"
-            android:ems="8"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="36dp"
-
-            android:text="이름 변경"/>
-
-        <Button
-            android:id="@+id/userNameChangeUpdateBtn"
-            android:layout_width="wrap_content"
-            android:ems="8"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="36dp"
-            android:text="저장"
-            android:visibility="gone"/>
-
-        <Button
-            android:id="@+id/userProfileChangeBtn"
-            android:layout_width="wrap_content"
-            android:ems="8"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="36dp"
-            android:text="프로필 변경"/>
-    </LinearLayout>
-
-
 
     <Button
-        android:id="@+id/accountInfoButton"
+        android:id="@+id/checkButton"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_width="0dp"
-        android:layout_marginHorizontal="36dp"
+        android:layout_width="wrap_content"
+        android:ems="10"
         android:layout_height="wrap_content"
-        android:text="@string/cancel"
+        android:text="확인"
         android:layout_marginBottom="8dp"
-        app:layout_constraintEnd_toStartOf="@id/profileEditButton"/>
-
-    <Button
-        android:id="@+id/profileEditButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/check"
-        android:layout_marginHorizontal="36dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintStart_toEndOf="@id/accountInfoButton"/>
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <ScrollView
-        android:id="@+id/scrollView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@+id/changeLayout"
-        app:layout_constraintBottom_toTopOf="@id/accountInfoButton"
-        android:layout_marginTop="12dp"
+        app:layout_constraintTop_toBottomOf="@id/userInfo"
+        app:layout_constraintBottom_toTopOf="@id/checkButton"
+        android:layout_marginTop="1dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
+            android:layout_height="match_parent"
             android:orientation="vertical">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/gray_cc"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/toolbarLayout" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/tagRecyclerView"
@@ -174,14 +154,26 @@
 
             </androidx.recyclerview.widget.RecyclerView>
 
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/addNewTagBtn"
-                android:layout_width="wrap_content"
+            <TextView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_baseline_add_24"
-                app:tint="@color/white"
-                android:backgroundTint="@color/colorMain"
-                android:layout_marginVertical="12dp"/>
+                android:layout_marginHorizontal="12dp"
+                android:layout_marginTop="16dp"
+                android:text="추천해요"
+                android:textSize="18sp" />
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/commentRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginHorizontal="12dp"
+                    android:nestedScrollingEnabled="false">
+                </androidx.recyclerview.widget.RecyclerView>
+            </ScrollView>
 
         </LinearLayout>
 

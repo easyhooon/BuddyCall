@@ -263,6 +263,14 @@ class ArticleActivity : AppCompatActivity() {
             intent.putExtra(MAP_INFO, mapInfo)
             startActivity(intent)
         }
+
+        //프로필을 누르면 상대방 프로필을 볼 수 있게
+        binding.profileImageView.setOnClickListener {
+            val intent = Intent(this, CheckProfileActivity::class.java)
+            intent.putExtra(WRITER_INFO, writerId)
+            Log.i("ArticleActivity", "writerId: $writerId")
+            startActivity(intent)
+        }
     }
 
     private fun initDB() {
@@ -414,5 +422,6 @@ class ArticleActivity : AppCompatActivity() {
     companion object {
         const val MAP_INFO = "MAP_INFO"
         const val ARTICLE_INFO = "ARTICLE_INFO"
+        const val WRITER_INFO = "WRITER_INFO"
     }
 }
