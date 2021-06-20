@@ -70,7 +70,7 @@ class GroupFragment : Fragment(R.layout.fragment_group) {
             for (groupId in userGroupList) {
                 if (groupId == groupModel.groupId) {
                     Log.i("GroupFragment", "유저가 속한 그룹의 아이디 :  ${groupModel.groupId}")
-                    groupList.add(groupModel)
+                    groupList.add(0, groupModel) //최신 그룹이 위로 올라오도록
                 }
             }
 //            if (userGroupList.contains(groupModel.groupId)){

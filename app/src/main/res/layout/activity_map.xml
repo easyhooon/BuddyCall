@@ -25,6 +25,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_marginBottom="12dp"
+        android:fontFamily="@font/font"
         android:text="취소"
         app:layout_constraintStart_toEndOf="@id/checkButton"/>
 
@@ -36,6 +37,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/cancelButton"
         android:layout_marginBottom="12dp"
+        android:fontFamily="@font/font"
         android:text="확인"
         app:layout_constraintStart_toStartOf="parent" />
 
