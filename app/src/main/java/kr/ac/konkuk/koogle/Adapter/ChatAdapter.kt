@@ -13,6 +13,9 @@ import kr.ac.konkuk.koogle.DBKeys.Companion.LEFT_CHAT
 import kr.ac.konkuk.koogle.DBKeys.Companion.RIGHT_CHAT
 import kr.ac.konkuk.koogle.Model.ChatModel
 import kr.ac.konkuk.koogle.R
+import kr.ac.konkuk.koogle.databinding.ItemCardBinding
+import kr.ac.konkuk.koogle.databinding.ItemLeftChatBinding
+import kr.ac.konkuk.koogle.databinding.ItemRightChatBinding
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -23,45 +26,36 @@ class ChatAdapter(val context: Context, private val chatList: MutableList<ChatMo
         abstract fun bind(item: T)
     }
 
-    inner class LeftViewHolder(itemView: View) : BaseViewHolder<ChatModel>(itemView) {
+    inner class LeftViewHolder(private val binding: ItemLeftChatBinding) : BaseViewHolder<ChatModel>(binding.root) {
 
         @SuppressLint("SimpleDateFormat")
         val format = SimpleDateFormat("a HH:mm", Locale.KOREA)
 
-        val tv_writerName = itemView.findViewById<TextView>(R.id.writerNameTextView)
-        val tv_chatContent = itemView.findViewById<TextView>(R.id.contentTextView)
-        val tv_createTime = itemView.findViewById<TextView>(R.id.timeTextView)
-        val iv_writerProfileImage = itemView.findViewById<CircleImageView>(R.id.writerProfileImage)
-
-
         override fun bind(chatModel: ChatModel) {
             val time = Date(chatModel.chatCreatedAt)
 
-            tv_writerName.text = chatModel.writerName
-            tv_chatContent.text = chatModel.chatContent
-            tv_createTime.text = format.format(time).toString()
+            binding.writerNameTextView.text = chatModel.writerName
+            binding.contentTextView.text = chatModel.chatContent
+            binding.timeTextView.text = format.format(time).toString()
 
             if (chatModel.writerProfileImageUrl.isNotEmpty()) {
-                Glide.with(iv_writerProfileImage)
+                Glide.with(binding.writerProfileImage)
                     .load(chatModel.writerProfileImageUrl)
-                    .into(iv_writerProfileImage)
+                    .into(binding.writerProfileImage)
             }
         }
     }
 
-    inner class RightViewHolder(itemView: View) : BaseViewHolder<ChatModel>(itemView) {
+    inner class RightViewHolder(private val binding: ItemRightChatBinding) : BaseViewHolder<ChatModel>(binding.root) {
 
         @SuppressLint("SimpleDateFormat")
         val format = SimpleDateFormat("a HH:mm", Locale.KOREA)
 
-
-        val tv_chatContent = itemView.findViewById<TextView>(R.id.contentTextView)
-        val tv_createTime = itemView.findViewById<TextView>(R.id.timeTextView)
         override fun bind(chatModel: ChatModel) {
             val time = Date(chatModel.chatCreatedAt)
 
-            tv_chatContent.text = chatModel.chatContent
-            tv_createTime.text = format.format(time).toString()
+            binding.contentTextView.text = chatModel.chatContent
+            binding.timeTextView.text = format.format(time).toString()
         }
     }
 
@@ -70,14 +64,10 @@ class ChatAdapter(val context: Context, private val chatList: MutableList<ChatMo
         //context 는 parent 에 있다
         return when (viewType) {
             LEFT_CHAT -> {
-                val view =
-                    LayoutInflater.from(context).inflate(R.layout.item_left_chat, parent, false)
-                LeftViewHolder(view)
+                LeftViewHolder(ItemLeftChatBinding.inflate(LayoutInflater.from(parent.context),parent,false))
             }
             RIGHT_CHAT -> {
-                val view =
-                    LayoutInflater.from(context).inflate(R.layout.item_right_chat, parent, false)
-                RightViewHolder(view)
+                RightViewHolder(ItemRightChatBinding.inflate(LayoutInflater.from(parent.context),parent,false))
             }
             else -> throw IllegalArgumentException("Invalid view type")
         }
@@ -103,17 +93,6 @@ class ChatAdapter(val context: Context, private val chatList: MutableList<ChatMo
         return chatList[position].viewType
     }
 
-//    companion object {
-//        val diffUtil = object : DiffUtil.ItemCallback<ChatModel>() {
-//            override fun areItemsTheSame(oldModel: ChatModel, newModel: ChatModel): Boolean {
-//                return oldModel.chatCreatedAt == newModel.chatCreatedAt
-//            }
-//
-//            override fun areContentsTheSame(oldModel: ChatModel, newModel: ChatModel): Boolean {
-//                return oldModel == newModel
-//            }
-//        }
-//    }
 
     override fun getItemCount(): Int {
         return chatList.size
