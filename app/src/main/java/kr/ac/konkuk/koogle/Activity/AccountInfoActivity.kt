@@ -131,7 +131,8 @@ class AccountInfoActivity : AppCompatActivity() {
         }
     }
 
-    //todo 수정 필요
+    //수정 필요
+    //이건 데이터만 지우는 거임
     //User 탈퇴하면 그 유저가 쓴거 다 날려야되네?
     private fun deleteAccount() {
         val deleteRef: StorageReference = storageRef.child("profile images/${firebaseUser.uid}.jpg")

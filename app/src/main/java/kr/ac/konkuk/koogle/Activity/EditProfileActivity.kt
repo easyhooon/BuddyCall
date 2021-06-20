@@ -26,6 +26,10 @@ import kr.ac.konkuk.koogle.Adapter.AddTagAdapter
 import kr.ac.konkuk.koogle.Adapter.TagAdapter
 import kr.ac.konkuk.koogle.DBKeys
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
+import kr.ac.konkuk.koogle.DBKeys.Companion.SUB_TAGS
+import kr.ac.konkuk.koogle.DBKeys.Companion.TAG_INDEX
+import kr.ac.konkuk.koogle.DBKeys.Companion.TAG_TYPE
+import kr.ac.konkuk.koogle.DBKeys.Companion.TAG_VALUE
 import kr.ac.konkuk.koogle.DBKeys.Companion.USER_NAME
 import kr.ac.konkuk.koogle.DBKeys.Companion.USER_PROFILE_IMAGE_PATH
 import kr.ac.konkuk.koogle.DBKeys.Companion.USER_PROFILE_IMAGE_URL
@@ -64,10 +68,10 @@ class EditProfileActivity : ProfileCommonActivity() {
             for ((i, s) in value.sub_tag_list.withIndex()) {
                 newSubTag[s] = i
             }
-            newTag[DBKeys.TAG_INDEX] = j
-            newTag[DBKeys.SUB_TAGS] = newSubTag
-            newTag[DBKeys.TAG_TYPE] = value.tag_type
-            newTag[DBKeys.TAG_VALUE] = value.value
+            newTag[TAG_INDEX] = j
+            newTag[SUB_TAGS] = newSubTag
+            newTag[TAG_TYPE] = value.tag_type
+            newTag[TAG_VALUE] = value.value
             tags[value.main_tag_name] = newTag
             j++
         }
@@ -251,11 +255,11 @@ class EditProfileActivity : ProfileCommonActivity() {
     private fun initUserInfo() {
         //입력 로그인용 유저의 데이터를 불러오기 위한 uid
         val uid = firebaseUser.uid
-        val currentUserRef = Firebase.database.reference.child(DBKeys.DB_USERS).child(uid)
+        val currentUserRef = Firebase.database.reference.child(DB_USERS).child(uid)
 //        val userRef = FirebaseDatabase.getInstance().getReference(DB_USERS).child(uid)와 같다
 
 //        파이어베이스 데이터베이스의 정보 가져오기
-        currentUserRef.addValueEventListener(object : ValueEventListener {
+        currentUserRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
                     val userModel: UserModel? = snapshot.getValue(UserModel::class.java)
