@@ -169,6 +169,7 @@
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/cancelImageView"
                 android:layout_width="0dp"
+                android:backgroundTint="@color/black"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:layout_gravity="center"
@@ -179,6 +180,7 @@
                 android:id="@+id/checkImageView"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:backgroundTint="@color/black"
                 android:layout_weight="1"
                 android:layout_gravity="center"
                 android:padding="10dp"

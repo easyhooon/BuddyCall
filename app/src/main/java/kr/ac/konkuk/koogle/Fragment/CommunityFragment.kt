@@ -54,7 +54,7 @@ class CommunityFragment : Fragment(R.layout.fragment_community) {
             val articleModel = snapshot.getValue(ArticleModel::class.java)
             articleModel ?: return
 
-            articleList.add(articleModel)
+            articleList.add(0, articleModel) //최신글이 위로 올라오도록
             communityAdapter.submitList(articleList)
             communityAdapter.notifyDataSetChanged()
         }
