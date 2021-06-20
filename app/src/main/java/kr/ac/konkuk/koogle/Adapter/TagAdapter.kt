@@ -1,6 +1,8 @@
 package kr.ac.konkuk.koogle.Adapter
 
 import android.content.Context
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -17,8 +19,11 @@ import kr.ac.konkuk.koogle.Model.TagType
     2021-05-27 주예진 작성
     프로필에서 표시되는 태그 Recycler View 의 row adapter
     대분류 태그(제목)와 소분류 태그를 표시
+    isSetting: 프로필에서 사용할 것인지 프로필 편집 창에서 사용할 것인지에 따라
+    태그를 누를 수 있는 지 여부가 결정됨
  */
-class TagAdapter(open val context: Context, open val data: MutableList<TagModel>)
+class TagAdapter(val context: Context, val data: MutableList<TagModel>,
+                 val isSetting: Boolean)
     : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
     interface OnItemClickListener {
         fun onItemClick(holder: DefaultViewHolder, view: EditText, data: TagModel, position: Int)
@@ -73,11 +78,30 @@ class TagAdapter(open val context: Context, open val data: MutableList<TagModel>
         var mainTagText: TextView = itemView.findViewById(R.id.mainTagText)
         var mainTag: String = ""
         var subTagView: LinearLayout = itemView.findViewById(R.id.subTagView)
+        var editNow: Int = 0
+        var editNowSub: Int = 0
+
+        private fun editTagStart(subTagName: String): Boolean{
+            for((j, t) in data.withIndex()){
+                for((i, st) in t.sub_tag_list.withIndex()){
+                    if(subTagName == st){
+                        editNow = j
+                        editNowSub = i
+                        return true
+                    }
+                }
+            }
+            return false
+        }
+
+        private fun editTag(subTagName: String){
+            data[editNow].sub_tag_list[editNowSub] = subTagName
+        }
 
         // SubTag 한 칸을 생성한다.
         fun makeSubTagView(tagName: String): TextView {
             var subTagText = EditText(context)
-            subTagText.isEnabled = false
+            subTagText.isFocusable = isSetting
             subTagText.setText(tagName)
             // 모서리가 둥근 태그 스타일 적용(임시)
             subTagText.setTextAppearance(R.style.TAG_STYLE)
@@ -89,7 +113,28 @@ class TagAdapter(open val context: Context, open val data: MutableList<TagModel>
             )
             p.setMargins(5)
             subTagText.layoutParams = p
-            
+
+            // 편집 세팅
+            subTagText.addTextChangedListener(object: TextWatcher{
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+                    if(!editTagStart(subTagText.text.toString()))
+                        Log.d("jan", "editTagFail")
+                }
+
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                }
+
+                override fun afterTextChanged(s: Editable?) {
+                    editTag(subTagText.text.toString())
+                }
+
+            })
+
             // 클릭 이벤트 설정
             subTagText.setOnClickListener {
                 itemClickListener?.onItemClick(this, subTagText, data[adapterPosition], adapterPosition)
