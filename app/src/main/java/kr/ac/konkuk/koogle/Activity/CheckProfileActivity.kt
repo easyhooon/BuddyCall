@@ -44,12 +44,6 @@ class CheckProfileActivity : AppCompatActivity() {
 
     private var userCommentList =  mutableListOf<CommentModel>()
 
-    private val auth:FirebaseAuth by lazy {
-        Firebase.auth
-    }
-
-    private val firebaseUser= auth.currentUser!!
-
     private val userRef: DatabaseReference by lazy {
         Firebase.database.reference.child(DB_USERS)
     }
