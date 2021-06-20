@@ -38,7 +38,6 @@ import kr.ac.konkuk.koogle.databinding.FragmentCommunityBinding
 
 
 class CommunityFragment : Fragment(R.layout.fragment_community) {
-
     private var binding: FragmentCommunityBinding? = null
 
     private lateinit var communityAdapter: CommunityAdapter
@@ -131,7 +130,7 @@ class CommunityFragment : Fragment(R.layout.fragment_community) {
 
                 //fragment에서 다른 액티비티로 데이터 전달
                 Log.d("CommunityFragment", "articleId: ${articleModel.articleId}")
-                activity?.startActivity(intent)
+                startActivityForResult(intent, REQUEST_ARTICLE)
             } else {
                 //로그인을 안한 상태
                 Toast.makeText(context, "로그인 후 사용해주세요", Toast.LENGTH_LONG).show()
@@ -146,6 +145,120 @@ class CommunityFragment : Fragment(R.layout.fragment_community) {
             )
         )
         binding!!.articleRecyclerView.adapter = communityAdapter
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        Log.d("jan", "ok")
+        // 글에서 수신된 결과 (태그 선택)
+        if(requestCode == REQUEST_ARTICLE){
+            val str:String? = data?.getStringExtra("tag")
+            Log.d("jan", "go ${str}")
+            if(!str.isNullOrBlank()){
+                Log.d("jan", str)
+                binding!!.searchEditText.setText(str)
+                searchArticle()
+            }
+        }
+    }
+
+    private fun searchArticle(){
+        val searchText = binding!!.searchEditText.text.toString()
+        val articleRef = Firebase.database.reference.child(DB_ARTICLES)
+
+        if (searchText.isEmpty()) {
+            articleRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    articleList.clear()
+                    for (article in snapshot.children) {
+                        articleList.add(0, article.getValue(ArticleModel::class.java)!!)
+                    }
+                    communityAdapter.submitList(articleList)
+                    communityAdapter.notifyDataSetChanged()
+                }
+
+                override fun onCancelled(error: DatabaseError) {}
+
+            })
+        } else {
+            val position = binding!!.searchSpinner.selectedItemPosition
+
+            if (position == 0) {
+                searchedArticleList.clear()
+                articleRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        for (article in snapshot.children) {
+                            for (tag in article.child(DB_MAIN_TAGS).children) {
+                                var isContain = false
+                                if (searchText in tag.key.toString()) {
+                                    searchedArticleList.add(
+                                        0,
+                                        article.getValue(ArticleModel::class.java)!!
+                                    )
+                                    break
+                                }
+                                for (subtag in tag.child(SUB_TAGS).children) {
+                                    if (searchText in subtag.key.toString()) {
+                                        searchedArticleList.add(
+                                            0,
+                                            article.getValue(ArticleModel::class.java)!!
+                                        )
+                                        isContain = true
+                                        break
+                                    }
+                                }
+                                if (isContain) {
+                                    break
+                                }
+                            }
+                        }
+                        communityAdapter.submitList(searchedArticleList)
+                        communityAdapter.notifyDataSetChanged()
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {}
+
+                })
+            } else if (position == 1) {
+                searchedArticleList.clear()
+                articleRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        for (article in snapshot.children) {
+                            if (searchText in article.child(ARTICLE_TITLE).value.toString()) {
+                                searchedArticleList.add(
+                                    0,
+                                    article.getValue(ArticleModel::class.java)!!
+                                )
+                            }
+                        }
+                        communityAdapter.submitList(searchedArticleList)
+                        communityAdapter.notifyDataSetChanged()
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {}
+
+                })
+            } else {
+                searchedArticleList.clear()
+                articleRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        for (article in snapshot.children) {
+                            if (searchText in article.child(ARTICLE_CONTENT).value.toString()) {
+                                searchedArticleList.add(
+                                    0,
+                                    article.getValue(ArticleModel::class.java)!!
+                                )
+                            }
+                        }
+                        communityAdapter.submitList(searchedArticleList)
+                        communityAdapter.notifyDataSetChanged()
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {}
+
+                })
+            }
+        }
     }
 
     private fun initButton() {
@@ -175,102 +288,7 @@ class CommunityFragment : Fragment(R.layout.fragment_community) {
         }
 
         binding!!.searchImageView.setOnClickListener {
-            val searchText = binding!!.searchEditText.text.toString()
-            val articleRef = Firebase.database.reference.child(DB_ARTICLES)
-
-            if (searchText.isEmpty()) {
-                articleRef.addListenerForSingleValueEvent(object : ValueEventListener {
-                    override fun onDataChange(snapshot: DataSnapshot) {
-                        articleList.clear()
-                        for (article in snapshot.children) {
-                            articleList.add(0, article.getValue(ArticleModel::class.java)!!)
-                        }
-                        communityAdapter.submitList(articleList)
-                        communityAdapter.notifyDataSetChanged()
-                    }
-
-                    override fun onCancelled(error: DatabaseError) {}
-
-                })
-            } else {
-                val position = binding!!.searchSpinner.selectedItemPosition
-
-                if (position == 0) {
-                    searchedArticleList.clear()
-                    articleRef.addListenerForSingleValueEvent(object : ValueEventListener {
-                        override fun onDataChange(snapshot: DataSnapshot) {
-                            for (article in snapshot.children) {
-                                for (tag in article.child(DB_MAIN_TAGS).children) {
-                                    var isContain = false
-                                    if (searchText in tag.key.toString()) {
-                                        searchedArticleList.add(
-                                            0,
-                                            article.getValue(ArticleModel::class.java)!!
-                                        )
-                                        break
-                                    }
-                                    for (subtag in tag.child(SUB_TAGS).children) {
-                                        if (searchText in subtag.key.toString()) {
-                                            searchedArticleList.add(
-                                                0,
-                                                article.getValue(ArticleModel::class.java)!!
-                                            )
-                                            isContain = true
-                                            break
-                                        }
-                                    }
-                                    if (isContain) {
-                                        break
-                                    }
-                                }
-                            }
-                            communityAdapter.submitList(searchedArticleList)
-                            communityAdapter.notifyDataSetChanged()
-                        }
-
-                        override fun onCancelled(error: DatabaseError) {}
-
-                    })
-                } else if (position == 1) {
-                    searchedArticleList.clear()
-                    articleRef.addListenerForSingleValueEvent(object : ValueEventListener {
-                        override fun onDataChange(snapshot: DataSnapshot) {
-                            for (article in snapshot.children) {
-                                if (searchText in article.child(ARTICLE_TITLE).value.toString()) {
-                                    searchedArticleList.add(
-                                        0,
-                                        article.getValue(ArticleModel::class.java)!!
-                                    )
-                                }
-                            }
-                            communityAdapter.submitList(searchedArticleList)
-                            communityAdapter.notifyDataSetChanged()
-                        }
-
-                        override fun onCancelled(error: DatabaseError) {}
-
-                    })
-                } else {
-                    searchedArticleList.clear()
-                    articleRef.addListenerForSingleValueEvent(object : ValueEventListener {
-                        override fun onDataChange(snapshot: DataSnapshot) {
-                            for (article in snapshot.children) {
-                                if (searchText in article.child(ARTICLE_CONTENT).value.toString()) {
-                                    searchedArticleList.add(
-                                        0,
-                                        article.getValue(ArticleModel::class.java)!!
-                                    )
-                                }
-                            }
-                            communityAdapter.submitList(searchedArticleList)
-                            communityAdapter.notifyDataSetChanged()
-                        }
-
-                        override fun onCancelled(error: DatabaseError) {}
-
-                    })
-                }
-            }
+             searchArticle()
         }
     }
 
@@ -285,5 +303,9 @@ class CommunityFragment : Fragment(R.layout.fragment_community) {
         super.onDestroyView()
 
         articleRef.removeEventListener(listener)
+    }
+
+    companion object{
+        const val REQUEST_ARTICLE = 177
     }
 }
