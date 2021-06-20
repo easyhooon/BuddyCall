@@ -152,7 +152,7 @@ class AddCommentActivity : AppCompatActivity() {
             }
 
             val ad = AlertDialog.Builder(this)
-            ad.setMessage("평가를 등록하시겠습니까? \n(무분별한 비난의 경우 관리자의 의해 삭제 조치될 수 있습니다.) ")
+            ad.setMessage("리뷰를 등록하시겠습니까? \n(무분별한 비난의 경우 관리자의 의해 삭제 조치될 수 있습니다.) ")
             ad.setPositiveButton(
                 "취소"
             ) { dialog, _ ->
@@ -163,7 +163,7 @@ class AddCommentActivity : AppCompatActivity() {
             ad.setNegativeButton(
                 "등록"
             ) { dialog, _ ->
-                Toast.makeText(this, "평가가 등록되었습니다", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "리뷰가 등록되었습니다", Toast.LENGTH_SHORT).show()
                 showProgress()
                 addComment()
 

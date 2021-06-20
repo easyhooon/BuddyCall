@@ -6,5 +6,5 @@
 
     <item
         android:id="@+id/adminEvaluate"
-        android:title="평가하기"/>
+        android:title="리뷰하기"/>
 </menu>
