@@ -53,6 +53,7 @@ import kr.ac.konkuk.koogle.DBKeys.Companion.USER_EMAIL
 import kr.ac.konkuk.koogle.DBKeys.Companion.USER_ID
 import kr.ac.konkuk.koogle.DBKeys.Companion.USER_NAME
 import kr.ac.konkuk.koogle.DBKeys.Companion.USER_PROFILE_IMAGE_URL
+import kr.ac.konkuk.koogle.Fragment.CommunityFragment
 import kr.ac.konkuk.koogle.Model.ArticleModel
 import kr.ac.konkuk.koogle.Model.Entity.SearchResultEntity
 import kr.ac.konkuk.koogle.Model.TagModel
@@ -483,6 +484,11 @@ class ArticleActivity : AppCompatActivity() {
                 data: TagModel,
                 position: Int
             ) {
+                // 검색창으로 이동
+                val intent = Intent()
+                intent.putExtra("tag", view.text.toString())
+                setResult(CommunityFragment.REQUEST_ARTICLE, intent)
+                finish()
             }
         }
         binding.tagRecyclerView.adapter = tagRecyclerAdapter

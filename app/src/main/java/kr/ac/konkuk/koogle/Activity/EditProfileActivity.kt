@@ -235,19 +235,7 @@ class EditProfileActivity : ProfileCommonActivity() {
         binding.tagRecyclerView.addItemDecoration(DividerItemDecoration(this, 1))
 
         tagAdapter = TagAdapter(this, data, true)
-        // 서브태그들 클릭했을 때 이벤트 구현
-        /*
-        tagAdapter.subTagClickListener = object : TagAdapter.OnItemClickListener {
-            override fun onItemClick(
-                holder: TagAdapter.DefaultViewHolder,
-                view: EditText,
-                data: TagModel,
-                position: Int
-            ) {
-                Log.d("jan", "Click")
-                view.isEnabled = true
-            }
-        }*/
+
         binding.tagRecyclerView.adapter = tagAdapter
         val simpleCallBack = object : ItemTouchHelper.SimpleCallback(
             ItemTouchHelper.DOWN or ItemTouchHelper.UP,
