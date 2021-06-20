@@ -1,5 +1,6 @@
 package kr.ac.konkuk.koogle.Model
 
+import com.google.firebase.database.DataSnapshot
 import kr.ac.konkuk.koogle.Model.Entity.SearchResultEntity
 
 data class CardModel(
@@ -13,10 +14,14 @@ data class CardModel(
     val articleContent:String,//글 내용
     val currentNumber:Int,// 현재 모집된 인원
     val recruitmentNumber:Int, //모집 인원
-    val desiredLocation: SearchResultEntity? //만남 희망 장소
+    val desiredLocation: SearchResultEntity?, //만남 희망 장소
+    var tagList: DataSnapshot? // 태그 리스트
 ){
 //    constructor(): this("","","", "", "", "","",0,0, null)
     //임시 수정
-    constructor(): this("","","","", "",  "","",0,0, null)
+    constructor(): this("","","","", "",
+    "","",0,0, null,
+    null
+)
 }
 

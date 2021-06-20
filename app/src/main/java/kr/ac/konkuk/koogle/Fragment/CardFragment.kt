@@ -18,6 +18,7 @@ import kr.ac.konkuk.koogle.Activity.ArticleActivity
 import kr.ac.konkuk.koogle.Adapter.CardAdapter
 import kr.ac.konkuk.koogle.DBKeys.Companion.ARTICLE_ID
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_ARTICLES
+import kr.ac.konkuk.koogle.DBKeys.Companion.DB_MAIN_TAGS
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
 import kr.ac.konkuk.koogle.DBKeys.Companion.WRITER_ID
 import kr.ac.konkuk.koogle.Model.ArticleModel
@@ -48,6 +49,7 @@ class CardFragment : Fragment(), CardStackListener {
             {
                 val cardModel = snapshot.getValue(CardModel::class.java)
                 if (cardModel != null) {
+                    cardModel.tagList = snapshot.child(DB_MAIN_TAGS)
                     cardList.add(cardModel)
                 }
                 cardAdapter.submitList(cardList)
@@ -80,7 +82,7 @@ class CardFragment : Fragment(), CardStackListener {
     }
 
     private fun initCardStackView() {
-        cardAdapter = CardAdapter()
+        cardAdapter = CardAdapter(context)
 
         binding?.cardStackView?.layoutManager = CardStackLayoutManager(context, this)
         binding?.cardStackView?.adapter = cardAdapter

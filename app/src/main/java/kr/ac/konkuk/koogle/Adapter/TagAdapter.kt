@@ -182,7 +182,6 @@ class TagAdapter(val context: Context, val data: MutableList<TagModel>,
             // 모서리가 둥근 태그 스타일 적용(임시)
             subTagText.setTextAppearance(R.style.TAG_STYLE)
             subTagText.setBackgroundResource(R.drawable.layout_tag_background)
-            subTagText.setBackgroundResource(R.drawable.layout_tag_background)
             subTagText.maxLines = 1
             subTagText.ellipsize = TextUtils.TruncateAt.MARQUEE
             subTagText.isSingleLine = true
@@ -207,7 +206,7 @@ class TagAdapter(val context: Context, val data: MutableList<TagModel>,
                 if (subTagView.childCount == 0) {
                     addRow()
                 }
-                // 새로운 Table row 를 추가해야 하는지 길이 검사(임시)
+                // 새로운 Table row 를 추가해야 하는지 길이 검사
                 lastRow = getRow(subTagView.childCount - 1)
                 var len = 0
                 val row_len = 26
