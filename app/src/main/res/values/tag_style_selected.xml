@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="TAG_STYLE_SELECTED">
-        <item name="android:textSize">15sp</item>
+        <item name="android:textSize">12sp</item>
         <item name="android:textColor">@color/white</item>
         <item name="android:background">@drawable/layout_tag_selected_background</item>
     </style>

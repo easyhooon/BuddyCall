@@ -137,9 +137,9 @@ class ArticleActivity : AppCompatActivity() {
         imageAdapter = ArticleImageAdapter()
         imageAdapter.itemClickListener = object : ArticleImageAdapter.OnItemClickListener {
             override fun onItemClick(holder: ArticleImageAdapter.ViewHolder, uri: Uri) {
-//                val intent = Intent(this@ArticleActivity, ImageViewActivity::class.java)
-//                intent.putExtra("uri", uri)
-//                startActivity(intent)
+                val intent = Intent(this@ArticleActivity, ImageViewActivity::class.java)
+                intent.putExtra("url", uri.toString())
+                startActivity(intent)
             }
         }
         binding.photoImageRecyclerView.adapter = imageAdapter
