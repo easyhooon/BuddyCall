@@ -44,7 +44,6 @@ import kr.ac.konkuk.koogle.Model.ArticleModel
 import kr.ac.konkuk.koogle.Model.Entity.SearchResultEntity
 import kr.ac.konkuk.koogle.Model.UserModel
 import kr.ac.konkuk.koogle.databinding.ActivityEditArticleBinding
-import java.io.File
 
 //기존 글의 데이터 읽어오기
 class EditArticleActivity : AppCompatActivity() {

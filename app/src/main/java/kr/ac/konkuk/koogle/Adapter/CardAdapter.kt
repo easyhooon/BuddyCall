@@ -41,6 +41,12 @@ class CardAdapter: ListAdapter<CardModel, CardAdapter.ViewHolder>(diffUtil){
                     .load(cardModel.writerProfileImageUrl)
                     .into(binding.profileImageView)
             }
+            if(cardModel.articleThumbnailImageUrl.isNotEmpty()){
+                Glide.with(binding.cardThumbnailBackground)
+                    .load(cardModel.articleThumbnailImageUrl)
+                    .into(binding.cardThumbnailBackground)
+                binding.cardThumbnailBackground.alpha = 0.5f
+            }
             if(cardModel.currentNumber == cardModel.recruitmentNumber){
                 binding.currentNumberTextView.setTextColor(Color.RED)
                 binding.slash.setTextColor(Color.RED)

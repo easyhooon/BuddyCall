@@ -24,6 +24,11 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import kr.ac.konkuk.koogle.Adapter.TagAdapter
 import kr.ac.konkuk.koogle.DBKeys
+import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USER_TAG
+import kr.ac.konkuk.koogle.DBKeys.Companion.SUB_TAGS
+import kr.ac.konkuk.koogle.DBKeys.Companion.TAG_INDEX
+import kr.ac.konkuk.koogle.DBKeys.Companion.TAG_TYPE
+import kr.ac.konkuk.koogle.DBKeys.Companion.TAG_VALUE
 import kr.ac.konkuk.koogle.Model.TagModel
 
 /*
@@ -60,20 +65,20 @@ abstract class ProfileCommonActivity: AppCompatActivity(){
         // DB 에서 유저 태그 데이터 받아옴
         val tagData: ArrayList<TagModel> = arrayListOf()
         userTagRef = Firebase.database.reference
-            .child(DBKeys.DB_USER_TAG).child(firebaseUser.uid)
-        userTagRef.orderByChild(DBKeys.TAG_INDEX)
+            .child(DB_USER_TAG).child(firebaseUser.uid)
+        userTagRef.orderByChild(TAG_INDEX)
             .limitToFirst(maxShowTag).addListenerForSingleValueEvent(object:ValueEventListener{
                 override fun onDataChange(snapshot: DataSnapshot) {
                     for(s in snapshot.children){
                         val newSubTag = arrayListOf<String>()
-                        for(st in s.child(DBKeys.SUB_TAGS).children){
+                        for(st in s.child(SUB_TAGS).children){
                             newSubTag.add(st.key.toString())
                         }
                         tagData.add(
                             TagModel(
                                 s.key.toString(), newSubTag,
-                                s.child(DBKeys.TAG_VALUE).value.toString().toInt(),
-                                s.child(DBKeys.TAG_TYPE).value.toString().toInt()
+                                s.child(TAG_VALUE).value.toString().toInt(),
+                                s.child(TAG_TYPE).value.toString().toInt()
                             ))
                     }
                     // 로딩 작업이 끝난 이후 RecyclerView 를 초기화하는 순서를 맞추기 위해 이곳에 넣음

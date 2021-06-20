@@ -3,6 +3,7 @@ package kr.ac.konkuk.koogle.Adapter
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -43,6 +44,15 @@ class CommunityAdapter(val onItemClicked: (ArticleModel) -> Unit): ListAdapter<A
                 binding.currentNumberTextView.setTextColor(Color.RED)
                 binding.slash.setTextColor(Color.RED)
                 binding.recruitmentNumberTextView.setTextColor(Color.RED)
+            }
+
+            if(articleModel.articleThumbnailImageUrl.isNotEmpty()){
+                Glide.with(binding.articleThumbnailImage)
+                    .load(articleModel.articleThumbnailImageUrl)
+                    .into(binding.articleThumbnailImage)
+            }
+            else{
+                binding.articleThumbnailImage.visibility = View.INVISIBLE
             }
         }
     }
