@@ -220,6 +220,8 @@ class ArticleActivity : AppCompatActivity() {
     private fun deleteArticle() {
         currentArticleRef.setValue(null)
         currentGroupRef.setValue(null)
+        //유저의 그룹에서도 삭제
+        currentUserGroupRef.setValue(null)
         val storageRef = storage.reference.child(ARTICLE_IMAGE_PATH)
         for (name in fileNameList) {
             storageRef.child(name).delete()
