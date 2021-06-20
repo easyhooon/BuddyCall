@@ -3,26 +3,19 @@ package kr.ac.konkuk.koogle.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.View
-import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.FirebaseStorage
 import com.theartofdev.edmodo.cropper.CropImage
 import kotlinx.android.synthetic.main.activity_add_tag.*
-import kr.ac.konkuk.koogle.Adapter.AddTagAdapter
 import kr.ac.konkuk.koogle.Adapter.TagAdapter
 import kr.ac.konkuk.koogle.DBKeys
 import kr.ac.konkuk.koogle.DBKeys.Companion.DB_USERS
@@ -80,18 +73,6 @@ class EditProfileActivity : ProfileCommonActivity() {
             j++
         }
         userTagRef.setValue(tags)
-    }
-    
-    // new Tag Activity 로부터 전달받은 데이타가 잘 DB에 들어가는 지 확인하기 위한 함수
-    // resultData: new Tag Activity 로부터 전해받은 Data
-    private fun test(resultData: HashMap<String, TagModel>? = null){
-
-        // 수정 방향: adapter 에 그대로 전달하기
-        var newList:ArrayList<TagModel> = arrayListOf()
-        for((key, value) in resultData!!){
-            newList.add(value)
-        }
-        tagAdapter.updateData(newList)
     }
 
     private fun initButton() {
@@ -154,6 +135,16 @@ class EditProfileActivity : ProfileCommonActivity() {
             Toast.makeText(this, "닉네임을 변경하였습니다", Toast.LENGTH_SHORT).show()
         }
     }
+    // new Tag Activity 로부터 전달받은 데이타를 리사이클러뷰 어댑터로 전달
+    // resultData: new Tag Activity 로부터 전해받은 Data
+    private fun tossToAdpater(resultData: HashMap<String, TagModel>? = null){
+
+        var newList:ArrayList<TagModel> = arrayListOf()
+        for((key, value) in resultData!!){
+            newList.add(value)
+        }
+        tagAdapter.updateData(newList)
+    }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -161,7 +152,7 @@ class EditProfileActivity : ProfileCommonActivity() {
         if (requestCode == newTagRequest){
             val data = data?.extras?.getSerializable("selectedTags")
             if(data!=null)
-                test(data  as HashMap<String, TagModel>)
+                tossToAdpater(data  as HashMap<String, TagModel>)
         }
 
 

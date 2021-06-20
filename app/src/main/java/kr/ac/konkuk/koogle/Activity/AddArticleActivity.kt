@@ -26,6 +26,8 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
 import kotlinx.android.synthetic.main.activity_add_article.*
 import kr.ac.konkuk.koogle.Adapter.AddArticleImageAdapter
+import kr.ac.konkuk.koogle.Adapter.TagAdapter
+import kr.ac.konkuk.koogle.DBKeys
 import kr.ac.konkuk.koogle.DBKeys.Companion.ADMIN_ID
 import kr.ac.konkuk.koogle.DBKeys.Companion.ADMIN_NAME
 import kr.ac.konkuk.koogle.DBKeys.Companion.ADMIN_PROFILE_IMAGE_URL
@@ -53,6 +55,7 @@ import kr.ac.konkuk.koogle.DBKeys.Companion.WRITER_ID
 import kr.ac.konkuk.koogle.DBKeys.Companion.WRITER_NAME
 import kr.ac.konkuk.koogle.DBKeys.Companion.WRITER_PROFILE_IMAGE_URL
 import kr.ac.konkuk.koogle.Model.Entity.SearchResultEntity
+import kr.ac.konkuk.koogle.Model.TagModel
 import kr.ac.konkuk.koogle.Model.UserModel
 import kr.ac.konkuk.koogle.databinding.ActivityAddArticleBinding
 
@@ -74,6 +77,7 @@ class AddArticleActivity : AppCompatActivity() {
     private var downloadedUrlList: ArrayList<String> = arrayListOf()
 
     private lateinit var imageAdapter: AddArticleImageAdapter
+    private lateinit var tagRecyclerAdapter : TagAdapter
 
     private val auth: FirebaseAuth by lazy {
         Firebase.auth
@@ -107,6 +111,7 @@ class AddArticleActivity : AppCompatActivity() {
         initDB()
         initButton()
         initImageRecyclerView()
+        initRecyclerView()
     }
 
     private fun initDB() {
@@ -371,11 +376,26 @@ class AddArticleActivity : AppCompatActivity() {
     private fun hideProgress() {
         binding.progressBar.isVisible = false
     }
+    // new Tag Activity 로부터 전달받은 데이타를 리사이클러뷰 어댑터로 전달
+    // resultData: new Tag Activity 로부터 전해받은 Data
+    private fun tossToAdpater(resultData: HashMap<String, TagModel>? = null){
 
+        var newList:ArrayList<TagModel> = arrayListOf()
+        for((key, value) in resultData!!){
+            newList.add(value)
+        }
+        tagRecyclerAdapter.updateData(newList)
+    }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
         when (requestCode) {
+            TAG_ADD_REQUEST_CODE -> {
+                // 새 태그 추가 액티비티에서 전달받은 경우
+                val data = data?.extras?.getSerializable("selectedTags")
+                if(data!=null)
+                    tossToAdpater(data  as HashMap<String, TagModel>)
+            }
             CONTENT_PROVIDER_REQUEST_CODE -> {
                 //data 안에 사진의 uri 가 넘어온것
                 //우선 null 처리
@@ -467,6 +487,78 @@ class AddArticleActivity : AppCompatActivity() {
 
         val itemTouchHelper = ItemTouchHelper(simpleCallback)
         itemTouchHelper.attachToRecyclerView(binding.imageRecyclerView)
+    }
+
+    // 리사이클러뷰 초기화
+    protected fun initRecyclerView(){
+        // DB 에서
+        /*
+        // DB 에서 유저 태그 데이터 받아옴
+        val tagData: ArrayList<TagModel> = arrayListOf()
+        userTagRef = Firebase.database.reference
+            .child(DBKeys.DB_USER_TAG).child(firebaseUser.uid)
+        userTagRef.orderByChild(DBKeys.TAG_INDEX)
+            .limitToFirst(maxShowTag).addListenerForSingleValueEvent(object:ValueEventListener{
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    for(s in snapshot.children){
+                        val newSubTag = arrayListOf<String>()
+                        for(st in s.child(DBKeys.SUB_TAGS).children){
+                            newSubTag.add(st.key.toString())
+                        }
+                        tagData.add(
+                            TagModel(
+                                s.key.toString(), newSubTag,
+                                s.child(DBKeys.TAG_VALUE).value.toString().toInt(),
+                                s.child(DBKeys.TAG_TYPE).value.toString().toInt()
+                            ))
+                    }
+                    // 로딩 작업이 끝난 이후 RecyclerView 를 초기화하는 순서를 맞추기 위해 이곳에 넣음
+                    initTagRecyclerView(tagData)
+                }
+                override fun onCancelled(error: DatabaseError) {
+                    return
+                }
+            })
+         */
+
+
+        initTagRecyclerView(arrayListOf())
+    }
+
+    private fun initTagRecyclerView(data: ArrayList<TagModel>){
+        binding.tagRecyclerView.layoutManager = LinearLayoutManager(this)
+
+        tagRecyclerAdapter = TagAdapter(this, data, true)
+        // 서브태그들 클릭했을 때 이벤트 구현
+        tagRecyclerAdapter.subTagClickListener = object : TagAdapter.OnItemClickListener {
+            override fun onItemClick(
+                holder: TagAdapter.DefaultViewHolder,
+                view: EditText,
+                data: TagModel,
+                position: Int
+            ) {
+            }
+        }
+        binding.tagRecyclerView.adapter = tagRecyclerAdapter
+        val simpleCallBack = object : ItemTouchHelper.SimpleCallback(
+            ItemTouchHelper.DOWN or ItemTouchHelper.UP,
+            ItemTouchHelper.RIGHT
+        ) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                tagRecyclerAdapter.moveItem(viewHolder.adapterPosition, target.adapterPosition)
+                return true
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                tagRecyclerAdapter.removeItem(viewHolder.adapterPosition)
+            }
+        }
+        val itemTouchHelper = ItemTouchHelper(simpleCallBack)
+        itemTouchHelper.attachToRecyclerView(binding.tagRecyclerView)
     }
 
     companion object {
